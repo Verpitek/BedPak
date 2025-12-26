@@ -460,20 +460,21 @@ const app = new Elysia()
            return { error: "Username is required" };
          }
 
-         const user = await database.getUser(username);
-         
-         if (!user) {
-           set.status = 404;
-           return { error: "User not found" };
-         }
+          const user = await database.getUser(username);
+          
+          if (!user) {
+            set.status = 404;
+            return { error: "User not found" };
+          }
 
-         // Return only non-sensitive user data
-         return {
-           id: user.id,
-           username: user.username,
-           role: user.role,
-           created_at: user.created_at,
-         };
+          // Return only non-sensitive user data
+          set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+          return {
+            id: user.id,
+            username: user.username,
+            role: user.role,
+            created_at: user.created_at,
+          };
        } catch (err) {
          console.error("Fetch user error:", err);
          set.status = 500;
@@ -488,20 +489,21 @@ const app = new Elysia()
            return { error: "Invalid user ID" };
          }
 
-         const user = await database.getUserById(id);
-         
-         if (!user) {
-           set.status = 404;
-           return { error: "User not found" };
-         }
+          const user = await database.getUserById(id);
+          
+          if (!user) {
+            set.status = 404;
+            return { error: "User not found" };
+          }
 
-         // Return only non-sensitive user data
-         return {
-           id: user.id,
-           username: user.username,
-           role: user.role,
-           created_at: user.created_at,
-         };
+          // Return only non-sensitive user data
+          set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+          return {
+            id: user.id,
+            username: user.username,
+            role: user.role,
+            created_at: user.created_at,
+          };
        } catch (err) {
          console.error("Fetch user by ID error:", err);
          set.status = 500;
@@ -748,6 +750,7 @@ const app = new Elysia()
   .get("/categories", async ({ set }) => {
     try {
       const categories = await database.getAllTags();
+      set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { success: true, data: categories };
     } catch (err) {
       console.error("Fetch categories error:", err);
@@ -769,10 +772,12 @@ const app = new Elysia()
         }
         const limit = Math.min(Math.max(parsedLimit, 1), 50);
         const tags = await database.getPopularTags(limit);
+        set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
         return { success: true, data: tags };
       }
       
       const tags = await database.getAllTags();
+      set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { success: true, data: tags };
     } catch (err) {
       console.error("Fetch tags error:", err);
@@ -794,6 +799,7 @@ const app = new Elysia()
         return { error: "Tag not found" };
       }
       
+      set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { success: true, data: tag };
     } catch (err) {
       console.error("Fetch tag error:", err);
@@ -822,6 +828,7 @@ const app = new Elysia()
         const packages = await database.getPackagesByCategory(categorySlug, limit, offset);
         const total = await database.getPackagesCountByCategory(categorySlug);
         
+        set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
         return {
           data: packages,
           limit,
@@ -834,6 +841,7 @@ const app = new Elysia()
       const packages = await database.getAllPackages(limit, offset);
       const total = await database.getTotalPackageCount();
       
+      set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return {
         data: packages,
         limit,
@@ -860,6 +868,7 @@ const app = new Elysia()
         return { error: "Package not found" };
       }
       
+      set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { success: true, data: fullData };
     } catch (err) {
       console.error("Fetch full package data error:", err);
@@ -884,6 +893,7 @@ const app = new Elysia()
       
       // If package has no category, return empty array
       if (!fullData.category) {
+        set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
         return { success: true, data: [] };
       }
       
@@ -915,7 +925,7 @@ const app = new Elysia()
           });
         }
       }
-      
+      set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { success: true, data: filtered };
     } catch (err) {
       console.error("Fetch related packages error:", err);
@@ -937,6 +947,7 @@ const app = new Elysia()
         return { error: "Package not found" };
       }
       
+      set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { data: pkg };
     } catch (err) {
       console.error("Fetch package error:", err);
@@ -960,6 +971,7 @@ const app = new Elysia()
       
       const packages = await database.getPackagesByAuthor(user.id);
       
+      set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return {
         author: username,
         data: packages,

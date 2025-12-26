@@ -3404,6 +3404,10 @@
             function closeEditModal() {
                 const modal = document.getElementById("editModal");
                 modal.style.display = "none";
+                // Clear edit hash if present
+                if (window.location.hash.startsWith('#edit-')) {
+                    window.location.hash = '';
+                }
             }
 
             async function handleEditHash() {

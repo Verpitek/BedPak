@@ -1745,6 +1745,19 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label for="uploadDiscord"
+                            >Discord Invite URL (optional)</label
+                        >
+                        <input
+                            type="url"
+                            id="uploadDiscord"
+                            placeholder="https://discord.gg/..."
+                        />
+                        <div class="password-help">
+                            Link to your Discord server for support
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <div class="checkbox-group">
                             <input type="checkbox" id="uploadKofiCheckbox" />
                             <label for="uploadKofiCheckbox"
@@ -2256,6 +2269,19 @@
                             Showcase video for your addon
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="editDiscord"
+                            >Discord Invite URL (optional)</label
+                        >
+                        <input
+                            type="url"
+                            id="editDiscord"
+                            placeholder="https://discord.gg/..."
+                        />
+                        <div class="password-help">
+                            Link to your Discord server for support
+                        </div>
+                    </div>
 
                     <!-- Ko-fi Support Link Section -->
                     <div class="form-group">
@@ -2686,6 +2712,7 @@
                     version: document.getElementById("uploadVersion").value,
                     category: document.getElementById("uploadCategory").value,
                     youtubeUrl: document.getElementById("uploadYoutube").value,
+                    discordUrl: document.getElementById("uploadDiscord").value,
                     kofiChecked: document.getElementById("uploadKofiCheckbox").checked,
                     kofiUrl: document.getElementById("uploadKofiUrl").value,
                 };
@@ -2704,6 +2731,7 @@
                     document.getElementById("uploadVersion").value = formData.version || "";
                     document.getElementById("uploadCategory").value = formData.category || "";
                     document.getElementById("uploadYoutube").value = formData.youtubeUrl || "";
+                    document.getElementById("uploadDiscord").value = formData.discordUrl || "";
                     
                     // Restore Ko-fi checkbox and URL
                     const kofiCheckbox = document.getElementById("uploadKofiCheckbox");
@@ -2785,9 +2813,10 @@
                 document.getElementById("uploadKofiUrl").value = "";
                 // Reset long description
                 document.getElementById("uploadLongDescription").value = "";
-                // Reset category and youtube
+                // Reset category, youtube, and discord
                 document.getElementById("uploadCategory").value = "";
                 document.getElementById("uploadYoutube").value = "";
+                document.getElementById("uploadDiscord").value = "";
             }
 
             // Handle file selection display
@@ -3091,10 +3120,13 @@
                 const kofiUrl = kofiCheckbox.checked
                     ? document.getElementById("uploadKofiUrl").value.trim()
                     : "";
-                // Category and YouTube
+                // Category, YouTube, and Discord
                 const category = document.getElementById("uploadCategory").value;
                 const youtubeUrl = document
                     .getElementById("uploadYoutube")
+                    .value.trim();
+                const discordUrl = document
+                    .getElementById("uploadDiscord")
                     .value.trim();
 
                 // Reset messages
@@ -3138,6 +3170,18 @@
                     if (!youtubeUrlRegex.test(youtubeUrl)) {
                         showUploadError(
                             "Invalid YouTube URL. Use a valid YouTube video URL.",
+                        );
+                        return;
+                    }
+                }
+
+                // Validate Discord URL format if provided
+                if (discordUrl) {
+                    const discordUrlRegex =
+                        /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
+                    if (!discordUrlRegex.test(discordUrl)) {
+                        showUploadError(
+                            "Invalid Discord URL. Use a valid Discord invite link.",
                         );
                         return;
                     }
@@ -3221,6 +3265,11 @@
                     // Only include YouTube URL if provided
                     if (youtubeUrl) {
                         requestBody.youtubeUrl = youtubeUrl;
+                    }
+
+                    // Only include Discord URL if provided
+                    if (discordUrl) {
+                        requestBody.discordUrl = discordUrl;
                     }
 
                     const response = await fetch(`${API_URL}/packages`, {
@@ -3317,6 +3366,7 @@
                 longDescription,
                 categorySlug,
                 youtubeUrl,
+                discordUrl,
             ) {
                 if (!authToken) {
                     openProfileModal();
@@ -3389,9 +3439,10 @@
                     editKofiUrlEl.value = "";
                 }
 
-                // Handle category
+                // Handle category, YouTube, and Discord
                 document.getElementById("editCategory").value = categorySlug || "";
                 document.getElementById("editYoutube").value = youtubeUrl || "";
+                document.getElementById("editDiscord").value = discordUrl || "";
 
                 // Reset messages
                 document.getElementById("editError").style.display = "none";
@@ -3448,7 +3499,8 @@
                         pkg.kofi_url,
                         pkg.long_description,
                         pkg.category ? pkg.category.slug : null,
-                        pkg.youtube_url
+                        pkg.youtube_url,
+                        pkg.discord_url
                     );
                 } catch (error) {
                     console.error('Error fetching package for edit:', error);
@@ -3501,10 +3553,12 @@
                 const kofiUrl = kofiCheckbox.checked
                     ? document.getElementById("editKofiUrl").value.trim()
                     : null;
-                // Category and YouTube
+                // Category, YouTube, and Discord
                 const category = document.getElementById("editCategory").value;
                 const youtubeUrl =
                     document.getElementById("editYoutube").value.trim() || null;
+                const discordUrl =
+                    document.getElementById("editDiscord").value.trim() || null;
 
                 // Reset messages
                 document.getElementById("editError").style.display = "none";
@@ -3547,6 +3601,18 @@
                     if (!youtubeUrlRegex.test(youtubeUrl)) {
                         showEditError(
                             "Invalid YouTube URL. Use a valid YouTube video URL.",
+                        );
+                        return;
+                    }
+                }
+
+                // Validate Discord URL format if provided
+                if (discordUrl) {
+                    const discordUrlRegex =
+                        /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
+                    if (!discordUrlRegex.test(discordUrl)) {
+                        showEditError(
+                            "Invalid Discord URL. Use a valid Discord invite link.",
                         );
                         return;
                     }
@@ -3595,6 +3661,7 @@
                         longDescription: longDescription || null, // Can be null to remove, or text to set
                         category: category || null, // Can be null to clear, or slug to set
                         youtubeUrl: youtubeUrl, // Can be null to remove
+                        discordUrl: discordUrl, // Can be null to remove
                     };
 
                     progressFill.style.width = "20%";
@@ -4067,12 +4134,15 @@
                     const escapedYoutubeUrl = escapeHtml(pkg.youtube_url || "")
                         .replace(/\\/g, "\\\\")
                         .replace(/'/g, "\\'");
+                    const escapedDiscordUrl = escapeHtml(pkg.discord_url || "")
+                        .replace(/\\/g, "\\\\")
+                        .replace(/'/g, "\\'");
 
                     const actionsHtml = isOwner
                         ? `<div class="package-actions">
                              ${viewDetailsBtn}
                              ${downloadButtonHtml}
-                             <button class="edit-btn" onclick="openEditModal(${pkg.id}, '${escapedName}', '${escapedDescription}', '${escapedVersion}', '${escapedIconUrl}', '${escapedKofiUrl}', '${escapedLongDescription}', '${escapedCategorySlug}', '${escapedYoutubeUrl}')">
+                             <button class="edit-btn" onclick="openEditModal(${pkg.id}, '${escapedName}', '${escapedDescription}', '${escapedVersion}', '${escapedIconUrl}', '${escapedKofiUrl}', '${escapedLongDescription}', '${escapedCategorySlug}', '${escapedYoutubeUrl}', '${escapedDiscordUrl}')">
                                Edit
                              </button>
                            </div>`

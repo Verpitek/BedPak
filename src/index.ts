@@ -1014,6 +1014,7 @@ const app = new Elysia()
       let kofiUrl: string | undefined;
       let longDescription: string | undefined;
       let youtubeUrl: string | undefined;
+      let discordUrl: string | undefined;
       let category: string | undefined; // single category slug
       let iconBuffer: Buffer | undefined;
       let fileBuffer: Buffer | undefined;
@@ -1025,6 +1026,7 @@ const app = new Elysia()
         kofiUrl = context.body.get("kofiUrl") as string | null || undefined;
         longDescription = context.body.get("longDescription") as string | null || undefined;
         youtubeUrl = context.body.get("youtubeUrl") as string | null || undefined;
+        discordUrl = context.body.get("discordUrl") as string | null || undefined;
         category = context.body.get("category") as string | null || undefined;
         const file = context.body.get("file") as File | null;
         const iconFile = context.body.get("icon") as File | null;
@@ -1043,6 +1045,7 @@ const app = new Elysia()
         kofiUrl = bodyObj.kofiUrl as string | undefined;
         longDescription = bodyObj.longDescription as string | undefined;
         youtubeUrl = bodyObj.youtubeUrl as string | undefined;
+        discordUrl = bodyObj.discordUrl as string | undefined;
         category = bodyObj.category as string | undefined;
         
         // If file is base64 encoded
@@ -1123,6 +1126,15 @@ const app = new Elysia()
         }
       }
 
+      // Validate discordUrl if provided
+      if (discordUrl) {
+        const discordUrlPattern = /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
+        if (!discordUrlPattern.test(discordUrl)) {
+          context.set.status = 400;
+          return { error: "Invalid Discord URL. Must be a valid Discord invite link" };
+        }
+      }
+
       // Parse and validate category (single category system)
       let categoryId: number | undefined;
       if (category) {
@@ -1147,6 +1159,7 @@ const app = new Elysia()
         kofiUrl || undefined,
         longDescription || undefined,
         youtubeUrl || undefined,
+        discordUrl || undefined,
         categoryId
       );
       
@@ -1306,6 +1319,7 @@ const app = new Elysia()
       let kofiUrl: string | null | undefined;
       let longDescription: string | null | undefined;
       let youtubeUrl: string | null | undefined;
+      let discordUrl: string | null | undefined;
       let category: string | null | undefined; // single category slug
       
       if (typeof body === "object" && body !== null) {
@@ -1326,6 +1340,10 @@ const app = new Elysia()
         // youtubeUrl can be explicitly set to null to remove it, or a string to set it
         if ("youtubeUrl" in bodyObj) {
           youtubeUrl = bodyObj.youtubeUrl as string | null;
+        }
+        // discordUrl can be explicitly set to null to remove it, or a string to set it
+        if ("discordUrl" in bodyObj) {
+          discordUrl = bodyObj.discordUrl as string | null;
         }
         // category can be explicitly set to update category
         if ("category" in bodyObj) {
@@ -1374,6 +1392,15 @@ const app = new Elysia()
         if (!youtubeUrlPattern.test(youtubeUrl)) {
           set.status = 400;
           return { error: "Invalid YouTube URL. Must be a valid YouTube video URL" };
+        }
+      }
+
+      // Validate discordUrl if provided
+      if (discordUrl !== undefined && discordUrl !== null && discordUrl !== "") {
+        const discordUrlPattern = /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
+        if (!discordUrlPattern.test(discordUrl)) {
+          set.status = 400;
+          return { error: "Invalid Discord URL. Must be a valid Discord invite link" };
         }
       }
 
@@ -1466,6 +1493,7 @@ const app = new Elysia()
         kofiUrl,
         longDescription,
         youtubeUrl,
+        discordUrl,
         categoryId
       );
       

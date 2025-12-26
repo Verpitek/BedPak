@@ -1043,6 +1043,16 @@
             <div style="font-size: 11px; color: #888; margin-top: 5px;">Leave empty to disable Ko-fi support button</div>
           </div>
           <div class="form-group">
+            <label for="editPackageYoutube">YouTube Video URL (Optional)</label>
+            <input type="text" id="editPackageYoutube" placeholder="https://youtube.com/watch?v=...">
+            <div style="font-size: 11px; color: #888; margin-top: 5px;">Showcase video for the addon</div>
+          </div>
+          <div class="form-group">
+            <label for="editPackageDiscord">Discord Invite URL (Optional)</label>
+            <input type="text" id="editPackageDiscord" placeholder="https://discord.gg/...">
+            <div style="font-size: 11px; color: #888; margin-top: 5px;">Link to Discord server for support</div>
+          </div>
+          <div class="form-group">
             <label for="editPackageCategory">Category</label>
             <select id="editPackageCategory" style="width: 100%; padding: 12px; border: 1px solid #333; background: #1a1a1a; color: #d0d0d0; font-size: 14px;">
                 <option value="">Select a category...</option>
@@ -1693,6 +1703,8 @@
           const categorySlug = pkg.category ? pkg.category.slug : '';
 
           const escapedLongDesc = escapeHtml(pkg.long_description || '').replace(/'/g, "\\'").replace(/\n/g, "\\n");
+          const escapedYoutubeUrl = escapeHtml(pkg.youtube_url || '').replace(/'/g, "\\'");
+          const escapedDiscordUrl = escapeHtml(pkg.discord_url || '').replace(/'/g, "\\'");
           tableHTML += `
             <tr>
               <td class="icon-cell">${iconHtml}</td>
@@ -1705,7 +1717,7 @@
               <td>${kofiHtml}</td>
               <td>${createdDate}</td>
               <td>
-                <button class="edit-btn" onclick="openEditModal(${pkg.id}, '${escapeHtml(pkg.name).replace(/'/g, "\\'")}', '${escapeHtml(pkg.description || '').replace(/'/g, "\\'")}', '${escapeHtml(pkg.version || '').replace(/'/g, "\\'")}', '${escapeHtml(pkg.icon_url || '').replace(/'/g, "\\'")}', '${escapeHtml(pkg.kofi_url || '').replace(/'/g, "\\'")}', '${escapedLongDesc}', '${escapeHtml(categorySlug).replace(/'/g, "\\'")}')" title="Edit">Edit</button>
+                <button class="edit-btn" onclick="openEditModal(${pkg.id}, '${escapeHtml(pkg.name).replace(/'/g, "\\'")}', '${escapeHtml(pkg.description || '').replace(/'/g, "\\'")}', '${escapeHtml(pkg.version || '').replace(/'/g, "\\'")}', '${escapeHtml(pkg.icon_url || '').replace(/'/g, "\\'")}', '${escapeHtml(pkg.kofi_url || '').replace(/'/g, "\\'")}', '${escapedLongDesc}', '${escapeHtml(categorySlug).replace(/'/g, "\\'")}', '${escapedYoutubeUrl}', '${escapedDiscordUrl}')" title="Edit">Edit</button>
                 <button class="delete-btn" onclick="openDeleteModal(${pkg.id}, '${escapeHtml(pkg.name).replace(/'/g, "\\'")}')" title="Delete">Delete</button>
               </td>
             </tr>
@@ -1800,13 +1812,15 @@
        return text.replace(/[&<>"']/g, m => map[m]);
      }
 
-      function openEditModal(packageId, packageName, description, version, iconUrl = '', kofiUrl = '', longDescription = '', categorySlug = '') {
+      function openEditModal(packageId, packageName, description, version, iconUrl = '', kofiUrl = '', longDescription = '', categorySlug = '', youtubeUrl = '', discordUrl = '') {
         packageToEdit = { id: packageId, name: packageName };
         document.getElementById('editPackageName').value = packageName;
         document.getElementById('editPackageDescription').value = description;
         document.getElementById('editPackageVersion').value = version;
         document.getElementById('editPackageIcon').value = iconUrl || '';
         document.getElementById('editPackageKofi').value = kofiUrl || '';
+        document.getElementById('editPackageYoutube').value = youtubeUrl || '';
+        document.getElementById('editPackageDiscord').value = discordUrl || '';
         // Decode escaped newlines for textarea
         const decodedLongDesc = longDescription ? longDescription.replace(/\\n/g, "\n") : '';
         document.getElementById('editPackageLongDescription').value = decodedLongDesc;
@@ -1883,6 +1897,8 @@
         const version = document.getElementById('editPackageVersion').value;
         const iconUrl = document.getElementById('editPackageIcon').value.trim();
         const kofiUrl = document.getElementById('editPackageKofi').value.trim();
+        const youtubeUrl = document.getElementById('editPackageYoutube').value.trim();
+        const discordUrl = document.getElementById('editPackageDiscord').value.trim();
         const category = document.getElementById('editPackageCategory').value;
         const errorDiv = document.getElementById('editError');
 
@@ -1893,6 +1909,26 @@
           const kofiUrlRegex = /^https?:\/\/(www\.)?ko-fi\.com\/[a-zA-Z0-9_]+\/?$/;
           if (!kofiUrlRegex.test(kofiUrl)) {
             errorDiv.textContent = 'Invalid Ko-fi URL. Use format: https://ko-fi.com/username';
+            errorDiv.style.display = 'block';
+            return;
+          }
+        }
+
+        // Validate YouTube URL if provided
+        if (youtubeUrl) {
+          const youtubeUrlRegex = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]+/;
+          if (!youtubeUrlRegex.test(youtubeUrl)) {
+            errorDiv.textContent = 'Invalid YouTube URL. Use a valid YouTube video URL.';
+            errorDiv.style.display = 'block';
+            return;
+          }
+        }
+
+        // Validate Discord URL if provided
+        if (discordUrl) {
+          const discordUrlRegex = /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
+          if (!discordUrlRegex.test(discordUrl)) {
+            errorDiv.textContent = 'Invalid Discord URL. Use a valid Discord invite link.';
             errorDiv.style.display = 'block';
             return;
           }
@@ -1911,6 +1947,8 @@
               version,
               iconUrl: iconUrl || null,
               kofiUrl: kofiUrl || null,
+              youtubeUrl: youtubeUrl || null,
+              discordUrl: discordUrl || null,
               longDescription: longDescription || null,
               category: category || null
             }),

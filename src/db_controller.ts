@@ -144,16 +144,27 @@ export class DB {
          console.log("✓ Migration: Added max_game_version column to packages table");
        }
 
-       // Check if youtube_url column exists in packages table
-       const packagesTableInfoForYoutube = await this.sqlite`PRAGMA table_info(packages)`;
-       const hasYoutubeUrlColumn = packagesTableInfoForYoutube.some(
-         (col: Record<string, unknown>) => col.name === "youtube_url"
-       );
+        // Check if youtube_url column exists in packages table
+        const packagesTableInfoForYoutube = await this.sqlite`PRAGMA table_info(packages)`;
+        const hasYoutubeUrlColumn = packagesTableInfoForYoutube.some(
+          (col: Record<string, unknown>) => col.name === "youtube_url"
+        );
 
-       if (!hasYoutubeUrlColumn) {
-         await this.sqlite`ALTER TABLE packages ADD COLUMN youtube_url TEXT`;
-         console.log("✓ Migration: Added youtube_url column to packages table");
-       }
+        if (!hasYoutubeUrlColumn) {
+          await this.sqlite`ALTER TABLE packages ADD COLUMN youtube_url TEXT`;
+          console.log("✓ Migration: Added youtube_url column to packages table");
+        }
+
+        // Check if discord_url column exists in packages table
+        const packagesTableInfoForDiscord = await this.sqlite`PRAGMA table_info(packages)`;
+        const hasDiscordUrlColumn = packagesTableInfoForDiscord.some(
+          (col: Record<string, unknown>) => col.name === "discord_url"
+        );
+
+        if (!hasDiscordUrlColumn) {
+          await this.sqlite`ALTER TABLE packages ADD COLUMN discord_url TEXT`;
+          console.log("✓ Migration: Added discord_url column to packages table");
+        }
 
        // Check if category_id column exists in packages table (for single-category system)
        const packagesTableInfoForCategory = await this.sqlite`PRAGMA table_info(packages)`;
@@ -316,15 +327,17 @@ export class DB {
     kofiUrl?: string,
     longDescription?: string,
     youtubeUrl?: string,
+    discordUrl?: string,
     categoryId?: number
   ) {
     const iconUrlValue = iconUrl || null;
     const kofiUrlValue = kofiUrl || null;
     const longDescValue = longDescription || null;
     const youtubeUrlValue = youtubeUrl || null;
+    const discordUrlValue = discordUrl || null;
     const categoryIdValue = categoryId || null;
     
-    return await this.sqlite`INSERT INTO packages (name, description, author_id, file_path, file_hash, version, icon_url, kofi_url, long_description, youtube_url, category_id) VALUES(${name}, ${description}, ${authorId}, ${filePath}, ${fileHash}, ${version}, ${iconUrlValue}, ${kofiUrlValue}, ${longDescValue}, ${youtubeUrlValue}, ${categoryIdValue}) RETURNING *`;
+    return await this.sqlite`INSERT INTO packages (name, description, author_id, file_path, file_hash, version, icon_url, kofi_url, long_description, youtube_url, discord_url, category_id) VALUES(${name}, ${description}, ${authorId}, ${filePath}, ${fileHash}, ${version}, ${iconUrlValue}, ${kofiUrlValue}, ${longDescValue}, ${youtubeUrlValue}, ${discordUrlValue}, ${categoryIdValue}) RETURNING *`;
   }
 
   public async getPackage(name: string) {
@@ -349,6 +362,7 @@ export class DB {
     kofiUrl?: string | null,
     longDescription?: string | null,
     youtubeUrl?: string | null,
+    discordUrl?: string | null,
     categoryId?: number | null
   ) {
     // Get current package data to preserve unchanged fields
@@ -367,9 +381,10 @@ export class DB {
     const newKofiUrl = kofiUrl !== undefined ? (kofiUrl || null) : current.kofi_url as string | null;
     const newLongDescription = longDescription !== undefined ? (longDescription || null) : current.long_description as string | null;
     const newYoutubeUrl = youtubeUrl !== undefined ? (youtubeUrl || null) : current.youtube_url as string | null;
+    const newDiscordUrl = discordUrl !== undefined ? (discordUrl || null) : current.discord_url as string | null;
     const newCategoryId = categoryId !== undefined ? categoryId : current.category_id as number | null;
 
-    return await this.sqlite`UPDATE packages SET name = ${newName}, description = ${newDescription}, version = ${newVersion}, icon_url = ${newIconUrl}, kofi_url = ${newKofiUrl}, long_description = ${newLongDescription}, youtube_url = ${newYoutubeUrl}, category_id = ${newCategoryId}, updated_at = CURRENT_TIMESTAMP WHERE id = ${packageId} RETURNING *`;
+    return await this.sqlite`UPDATE packages SET name = ${newName}, description = ${newDescription}, version = ${newVersion}, icon_url = ${newIconUrl}, kofi_url = ${newKofiUrl}, long_description = ${newLongDescription}, youtube_url = ${newYoutubeUrl}, discord_url = ${newDiscordUrl}, category_id = ${newCategoryId}, updated_at = CURRENT_TIMESTAMP WHERE id = ${packageId} RETURNING *`;
   }
 
   public async deletePackage(packageId: number) {

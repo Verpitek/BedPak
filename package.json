@@ -1,8 +1,9 @@
 {
   "name": "BedPak",
   "version": "1.0.50",
+  "description": "A backend API for hosting, sharing, and uploading Minecraft Bedrock add-ons",
   "scripts": {
-    "test": "bun test",
+    "test": "JWT_SECRET=test-secret-key-for-testing-purposes-only NODE_ENV=test TURNSTILE_SECRET_KEY=dummy bun test",
     "dev": "bun run --watch src/index.ts",
     "build": "bun build src/index.ts --outfile dist/index.js --target bun",
     "start": "bun dist/index.js"
@@ -17,5 +18,6 @@
   "devDependencies": {
     "bun-types": "1.3.5"
   },
+  "license": "Apache-2.0",
   "module": "src/index.js"
 }

@@ -22811,9 +22811,11 @@ var import_jsonwebtoken = __toESM(require_jsonwebtoken(), 1);
 var import_bcrypt = __toESM(require_bcrypt(), 1);
 var JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
-  throw new Error("FATAL: JWT_SECRET environment variable is required. Set it before starting the server.");
+  if (false) {} else {
+    throw new Error("FATAL: JWT_SECRET environment variable is required. Set it before starting the server.");
+  }
 }
-var DEV_MODE = process.argv.includes("--dev");
+var DEV_MODE = process.argv.includes("--dev") || false;
 var envKey = process.env.TURNSTILE_SECRET_KEY;
 if (!DEV_MODE && !envKey) {
   throw new Error("FATAL: TURNSTILE_SECRET_KEY environment variable is required when not in dev mode.");

@@ -1,13 +1,19 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-const JWT_SECRET = process.env.JWT_SECRET;
+let JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
-  throw new Error("FATAL: JWT_SECRET environment variable is required. Set it before starting the server.");
+  // Allow a dummy secret in test environment
+  if (process.env.NODE_ENV === 'test') {
+    console.warn('WARNING: Using dummy JWT_SECRET for testing. Set JWT_SECRET environment variable for production.');
+    JWT_SECRET = 'test-secret-key-for-testing-purposes-only';
+  } else {
+    throw new Error("FATAL: JWT_SECRET environment variable is required. Set it before starting the server.");
+  }
 }
 
-// Check for dev mode flag
-export const DEV_MODE = process.argv.includes("--dev");
+// Check for dev mode flag or test environment
+export const DEV_MODE = process.argv.includes("--dev") || process.env.NODE_ENV === "test";
 
 // Cloudflare Turnstile configuration
 const envKey = process.env.TURNSTILE_SECRET_KEY;

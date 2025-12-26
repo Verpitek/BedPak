@@ -99,8 +99,8 @@ describe("API Endpoints", () => {
   let serverProcess: ReturnType<typeof Bun.spawn> | null = null;
 
   beforeAll(async () => {
-    // Start the server in a separate process
-    serverProcess = Bun.spawn(["bun", "run", "src/index.ts"], {
+    // Start the server in a separate process (with dev mode to skip CAPTCHA)
+    serverProcess = Bun.spawn(["bun", "run", "src/index.ts", "--dev"], {
       env: { ...process.env, JWT_SECRET: "test-secret-key-for-testing-purposes-only" },
       cwd: process.cwd(),
       stdout: "pipe",

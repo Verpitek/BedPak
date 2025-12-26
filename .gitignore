@@ -45,3 +45,7 @@ package-lock.json
 *.db
 *.db-shm
 *.db-wal
+
+# User uploaded files
+/storage/*
+!/storage/.gitkeep

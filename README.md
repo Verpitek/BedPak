@@ -1,6 +1,6 @@
 # BedPak
 
-![Apache 2.0 License](https://img.shields.io/badge/License-Apache%202.0-blue.svg) ![Built with Bun](https://img.shields.io/badge/Bun-3.0-000000?logo=bun&logoColor=white)
+![Apache 2.0 License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 
 A backend API for hosting, sharing, and uploading Minecraft Bedrock Edition add-ons. Built with Elysia and SQLite, providing a full-featured repository for `.mcaddon` files with user authentication, package management, and a web frontend.
 

@@ -1,0 +1,29 @@
+# BedPak Robots.txt
+# https://bedpak.com
+
+User-agent: *
+Allow: /
+
+# Main public pages
+Allow: /packages.html
+Allow: /api-docs.html
+Allow: /privacy-policy.html
+Allow: /terms-of-service.html
+
+# Block admin pages from indexing
+Disallow: /admin.html
+
+# Block API endpoints from crawling (they're not HTML pages)
+Disallow: /auth/
+Disallow: /admin/
+Disallow: /user/
+
+# Allow package downloads and icons to be discovered
+Allow: /icons/
+Allow: /logos/
+
+# Crawl delay for polite crawling
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://bedpak.com/sitemap.xml

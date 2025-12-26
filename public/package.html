@@ -1,0 +1,1652 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Package - BedPak</title>
+        <link rel="icon" type="image/svg+xml" href="/logos/bedpak.svg" />
+        
+        <!-- Markdown rendering -->
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        
+        <!-- Syntax highlighting -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/json.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/bash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/xml.min.js"></script>
+        
+        <!-- SEO Meta Tags (updated dynamically) -->
+        <meta name="description" content="Download this Minecraft Bedrock addon from BedPak - the free addon repository." />
+        <meta name="keywords" content="Minecraft Bedrock addon, MCPE addon, mcaddon download, Bedrock Edition addon, free Minecraft addon" />
+        <meta name="author" content="BedPak" />
+        <meta name="robots" content="index, follow" />
+        <meta name="theme-color" content="#C4A574" />
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="" />
+        <meta property="og:title" content="Package - BedPak" />
+        <meta property="og:description" content="Download this Minecraft Bedrock addon from BedPak." />
+        <meta property="og:image" content="/logos/bedpak.svg" />
+        <meta property="og:site_name" content="BedPak" />
+        
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Package - BedPak" />
+        <meta name="twitter:description" content="Download this Minecraft Bedrock addon from BedPak." />
+        <meta name="twitter:image" content="/logos/bedpak.svg" />
+        
+        <!-- Structured Data (updated dynamically) -->
+        <script type="application/ld+json" id="packageSchema">
+        {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Package",
+            "description": "Minecraft Bedrock addon",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Android, iOS, Windows, Xbox",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        }
+        </script>
+        
+        <style>
+            @font-face {
+                font-family: "Monocraft";
+                src: url("/fonts/Monocraft.woff2") format("woff2");
+                font-weight: normal;
+                font-style: normal;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: inherit;
+            }
+
+            body {
+                font-family:
+                    "Monocraft",
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    Roboto,
+                    Oxygen,
+                    Ubuntu,
+                    Cantarell,
+                    sans-serif;
+                background: #1a1a1a;
+                color: #d0d0d0;
+                min-height: 100vh;
+                padding: 20px;
+                position: relative;
+                overflow-x: hidden;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: -100px;
+                z-index: -1;
+                background: repeating-linear-gradient(
+                    -45deg,
+                    #1a1a1a,
+                    #1a1a1a 30px,
+                    #0f0f0f 30px,
+                    #0f0f0f 60px
+                );
+                background-size: 84.85px 84.85px;
+                animation: stripe-move 20s linear infinite;
+            }
+
+            @keyframes stripe-move {
+                from {
+                    background-position: 0 0;
+                }
+                to {
+                    background-position: 84.85px 84.85px;
+                }
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* Header styles */
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding: 30px 0;
+                border-bottom: 1px solid #333;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header-left {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .header-logo {
+                width: 50px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .header-logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+            .header h1 {
+                font-size: 36px;
+                margin-bottom: 10px;
+                color: #fff;
+            }
+
+            .header p {
+                color: #888;
+                font-size: 14px;
+            }
+
+            .header-right {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .profile-btn {
+                padding: 10px 20px;
+                background: #c4a574;
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+                transition: background 0.3s;
+                text-decoration: none;
+            }
+
+            .profile-btn:hover {
+                background: #b8925f;
+            }
+
+            /* Breadcrumb */
+            .breadcrumb {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 25px;
+                font-size: 14px;
+                color: #888;
+            }
+
+            .breadcrumb a {
+                color: #c4a574;
+                text-decoration: none;
+                transition: color 0.3s;
+            }
+
+            .breadcrumb a:hover {
+                color: #d0b576;
+            }
+
+            .breadcrumb span {
+                color: #666;
+            }
+
+            .breadcrumb .current {
+                color: #d0d0d0;
+            }
+
+            /* Main content layout */
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr 320px;
+                gap: 30px;
+            }
+
+            /* Hero section */
+            .hero-section {
+                background: #222;
+                border: 1px solid #333;
+                padding: 25px;
+                margin-bottom: 25px;
+            }
+
+            .hero-header {
+                display: flex;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+
+            .hero-icon {
+                width: 100px;
+                height: 100px;
+                background: #1a1a1a;
+                border: 1px solid #333;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                overflow: hidden;
+            }
+
+            .hero-icon img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+            }
+
+            .hero-info {
+                flex: 1;
+            }
+
+            .hero-info h1 {
+                color: #fff;
+                font-size: 28px;
+                margin-bottom: 8px;
+                word-break: break-word;
+            }
+
+            .hero-author {
+                color: #c4a574;
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+
+            .hero-author a {
+                color: #c4a574;
+                text-decoration: none;
+            }
+
+            .hero-author a:hover {
+                text-decoration: underline;
+            }
+
+            .hero-stats {
+                display: flex;
+                gap: 20px;
+                font-size: 13px;
+                color: #888;
+            }
+
+            .hero-stats span {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .hero-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 15px;
+            }
+
+            .tag {
+                background: #1a1a1a;
+                border: 1px solid #444;
+                color: #c4a574;
+                padding: 5px 12px;
+                font-size: 12px;
+                text-decoration: none;
+                transition: all 0.3s;
+            }
+
+            .tag:hover {
+                background: #2a2a2a;
+                border-color: #c4a574;
+            }
+
+            /* YouTube video section */
+            .video-section {
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 1px solid #333;
+            }
+
+            .video-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 12px 20px;
+                background: #ff0000;
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+                transition: background 0.3s;
+                text-decoration: none;
+            }
+
+            .video-btn:hover {
+                background: #cc0000;
+            }
+
+            .video-btn svg {
+                width: 20px;
+                height: 20px;
+                fill: currentColor;
+            }
+
+            .video-embed {
+                display: none;
+                margin-top: 15px;
+            }
+
+            .video-embed.active {
+                display: block;
+            }
+
+            .video-embed iframe {
+                width: 100%;
+                aspect-ratio: 16/9;
+                border: 1px solid #333;
+            }
+
+            /* Description section */
+            .description-section {
+                background: #222;
+                border: 1px solid #333;
+                padding: 25px;
+            }
+
+            .description-section h2 {
+                color: #fff;
+                font-size: 18px;
+                margin-bottom: 20px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #333;
+            }
+
+            /* Sidebar */
+            .sidebar {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .sidebar-card {
+                background: #222;
+                border: 1px solid #333;
+                padding: 20px;
+            }
+
+            .download-btn {
+                width: 100%;
+                padding: 14px 20px;
+                background: #c4a574;
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                transition: background 0.3s;
+                text-align: center;
+                text-decoration: none;
+                display: block;
+                margin-bottom: 12px;
+            }
+
+            .download-btn:hover {
+                background: #b8925f;
+            }
+
+            .kofi-btn {
+                width: 100%;
+                padding: 12px 20px;
+                background: #ff5e5b;
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+                transition: background 0.3s;
+                text-align: center;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .kofi-btn:hover {
+                background: #e54542;
+            }
+
+            .kofi-btn svg {
+                width: 18px;
+                height: 18px;
+                fill: currentColor;
+            }
+
+            .sidebar-divider {
+                height: 1px;
+                background: #333;
+                margin: 15px 0;
+            }
+
+            .sidebar-info {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .sidebar-info-item {
+                display: flex;
+                justify-content: space-between;
+                font-size: 13px;
+            }
+
+            .sidebar-info-item .label {
+                color: #888;
+            }
+
+            .sidebar-info-item .value {
+                color: #d0d0d0;
+            }
+
+            .sidebar-tags {
+                margin-top: 10px;
+            }
+
+            .sidebar-tags h4 {
+                color: #888;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 10px;
+            }
+
+            .sidebar-tags-list {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .sidebar-tags-list a {
+                color: #c4a574;
+                text-decoration: none;
+                font-size: 13px;
+            }
+
+            .sidebar-tags-list a:hover {
+                text-decoration: underline;
+            }
+
+            .sidebar-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            .edit-btn {
+                width: 100%;
+                padding: 10px 16px;
+                background: #4a6fa5;
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+                transition: background 0.3s;
+                text-align: center;
+                text-decoration: none;
+            }
+
+            .edit-btn:hover {
+                background: #3d5d8a;
+            }
+
+            .share-btn {
+                width: 100%;
+                padding: 10px 16px;
+                background: #333;
+                color: #d0d0d0;
+                border: 1px solid #444;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.3s;
+                text-align: center;
+            }
+
+            .share-btn:hover {
+                background: #444;
+                border-color: #555;
+            }
+
+            /* Markdown content styles */
+            .markdown-content {
+                color: #d0d0d0;
+                line-height: 1.7;
+                font-size: 14px;
+            }
+
+            .markdown-content h1,
+            .markdown-content h2,
+            .markdown-content h3,
+            .markdown-content h4,
+            .markdown-content h5,
+            .markdown-content h6 {
+                color: #fff;
+                margin-top: 24px;
+                margin-bottom: 16px;
+                font-weight: 600;
+            }
+
+            .markdown-content h1:first-child,
+            .markdown-content h2:first-child,
+            .markdown-content h3:first-child {
+                margin-top: 0;
+            }
+
+            .markdown-content h1 {
+                font-size: 24px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #333;
+            }
+
+            .markdown-content h2 {
+                font-size: 20px;
+                padding-bottom: 6px;
+                border-bottom: 1px solid #333;
+            }
+
+            .markdown-content h3 {
+                font-size: 18px;
+            }
+
+            .markdown-content p {
+                margin-bottom: 16px;
+            }
+
+            .markdown-content ul,
+            .markdown-content ol {
+                margin-bottom: 16px;
+                padding-left: 24px;
+            }
+
+            .markdown-content li {
+                margin-bottom: 8px;
+            }
+
+            .markdown-content code {
+                background: #1a1a1a;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-family: 'Monocraft', monospace;
+                font-size: 13px;
+                color: #c4a574;
+            }
+
+            .markdown-content pre {
+                background: #1a1a1a;
+                padding: 16px;
+                border-radius: 4px;
+                overflow-x: auto;
+                margin-bottom: 16px;
+                border: 1px solid #333;
+            }
+
+            .markdown-content pre code {
+                background: none;
+                padding: 0;
+                color: inherit;
+            }
+
+            .markdown-content blockquote {
+                border-left: 4px solid #c4a574;
+                padding-left: 16px;
+                margin: 16px 0;
+                color: #aaa;
+                font-style: italic;
+            }
+
+            .markdown-content a {
+                color: #c4a574;
+                text-decoration: none;
+            }
+
+            .markdown-content a:hover {
+                text-decoration: underline;
+            }
+
+            .markdown-content img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 4px;
+                margin: 16px 0;
+                border: 1px solid #333;
+            }
+
+            .markdown-content table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 16px;
+            }
+
+            .markdown-content th,
+            .markdown-content td {
+                border: 1px solid #333;
+                padding: 10px;
+                text-align: left;
+            }
+
+            .markdown-content th {
+                background: #1a1a1a;
+                color: #fff;
+                font-weight: 600;
+            }
+
+            .markdown-content hr {
+                border: none;
+                border-top: 1px solid #333;
+                margin: 24px 0;
+            }
+
+            .no-description {
+                color: #666;
+                font-style: italic;
+                padding: 30px;
+                text-align: center;
+                background: #1a1a1a;
+                border: 1px solid #333;
+            }
+
+            /* Loading state */
+            .loading {
+                text-align: center;
+                padding: 60px 20px;
+            }
+
+            .spinner {
+                border: 3px solid #333;
+                border-top: 3px solid #c4a574;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 20px;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            /* Error state */
+            .error-state {
+                text-align: center;
+                padding: 60px 20px;
+                background: #222;
+                border: 1px solid #333;
+            }
+
+            .error-state h2 {
+                color: #ff8888;
+                margin-bottom: 15px;
+            }
+
+            .error-state p {
+                color: #888;
+                margin-bottom: 20px;
+            }
+
+            .error-state a {
+                color: #c4a574;
+                text-decoration: none;
+            }
+
+            .error-state a:hover {
+                text-decoration: underline;
+            }
+
+            /* Footer */
+            .footer {
+                background: #222;
+                border-top: 1px solid #333;
+                padding: 30px 20px;
+                text-align: center;
+                color: #888;
+                margin-top: 40px;
+            }
+
+            .footer-content {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .footer-links {
+                display: flex;
+                justify-content: center;
+                gap: 30px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+
+            .footer-links a {
+                color: #c4a574;
+                text-decoration: none;
+                font-size: 14px;
+                transition: color 0.3s;
+            }
+
+            .footer-links a:hover {
+                color: #d0b576;
+            }
+
+            .footer p {
+                margin: 8px 0;
+                font-size: 13px;
+                color: #888;
+            }
+
+            .footer-divider {
+                height: 1px;
+                background: #333;
+                margin: 15px 0;
+            }
+
+            /* Support Popup Modal */
+            .support-popup {
+                display: none;
+                position: fixed;
+                z-index: 2000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.85);
+                animation: fadeIn 0.3s;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            .support-popup-content {
+                background: #222;
+                margin: auto;
+                padding: 40px;
+                border: 1px solid #333;
+                width: 90%;
+                max-width: 450px;
+                text-align: center;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                animation: popIn 0.3s ease-out;
+            }
+
+            @keyframes popIn {
+                from {
+                    transform: translate(-50%, -50%) scale(0.8);
+                    opacity: 0;
+                }
+                to {
+                    transform: translate(-50%, -50%) scale(1);
+                    opacity: 1;
+                }
+            }
+
+            .support-popup-header {
+                margin-bottom: 20px;
+            }
+
+            .support-popup-header h3 {
+                color: #fff;
+                font-size: 22px;
+                margin-bottom: 10px;
+            }
+
+            .support-popup-header p {
+                color: #aaa;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+            .support-popup-author {
+                color: #c4a574;
+                font-weight: 600;
+            }
+
+            .support-popup-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 25px;
+            }
+
+            .support-popup-kofi {
+                padding: 14px 24px;
+                background: #ff5e5b;
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                transition: background 0.3s, transform 0.2s;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .support-popup-kofi:hover {
+                background: #e54542;
+                transform: scale(1.02);
+            }
+
+            .support-popup-kofi svg {
+                width: 20px;
+                height: 20px;
+                fill: currentColor;
+            }
+
+            .support-popup-skip {
+                padding: 12px 24px;
+                background: transparent;
+                color: #888;
+                border: 1px solid #444;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.3s;
+            }
+
+            .support-popup-skip:hover {
+                background: #333;
+                color: #d0d0d0;
+                border-color: #555;
+            }
+
+            .support-popup-skip:disabled {
+                cursor: not-allowed;
+                opacity: 0.6;
+            }
+
+            .support-popup-timer {
+                display: inline-block;
+                min-width: 20px;
+            }
+
+            /* Related packages section */
+            .related-section {
+                background: #222;
+                border: 1px solid #333;
+                padding: 25px;
+                margin-top: 25px;
+            }
+
+            .related-section h2 {
+                color: #fff;
+                font-size: 18px;
+                margin-bottom: 20px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #333;
+            }
+
+            .related-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .related-card {
+                background: #1a1a1a;
+                border: 1px solid #333;
+                padding: 15px;
+                transition: all 0.3s;
+                text-decoration: none;
+                display: block;
+            }
+
+            .related-card:hover {
+                border-color: #c4a574;
+                transform: translateY(-2px);
+            }
+
+            .related-card-header {
+                display: flex;
+                gap: 12px;
+                margin-bottom: 10px;
+            }
+
+            .related-card-icon {
+                width: 48px;
+                height: 48px;
+                background: #222;
+                border: 1px solid #333;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                overflow: hidden;
+            }
+
+            .related-card-icon img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+            }
+
+            .related-card-info {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .related-card-info h4 {
+                color: #fff;
+                font-size: 14px;
+                margin-bottom: 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .related-card-info p {
+                color: #888;
+                font-size: 12px;
+            }
+
+            .related-card-desc {
+                color: #aaa;
+                font-size: 12px;
+                line-height: 1.4;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .related-card-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+                margin-top: 10px;
+            }
+
+            .related-card-tag {
+                background: #222;
+                border: 1px solid #444;
+                color: #c4a574;
+                padding: 2px 8px;
+                font-size: 10px;
+            }
+
+            .no-related {
+                color: #666;
+                font-style: italic;
+                text-align: center;
+                padding: 20px;
+            }
+
+            /* Responsive */
+            @media (max-width: 900px) {
+                .main-content {
+                    grid-template-columns: 1fr;
+                }
+
+                .sidebar {
+                    order: -1;
+                }
+            }
+
+            @media (max-width: 768px) {
+                body {
+                    padding: 10px;
+                }
+
+                .header {
+                    flex-direction: column;
+                    gap: 15px;
+                    padding: 15px 0;
+                }
+
+                .header h1 {
+                    font-size: 24px;
+                }
+
+                .header p {
+                    font-size: 12px;
+                }
+
+                .hero-header {
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                }
+
+                .hero-stats {
+                    justify-content: center;
+                    flex-wrap: wrap;
+                }
+
+                .hero-tags {
+                    justify-content: center;
+                }
+
+                .breadcrumb {
+                    font-size: 12px;
+                }
+
+                .footer {
+                    padding: 20px 15px;
+                    margin-top: 30px;
+                }
+
+                .footer-links {
+                    gap: 15px;
+                    flex-direction: column;
+                }
+
+                .support-popup-content {
+                    width: 95%;
+                    padding: 25px 20px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header class="header" role="banner">
+                <div class="header-left">
+                    <a href="/packages.html" class="header-logo">
+                        <img src="/logos/bedpak.svg" alt="BedPak Logo" width="50" height="50" />
+                    </a>
+                    <div style="text-align: left">
+                        <h1>BedPak Repository</h1>
+                        <p>Discover and download Minecraft Bedrock addons</p>
+                    </div>
+                </div>
+                <nav class="header-right" id="headerRight" aria-label="Navigation">
+                    <a href="/packages.html" class="profile-btn">Browse Addons</a>
+                </nav>
+            </header>
+
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="/packages.html">Home</a>
+                <span>></span>
+                <span class="current" id="breadcrumbName">Loading...</span>
+            </nav>
+
+            <main id="mainContent" role="main">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading package...</p>
+                </div>
+            </main>
+
+            <footer class="footer" role="contentinfo">
+                <div class="footer-content">
+                    <nav class="footer-links" aria-label="Footer navigation">
+                        <a href="/packages.html">Browse Addons</a>
+                        <a href="/api-docs.html">API Documentation</a>
+                        <a href="/terms-of-service.html">Terms of Service</a>
+                        <a href="/privacy-policy.html">Privacy Policy</a>
+                        <a href="https://discord.gg/fyNQNrr7dC" target="_blank" rel="noopener noreferrer">Discord Community</a>
+                    </nav>
+                    <div class="footer-divider"></div>
+                    <p>&copy; 2025 BedPak. All rights reserved.</p>
+                    <p>BedPak is an independent service and is not affiliated with Microsoft or Mojang Studios.</p>
+                    <p>Minecraft is a trademark of Mojang Studios.</p>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Support Popup Modal -->
+        <div id="supportPopup" class="support-popup">
+            <div class="support-popup-content">
+                <div class="support-popup-header">
+                    <h3>Support the Creator?</h3>
+                    <p>
+                        <span class="support-popup-author" id="supportAuthorName"></span>
+                        made this addon. Consider supporting them if you enjoy their work!
+                    </p>
+                </div>
+                <div class="support-popup-buttons">
+                    <a id="supportKofiBtn" href="#" target="_blank" rel="noopener noreferrer" class="support-popup-kofi">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311z"/>
+                        </svg>
+                        Support on Ko-fi
+                    </a>
+                    <button id="supportSkipBtn" class="support-popup-skip" disabled>
+                        No thanks, just download (<span class="support-popup-timer" id="supportTimer">3</span>)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const API_URL = "";
+            let packageData = null;
+            let currentUserId = null;
+
+            // Configure marked for secure markdown rendering
+            if (typeof marked !== 'undefined') {
+                marked.setOptions({
+                    breaks: true,
+                    gfm: true,
+                    highlight: function(code, lang) {
+                        if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
+                            try {
+                                return hljs.highlight(code, { language: lang }).value;
+                            } catch (e) {}
+                        }
+                        return code;
+                    }
+                });
+            }
+
+            // Get package name from URL
+            function getPackageNameFromURL() {
+                const path = window.location.pathname;
+                const match = path.match(/^\/package\/(.+)$/);
+                if (match) {
+                    return decodeURIComponent(match[1]);
+                }
+                return null;
+            }
+
+            // Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Sanitize markdown to prevent XSS
+            function sanitizeMarkdown(markdown) {
+                let sanitized = markdown
+                    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                    .replace(/javascript:/gi, '')
+                    .replace(/on\w+\s*=/gi, '');
+                return sanitized;
+            }
+
+            // Format date
+            function formatDate(dateStr) {
+                if (!dateStr) return 'Unknown';
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+
+            // Format download count
+            function formatDownloads(count) {
+                if (!count) return '0';
+                if (count >= 1000000) {
+                    return (count / 1000000).toFixed(1) + 'M';
+                }
+                if (count >= 1000) {
+                    return (count / 1000).toFixed(1) + 'K';
+                }
+                return count.toString();
+            }
+
+            // Extract YouTube video ID
+            function getYouTubeVideoId(url) {
+                if (!url) return null;
+                const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+                return match ? match[1] : null;
+            }
+
+            // Update meta tags
+            function updateMetaTags(pkg) {
+                document.title = `${pkg.name} - BedPak`;
+                
+                const setMeta = (selector, content) => {
+                    const el = document.querySelector(selector);
+                    if (el) el.content = content;
+                };
+                
+                const desc = pkg.description || 'Minecraft Bedrock addon';
+                const imgUrl = pkg.icon_url || '/logos/bedpak.svg';
+                
+                setMeta('meta[name="description"]', desc);
+                setMeta('meta[property="og:title"]', `${pkg.name} - Minecraft Bedrock Addon`);
+                setMeta('meta[property="og:description"]', desc);
+                setMeta('meta[property="og:image"]', imgUrl);
+                setMeta('meta[property="og:url"]', window.location.href);
+                setMeta('meta[name="twitter:title"]', `${pkg.name} - Minecraft Bedrock Addon`);
+                setMeta('meta[name="twitter:description"]', desc);
+                setMeta('meta[name="twitter:image"]', imgUrl);
+            }
+
+            // Update structured data
+            function updateStructuredData(pkg) {
+                const schema = {
+                    "@context": "https://schema.org",
+                    "@type": "SoftwareApplication",
+                    "name": pkg.name,
+                    "description": pkg.description || "Minecraft Bedrock addon",
+                    "applicationCategory": "GameApplication",
+                    "operatingSystem": "Android, iOS, Windows, Xbox",
+                    "downloadUrl": `${window.location.origin}/packages/${encodeURIComponent(pkg.name)}/download`,
+                    "softwareVersion": pkg.version || "1.0.0",
+                    "author": {
+                        "@type": "Person",
+                        "name": pkg.author ? pkg.author.username : "Unknown"
+                    },
+                    "offers": {
+                        "@type": "Offer",
+                        "price": "0",
+                        "priceCurrency": "USD"
+                    }
+                };
+                
+                const el = document.getElementById('packageSchema');
+                if (el) {
+                    el.textContent = JSON.stringify(schema);
+                }
+            }
+
+            // Check if current user is owner
+            function checkOwnership() {
+                const savedUserId = localStorage.getItem('userId');
+                if (savedUserId) {
+                    currentUserId = parseInt(savedUserId);
+                }
+            }
+
+            // Show support popup
+            function showSupportPopup(downloadUrl, kofiUrl, authorName) {
+                const popup = document.getElementById('supportPopup');
+                const kofiBtn = document.getElementById('supportKofiBtn');
+                const skipBtn = document.getElementById('supportSkipBtn');
+                const timerSpan = document.getElementById('supportTimer');
+                const authorSpan = document.getElementById('supportAuthorName');
+                
+                authorSpan.textContent = authorName;
+                kofiBtn.href = kofiUrl;
+                
+                popup.style.display = 'block';
+                
+                let countdown = 3;
+                timerSpan.textContent = countdown;
+                skipBtn.disabled = true;
+                
+                const timer = setInterval(() => {
+                    countdown--;
+                    timerSpan.textContent = countdown;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        skipBtn.disabled = false;
+                        skipBtn.textContent = 'No thanks, just download';
+                    }
+                }, 1000);
+                
+                skipBtn.onclick = function() {
+                    clearInterval(timer);
+                    popup.style.display = 'none';
+                    window.location.href = downloadUrl;
+                };
+                
+                // Close on background click
+                popup.onclick = function(e) {
+                    if (e.target === popup) {
+                        clearInterval(timer);
+                        popup.style.display = 'none';
+                    }
+                };
+            }
+
+            // Copy share link
+            function copyShareLink() {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    const btn = document.querySelector('.share-btn');
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Link Copied!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                });
+            }
+
+            // Toggle video embed
+            function toggleVideo() {
+                const embed = document.getElementById('videoEmbed');
+                if (embed) {
+                    embed.classList.toggle('active');
+                }
+            }
+
+            // Render package page
+            function renderPackage(pkg) {
+                const mainContent = document.getElementById('mainContent');
+                const breadcrumbName = document.getElementById('breadcrumbName');
+                
+                breadcrumbName.textContent = pkg.name;
+                
+                const isOwner = currentUserId && pkg.author && Number(pkg.author.id) === Number(currentUserId);
+                const authorName = pkg.author ? pkg.author.username : 'Unknown';
+                
+                // Build category HTML
+                let categoryHtml = '';
+                if (pkg.category) {
+                    categoryHtml = `
+                        <div class="hero-tags">
+                            <a href="/packages.html?category=${encodeURIComponent(pkg.category.slug)}" class="tag">${escapeHtml(pkg.category.name)}</a>
+                        </div>
+                    `;
+                }
+                
+                // Build sidebar category
+                let sidebarCategoryHtml = '';
+                if (pkg.category) {
+                    sidebarCategoryHtml = `
+                        <div class="sidebar-tags">
+                            <h4>Category</h4>
+                            <div class="sidebar-tags-list">
+                                <a href="/packages.html?category=${encodeURIComponent(pkg.category.slug)}">${escapeHtml(pkg.category.name)}</a>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Build YouTube section
+                let videoHtml = '';
+                const videoId = getYouTubeVideoId(pkg.youtube_url);
+                if (videoId) {
+                    videoHtml = `
+                        <div class="video-section">
+                            <button class="video-btn" onclick="toggleVideo()">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                </svg>
+                                Watch Video
+                            </button>
+                            <div class="video-embed" id="videoEmbed">
+                                <iframe 
+                                    src="https://www.youtube.com/embed/${videoId}" 
+                                    title="YouTube video player" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Build Ko-fi button
+                let kofiHtml = '';
+                if (pkg.kofi_url) {
+                    kofiHtml = `
+                        <a href="${escapeHtml(pkg.kofi_url)}" target="_blank" rel="noopener noreferrer" class="kofi-btn">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311z"/>
+                            </svg>
+                            Support Creator
+                        </a>
+                    `;
+                }
+                
+                // Build download button with optional Ko-fi popup
+                const downloadUrl = `${API_URL}/packages/${encodeURIComponent(pkg.name)}/download`;
+                let downloadBtnHtml = '';
+                if (pkg.kofi_url) {
+                    downloadBtnHtml = `<button class="download-btn" onclick="showSupportPopup('${downloadUrl}', '${escapeHtml(pkg.kofi_url)}', '${escapeHtml(authorName)}')">Download</button>`;
+                } else {
+                    downloadBtnHtml = `<a href="${downloadUrl}" class="download-btn">Download</a>`;
+                }
+                
+                // Build edit button (only for owner)
+                let editBtnHtml = '';
+                if (isOwner) {
+                    editBtnHtml = `<a href="/packages.html#edit-${pkg.id}" class="edit-btn">Edit Package</a>`;
+                }
+                
+                // Build markdown content
+                let descriptionHtml = '';
+                if (pkg.long_description && pkg.long_description.trim()) {
+                    try {
+                        const sanitizedMarkdown = sanitizeMarkdown(pkg.long_description);
+                        descriptionHtml = marked.parse(sanitizedMarkdown);
+                    } catch (e) {
+                        console.error('Markdown parsing error:', e);
+                        descriptionHtml = '<div class="no-description">Error rendering description</div>';
+                    }
+                } else {
+                    descriptionHtml = '<div class="no-description">No detailed description available</div>';
+                }
+                
+                // Icon HTML
+                const iconHtml = pkg.icon_url 
+                    ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)} icon" onerror="this.parentElement.innerHTML='<span style=font-size:48px;color:#555>&#128230;</span>'">`
+                    : '<span style="font-size: 48px; color: #555;">&#128230;</span>';
+                
+                mainContent.innerHTML = `
+                    <div class="main-content">
+                        <div class="content-area">
+                            <section class="hero-section">
+                                <div class="hero-header">
+                                    <div class="hero-icon">
+                                        ${iconHtml}
+                                    </div>
+                                    <div class="hero-info">
+                                        <h1>${escapeHtml(pkg.name)}</h1>
+                                        <p class="hero-author">By: <a href="/packages.html?author=${encodeURIComponent(authorName)}">${escapeHtml(authorName)}</a></p>
+                                        <div class="hero-stats">
+                                            <span>v${escapeHtml(pkg.version || '1.0.0')}</span>
+                                            <span>${formatDownloads(pkg.downloads)} downloads</span>
+                                        </div>
+                                        ${categoryHtml}
+                                    </div>
+                                </div>
+                                ${videoHtml}
+                            </section>
+                            
+                            <section class="description-section">
+                                <h2>Description</h2>
+                                <div class="markdown-content" id="markdownContent">
+                                    ${descriptionHtml}
+                                </div>
+                            </section>
+                        </div>
+                        
+                        <aside class="sidebar">
+                            <div class="sidebar-card">
+                                ${downloadBtnHtml}
+                                ${kofiHtml}
+                                
+                                <div class="sidebar-divider"></div>
+                                
+                                <div class="sidebar-info">
+                                    <div class="sidebar-info-item">
+                                        <span class="label">Version</span>
+                                        <span class="value">${escapeHtml(pkg.version || '1.0.0')}</span>
+                                    </div>
+                                    <div class="sidebar-info-item">
+                                        <span class="label">Updated</span>
+                                        <span class="value">${formatDate(pkg.updated_at)}</span>
+                                    </div>
+                                    <div class="sidebar-info-item">
+                                        <span class="label">Created</span>
+                                        <span class="value">${formatDate(pkg.created_at)}</span>
+                                    </div>
+                                </div>
+                                
+                                ${sidebarCategoryHtml}
+                                
+                                <div class="sidebar-divider"></div>
+                                
+                                <div class="sidebar-actions">
+                                    ${editBtnHtml}
+                                    <button class="share-btn" onclick="copyShareLink()">Share Link</button>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                `;
+                
+                // Apply syntax highlighting
+                if (typeof hljs !== 'undefined') {
+                    document.querySelectorAll('#markdownContent pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                }
+            }
+
+            // Show error state
+            function showError(message) {
+                const mainContent = document.getElementById('mainContent');
+                mainContent.innerHTML = `
+                    <div class="error-state">
+                        <h2>Package Not Found</h2>
+                        <p>${escapeHtml(message)}</p>
+                        <p><a href="/packages.html">Browse all addons</a></p>
+                    </div>
+                `;
+                document.getElementById('breadcrumbName').textContent = 'Not Found';
+            }
+
+            // Load package data
+            async function loadPackage() {
+                const packageName = getPackageNameFromURL();
+                
+                if (!packageName) {
+                    showError('Invalid package URL');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${API_URL}/packages/${encodeURIComponent(packageName)}/full`);
+                    
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            showError('This package does not exist or has been removed.');
+                        } else {
+                            showError('Failed to load package. Please try again later.');
+                        }
+                        return;
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (!result.success || !result.data) {
+                        showError('Package data is unavailable.');
+                        return;
+                    }
+                    
+                    packageData = result.data;
+                    
+                    // Update page
+                    updateMetaTags(packageData);
+                    updateStructuredData(packageData);
+                    renderPackage(packageData);
+                    
+                    // Load related packages after main content
+                    loadRelatedPackages(packageData);
+                    
+                } catch (error) {
+                    console.error('Error loading package:', error);
+                    showError('An error occurred while loading the package.');
+                }
+            }
+
+            // Load related packages based on category
+            async function loadRelatedPackages(pkg) {
+                // Only show related packages if the current package has a category
+                if (!pkg.category) {
+                    return;
+                }
+                
+                try {
+                    // Use the dedicated related packages endpoint
+                    const response = await fetch(`${API_URL}/packages/${encodeURIComponent(pkg.name)}/related?limit=6`);
+                    
+                    if (!response.ok) {
+                        return;
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (!result.success || !result.data || result.data.length === 0) {
+                        return;
+                    }
+                    
+                    renderRelatedPackages(result.data);
+                    
+                } catch (error) {
+                    console.error('Error loading related packages:', error);
+                    // Silently fail - related packages are optional
+                }
+            }
+
+            // Render related packages section
+            function renderRelatedPackages(packages) {
+                const contentArea = document.querySelector('.content-area');
+                if (!contentArea) return;
+                
+                const relatedHtml = `
+                    <section class="related-section">
+                        <h2>Similar Addons</h2>
+                        <div class="related-grid">
+                            ${packages.map(pkg => {
+                                const iconHtml = pkg.icon_url 
+                                    ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)}" onerror="this.parentElement.innerHTML='<span style=font-size:24px;color:#555>&#128230;</span>'">`
+                                    : '<span style="font-size: 24px; color: #555;">&#128230;</span>';
+                                
+                                const categoryHtml = pkg.category
+                                    ? `<div class="related-card-tags"><span class="related-card-tag">${escapeHtml(pkg.category.name)}</span></div>`
+                                    : '';
+                                
+                                return `
+                                    <a href="/package/${encodeURIComponent(pkg.name)}" class="related-card">
+                                        <div class="related-card-header">
+                                            <div class="related-card-icon">
+                                                ${iconHtml}
+                                            </div>
+                                            <div class="related-card-info">
+                                                <h4>${escapeHtml(pkg.name)}</h4>
+                                                <p>${formatDownloads(pkg.downloads)} downloads</p>
+                                            </div>
+                                        </div>
+                                        ${pkg.description ? `<p class="related-card-desc">${escapeHtml(pkg.description)}</p>` : ''}
+                                        ${categoryHtml}
+                                    </a>
+                                `;
+                            }).join('')}
+                        </div>
+                    </section>
+                `;
+                
+                contentArea.insertAdjacentHTML('beforeend', relatedHtml);
+            }
+
+            // Initialize
+            window.addEventListener('DOMContentLoaded', () => {
+                checkOwnership();
+                loadPackage();
+            });
+        </script>
+    </body>
+</html>

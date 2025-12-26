@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <!-- Main package browser page -->
+    <url>
+        <loc>https://bedpak.com/packages.html</loc>
+        <lastmod>2025-12-25</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    
+    <!-- Homepage redirect to packages -->
+    <url>
+        <loc>https://bedpak.com/</loc>
+        <lastmod>2025-12-25</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    
+    <!-- API Documentation -->
+    <url>
+        <loc>https://bedpak.com/api-docs.html</loc>
+        <lastmod>2025-12-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- Terms of Service -->
+    <url>
+        <loc>https://bedpak.com/terms-of-service.html</loc>
+        <lastmod>2025-12-24</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    
+    <!-- Privacy Policy -->
+    <url>
+        <loc>https://bedpak.com/privacy-policy.html</loc>
+        <lastmod>2025-12-24</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+</urlset>

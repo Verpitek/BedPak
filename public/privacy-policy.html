@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Privacy Policy - BedPak | Minecraft Bedrock Addons Repository</title>
+        <link rel="icon" type="image/svg+xml" href="/logos/bedpak.svg" />
+        
+        <!-- SEO Meta Tags -->
+        <meta name="description" content="BedPak Privacy Policy - Learn how we collect, use, and protect your personal data when using our Minecraft Bedrock addon repository service." />
+        <meta name="keywords" content="BedPak privacy policy, data protection, Minecraft addon privacy, user data policy" />
+        <meta name="author" content="BedPak" />
+        <meta name="robots" content="index, follow" />
+        <meta name="theme-color" content="#C4A574" />
+        <link rel="canonical" href="https://bedpak.com/privacy-policy.html" />
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="https://bedpak.com/privacy-policy.html" />
+        <meta property="og:title" content="Privacy Policy - BedPak" />
+        <meta property="og:description" content="Learn how BedPak collects, uses, and protects your personal data." />
+        <meta property="og:image" content="https://bedpak.com/logos/bedpak.svg" />
+        <meta property="og:site_name" content="BedPak" />
+        
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Privacy Policy - BedPak" />
+        <meta name="twitter:description" content="Learn how BedPak collects, uses, and protects your personal data." />
+        
+        <!-- Structured Data -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Privacy Policy",
+            "description": "BedPak Privacy Policy - How we collect, use, and protect your personal data.",
+            "publisher": {
+                "@type": "Organization",
+                "name": "BedPak",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://bedpak.com/logos/bedpak.svg"
+                }
+            },
+            "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": "https://bedpak.com/privacy-policy.html"
+            }
+        }
+        </script>
+        <style>
+            @font-face {
+                font-family: "Monocraft";
+                src: url("/fonts/Monocraft.woff2") format("woff2");
+                font-weight: normal;
+                font-style: normal;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: inherit;
+            }
+
+            body {
+                font-family:
+                    "Monocraft",
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    Roboto,
+                    Oxygen,
+                    Ubuntu,
+                    Cantarell,
+                    sans-serif;
+                background: #1a1a1a;
+                color: #d0d0d0;
+                min-height: 100vh;
+                padding: 20px;
+                position: relative;
+                overflow-x: hidden;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: -100px;
+                z-index: -1;
+                background: repeating-linear-gradient(
+                    -45deg,
+                    #1a1a1a,
+                    #1a1a1a 30px,
+                    #0f0f0f 30px,
+                    #0f0f0f 60px
+                );
+                background-size: 84.85px 84.85px;
+                animation: stripe-move 20s linear infinite;
+            }
+
+            @keyframes stripe-move {
+                from {
+                    background-position: 0 0;
+                }
+                to {
+                    background-position: 84.85px 84.85px;
+                }
+            }
+
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+                position: relative;
+                z-index: 1;
+            }
+
+            .header {
+                text-align: center;
+                margin-bottom: 40px;
+                padding: 30px 0;
+                border-bottom: 1px solid #333;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .header-logo {
+                width: 50px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .header-logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+            .header h1 {
+                font-size: 36px;
+                margin: 0;
+                color: #fff;
+            }
+
+            .content {
+                background: #222;
+                border: 1px solid #333;
+                padding: 30px;
+                margin-bottom: 40px;
+                line-height: 1.8;
+            }
+
+            .content h2 {
+                color: #c4a574;
+                margin-top: 30px;
+                margin-bottom: 15px;
+                font-size: 24px;
+                border-bottom: 1px solid #333;
+                padding-bottom: 10px;
+            }
+
+            .content h2:first-child {
+                margin-top: 0;
+            }
+
+            .content h3 {
+                color: #d0d0d0;
+                margin-top: 20px;
+                margin-bottom: 10px;
+                font-size: 18px;
+            }
+
+            .content p {
+                margin-bottom: 15px;
+                color: #aaa;
+            }
+
+            .content ul,
+            .content ol {
+                margin-left: 20px;
+                margin-bottom: 15px;
+            }
+
+            .content li {
+                margin-bottom: 8px;
+                color: #aaa;
+            }
+
+            .content strong {
+                color: #c4a574;
+            }
+
+            .content code {
+                background: #1a1a1a;
+                padding: 2px 6px;
+                border-radius: 3px;
+                color: #88cc88;
+                font-size: 13px;
+            }
+
+            .footer {
+                background: #222;
+                border-top: 1px solid #333;
+                padding: 30px;
+                text-align: center;
+                color: #888;
+                margin-top: 40px;
+            }
+
+            .footer p {
+                margin: 8px 0;
+                font-size: 14px;
+            }
+
+            .footer a {
+                color: #c4a574;
+                text-decoration: none;
+                transition: color 0.3s;
+            }
+
+            .footer a:hover {
+                color: #d0b576;
+            }
+
+            .nav-links {
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+
+            .nav-links a {
+                color: #c4a574;
+                text-decoration: none;
+                font-size: 14px;
+                padding: 8px 12px;
+                border: 1px solid #333;
+                transition: all 0.3s;
+            }
+
+            .nav-links a:hover {
+                background: #c4a574;
+                color: #222;
+            }
+
+            .nav-links a.active {
+                background: #c4a574;
+                color: #222;
+            }
+
+            @media (max-width: 768px) {
+                .header {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .header h1 {
+                    font-size: 24px;
+                }
+
+                .content {
+                    padding: 20px;
+                }
+
+                .content h2 {
+                    font-size: 20px;
+                }
+
+                .content h3 {
+                    font-size: 16px;
+                }
+
+                .footer {
+                    padding: 20px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="header-logo">
+                    <img src="/logos/bedpak.svg" alt="BedPak Logo" />
+                </div>
+                <h1>Privacy Policy</h1>
+            </div>
+
+            <div class="nav-links">
+                <a href="/packages.html">Back to Repository</a>
+                <a href="/terms-of-service.html">Terms of Service</a>
+                <a href="/privacy-policy.html" class="active">Privacy Policy</a>
+            </div>
+
+            <div class="content">
+                <h2>Privacy Policy</h2>
+                <p><strong>Last Updated: December 24, 2025</strong></p>
+
+                <h2>1. Introduction</h2>
+                <p>
+                    BedPak ("we," "us," "our," or "Service") is committed to
+                    protecting your privacy. This Privacy Policy explains how we
+                    collect, use, disclose, and safeguard your information when
+                    you use our Minecraft Bedrock add-on repository service.
+                </p>
+
+                <h2>2. Information We Collect</h2>
+
+                <h3>2.1 Information You Provide Directly</h3>
+                <p>
+                    When you register an account or use our Service, we collect:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Account Information</strong>: Username, email
+                        address, and password (stored as hashed values)
+                    </li>
+                    <li>
+                        <strong>Add-on Content</strong>: Minecraft Bedrock
+                        add-on files (.mcaddon format) that you upload
+                    </li>
+                    <li>
+                        <strong>Metadata</strong>: Add-on names, descriptions,
+                        versions, and icons associated with your packages
+                    </li>
+                    <li>
+                        <strong>Communication</strong>: Any messages or support
+                        requests you send to us
+                    </li>
+                </ul>
+
+                <h3>2.2 Automatically Collected Information</h3>
+                <p>When you use BedPak, we automatically collect:</p>
+                <ul>
+                    <li>
+                        <strong>Usage Data</strong>: Package download counts,
+                        access timestamps, and interaction metrics
+                    </li>
+                    <li>
+                        <strong>IP Address Information</strong>: Your IP address
+                        is collected for rate limiting, security, and abuse
+                        prevention
+                    </li>
+                    <li>
+                        <strong>Request Data</strong>: HTTP headers, request
+                        methods, and API endpoints you access
+                    </li>
+                </ul>
+
+                <h3>2.3 File Storage Information</h3>
+                <ul>
+                    <li>
+                        <strong>Add-on Files</strong>: We store the .mcaddon
+                        files you upload in our file system
+                    </li>
+                    <li>
+                        <strong>File Hash</strong>: We calculate and store
+                        SHA-256 hashes of uploaded files for integrity
+                        verification
+                    </li>
+                    <li>
+                        <strong>Icons</strong>: Optional package icons (PNG,
+                        JPEG, WebP, GIF, SVG) are stored and served publicly
+                    </li>
+                </ul>
+
+                <h2>3. How We Use Your Information</h2>
+                <p>We use the collected information for:</p>
+                <ul>
+                    <li>
+                        <strong>Account Management</strong>: Creating and
+                        maintaining your user account
+                    </li>
+                    <li>
+                        <strong>Service Delivery</strong>: Hosting, storing, and
+                        distributing your add-on packages
+                    </li>
+                    <li>
+                        <strong>Security</strong>: Preventing fraud, abuse,
+                        unauthorized access, and malicious activities
+                    </li>
+                    <li>
+                        <strong>Rate Limiting</strong>: Preventing API abuse and
+                        ensuring fair service access
+                    </li>
+                    <li>
+                        <strong>Analytics</strong>: Understanding usage patterns
+                        to improve our Service
+                    </li>
+                    <li>
+                        <strong>Legal Compliance</strong>: Meeting legal
+                        obligations and responding to lawful requests
+                    </li>
+                </ul>
+
+                <h2>4. Data Retention</h2>
+                <ul>
+                    <li>
+                        <strong>Account Data</strong>: Retained while your
+                        account is active and for 30 days after deletion
+                    </li>
+                    <li>
+                        <strong>Add-on Files</strong>: Retained as long as you
+                        maintain them or for 7 days after package deletion
+                    </li>
+                    <li>
+                        <strong>IP Addresses</strong>: Retained for rate
+                        limiting purposes (typically 1-60 minutes per request)
+                    </li>
+                    <li>
+                        <strong>Usage Logs</strong>: Retained for 90 days for
+                        security and debugging purposes
+                    </li>
+                </ul>
+                <p>
+                    We will delete personal data when it is no longer necessary
+                    for the purposes outlined in this policy, unless we are
+                    required to retain it by law.
+                </p>
+
+                <h2>5. Sharing Your Information</h2>
+                <p>
+                    We do <strong>not</strong> sell your personal information.
+                    We may share information:
+                </p>
+                <ul>
+                    <li>
+                        <strong>With Service Providers</strong>: Third-party
+                        services necessary to operate BedPak (hosting providers,
+                        database services)
+                    </li>
+                    <li>
+                        <strong>For Legal Requirements</strong>: When required
+                        by law, court order, or government request
+                    </li>
+                    <li>
+                        <strong>For Safety</strong>: To protect against fraud,
+                        security threats, or abuse
+                    </li>
+                    <li>
+                        <strong>With Your Consent</strong>: When you explicitly
+                        authorize us to share your information
+                    </li>
+                </ul>
+
+                <h2>6. Public Information</h2>
+                <p>The following information is publicly visible:</p>
+                <ul>
+                    <li>
+                        <strong>Username</strong>: Associated with your uploaded
+                        packages
+                    </li>
+                    <li>
+                        <strong>Package Name, Description, and Version</strong>:
+                        Visible in package listings
+                    </li>
+                    <li>
+                        <strong>Package Icon</strong>: If you upload one, it
+                        will be publicly accessible
+                    </li>
+                    <li>
+                        <strong>Download Statistics</strong>: Public download
+                        counts for packages
+                    </li>
+                </ul>
+                <p>
+                    Your <strong>email address and password</strong> are never
+                    publicly visible.
+                </p>
+
+                <h2>7. Security</h2>
+                <p>We implement reasonable security measures including:</p>
+                <ul>
+                    <li>
+                        <strong>Password Hashing</strong>: Passwords are hashed
+                        using bcrypt before storage
+                    </li>
+                    <li>
+                        <strong>JWT Authentication</strong>: Secure token-based
+                        authentication with 7-day expiration
+                    </li>
+                    <li>
+                        <strong>Input Validation</strong>: Strict validation of
+                        usernames, emails, file formats, and data
+                    </li>
+                    <li>
+                        <strong>SVG Sanitization</strong>: SVG files are
+                        sanitized to prevent XSS attacks
+                    </li>
+                    <li>
+                        <strong>File Type Verification</strong>: Only valid
+                        .mcaddon (ZIP) files are accepted
+                    </li>
+                </ul>
+                <p>
+                    However, no security system is impenetrable. We cannot
+                    guarantee absolute security.
+                </p>
+
+                <h2>8. Cookies and Tracking</h2>
+                <p>
+                    BedPak currently does not use cookies or tracking
+                    technologies. JWT tokens are used for authentication and are
+                    stored client-side.
+                </p>
+
+                <h2>9. Children's Privacy</h2>
+                <p>
+                    BedPak is not intended for children under 13 years old. We
+                    do not knowingly collect information from children under 13.
+                    If we discover such information has been collected, we will
+                    delete it promptly.
+                </p>
+
+                <h2>10. User Rights</h2>
+                <p>
+                    Depending on your location, you may have rights including:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Right to Access</strong>: Request a copy of your
+                        personal data
+                    </li>
+                    <li>
+                        <strong>Right to Correction</strong>: Correct inaccurate
+                        information
+                    </li>
+                    <li>
+                        <strong>Right to Deletion</strong>: Request deletion of
+                        your data (subject to legal obligations)
+                    </li>
+                    <li>
+                        <strong>Right to Data Portability</strong>: Request your
+                        data in a portable format
+                    </li>
+                    <li>
+                        <strong>Right to Opt-Out</strong>: Opt out of certain
+                        uses of your data
+                    </li>
+                </ul>
+                <p>
+                    To exercise these rights, contact us at the address below.
+                </p>
+
+                <h2>11. Changes to This Policy</h2>
+                <p>
+                    We may update this Privacy Policy periodically. We will
+                    notify you of significant changes by updating the "Last
+                    Updated" date and, for material changes, through email or
+                    prominent notice on our Service. Your continued use
+                    constitutes acceptance of the updated policy.
+                </p>
+            </div>
+
+            <div class="footer">
+                <div class="nav-links">
+                    <a href="/packages.html">Back to Repository</a>
+                    <a href="/terms-of-service.html">Terms of Service</a>
+                    <a href="/privacy-policy.html" class="active"
+                        >Privacy Policy</a
+                    >
+                    <a href="https://discord.gg/fyNQNrr7dC" target="_blank"
+                        >Discord</a
+                    >
+                </div>
+                <p>&copy; 2025 BedPak. All rights reserved.</p>
+                <p>
+                    BedPak is an independent service and is not affiliated with
+                    Microsoft or Mojang Studios.
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

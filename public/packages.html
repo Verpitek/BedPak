@@ -2380,7 +2380,10 @@
                 loadPackages();
                 setupEventListeners();
                 checkAuthStatus();
+                handleEditHash();
             });
+
+            window.addEventListener("hashchange", handleEditHash);
 
             async function checkAuthStatus() {
                 const savedToken = localStorage.getItem("authToken");
@@ -3401,6 +3404,51 @@
             function closeEditModal() {
                 const modal = document.getElementById("editModal");
                 modal.style.display = "none";
+            }
+
+            async function handleEditHash() {
+                const hash = window.location.hash;
+                if (!hash || !hash.startsWith('#edit-')) {
+                    return;
+                }
+                
+                const packageName = decodeURIComponent(hash.substring(6)); // Remove '#edit-'
+                if (!packageName) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${API_URL}/packages/${encodeURIComponent(packageName)}/full`);
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            console.error('Package not found:', packageName);
+                        } else {
+                            console.error('Failed to fetch package:', response.status);
+                        }
+                        return;
+                    }
+                    
+                    const result = await response.json();
+                    if (!result.success || !result.data) {
+                        console.error('Invalid package data:', result);
+                        return;
+                    }
+                    
+                    const pkg = result.data;
+                    openEditModal(
+                        pkg.id,
+                        pkg.name,
+                        pkg.description,
+                        pkg.version,
+                        pkg.icon_url,
+                        pkg.kofi_url,
+                        pkg.long_description,
+                        pkg.category ? pkg.category.slug : null,
+                        pkg.youtube_url
+                    );
+                } catch (error) {
+                    console.error('Error fetching package for edit:', error);
+                }
             }
 
             function showEditError(message) {

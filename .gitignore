@@ -49,3 +49,4 @@ package-lock.json
 # User uploaded files
 /storage/*
 !/storage/.gitkeep
+dist/index.js

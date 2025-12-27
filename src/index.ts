@@ -307,14 +307,7 @@ const app = new Elysia()
     };
   })
   .get("/", () => Bun.file("./public/packages.html"))
-  .get("/packages.html", () => Bun.file("./public/packages.html"))
   .get("/admin", () => Bun.file("./public/admin.html"))
-  .get("/admin.html", () => Bun.file("./public/admin.html"))
-  .get("/privacy-policy.html", () => Bun.file("./public/privacy-policy.html"))
-  .get("/terms-of-service.html", () =>
-    Bun.file("./public/terms-of-service.html"),
-  )
-  .get("/api-docs.html", () => Bun.file("./public/api-docs.html"))
   .get("/package/:name", () => Bun.file("./public/package.html"))
   .get("/fonts/:filename", ({ params: { filename } }) => {
     // Prevent path traversal by using only the base filename

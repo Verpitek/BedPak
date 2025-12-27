@@ -3343,114 +3343,123 @@
                 });
             }
 
-            // Close modals when clicking outside
-            window.addEventListener("click", function (event) {
-                const uploadModal = document.getElementById("uploadModal");
-                if (event.target === uploadModal) {
-                    closeUploadModal();
-                }
-                const editModal = document.getElementById("editModal");
-                if (event.target === editModal) {
-                    closeEditModal();
-                }
-            });
+             // Event delegation for edit buttons and support popups
+             document.addEventListener("click", function (event) {
+                 // Handle edit button clicks
+                 if (event.target.matches('[data-action="edit-package"]')) {
+                     const packageId = event.target.getAttribute("data-package-id");
+                     const packageName = event.target.getAttribute("data-package-name");
+                     openEditModal(parseInt(packageId), packageName);
+                 }
+                 
+                 // Handle support popup button clicks
+                 if (event.target.matches('[data-action="support-popup"]')) {
+                     const downloadUrl = event.target.getAttribute("data-download-url");
+                     const kofiUrl = event.target.getAttribute("data-kofi-url");
+                     const authorName = event.target.getAttribute("data-author-name");
+                     showSupportPopup(downloadUrl, kofiUrl, authorName);
+                 }
+             });
 
-            // Edit Modal Functions
-            function openEditModal(
-                packageId,
-                name,
-                description,
-                version,
-                iconUrl,
-                kofiUrl,
-                longDescription,
-                categorySlug,
-                youtubeUrl,
-                discordUrl,
-            ) {
-                if (!authToken) {
-                    openProfileModal();
-                    return;
-                }
+             // Close modals when clicking outside
+             window.addEventListener("click", function (event) {
+                 const uploadModal = document.getElementById("uploadModal");
+                 if (event.target === uploadModal) {
+                     closeUploadModal();
+                 }
+                 const editModal = document.getElementById("editModal");
+                 if (event.target === editModal) {
+                     closeEditModal();
+                 }
+             });
 
-                const modal = document.getElementById("editModal");
-                modal.style.display = "block";
+             // Edit Modal Functions
+             async function openEditModal(packageId, packageName) {
+                 if (!authToken) {
+                     openProfileModal();
+                     return;
+                 }
 
-                // Populate form fields
-                document.getElementById("editPackageId").value = packageId;
-                document.getElementById("editPackageOriginalName").value = name;
-                document.getElementById("editName").value = name;
-                document.getElementById("editDescription").value = description;
-                document.getElementById("editVersion").value = version;
+                 try {
+                     const response = await fetch(
+                         `${API_URL}/packages/${encodeURIComponent(packageName)}/full`,
+                     );
+                     if (!response.ok) {
+                         console.error('Failed to fetch package:', response.status);
+                         return;
+                     }
+                     
+                     const result = await response.json();
+                     if (!result.success || !result.data) {
+                         console.error('Invalid package data:', result);
+                         return;
+                     }
+                     
+                     const pkg = result.data;
 
-                // Decode escaped newlines back to actual newlines for the textarea
-                const decodedLongDesc = longDescription
-                    ? longDescription.replace(/\\n/g, "\n")
-                    : "";
-                document.getElementById("editLongDescription").value =
-                    decodedLongDesc;
+                     const modal = document.getElementById("editModal");
+                     modal.style.display = "block";
 
-                // Show current icon if exists
-                const currentIconContainer = document.getElementById(
-                    "currentIconContainer",
-                );
-                const currentIconPreview =
-                    document.getElementById("currentIconPreview");
-                if (iconUrl) {
-                    currentIconPreview.src = iconUrl;
-                    currentIconContainer.style.display = "block";
-                } else {
-                    currentIconContainer.style.display = "none";
-                }
+                     // Populate form fields - use textContent for safe setting
+                     document.getElementById("editPackageId").value = packageId;
+                     document.getElementById("editPackageOriginalName").value = pkg.name;
+                     document.getElementById("editName").value = pkg.name;
+                     document.getElementById("editDescription").value = pkg.description || "";
+                     document.getElementById("editVersion").value = pkg.version || "1.0.0";
+                     document.getElementById("editLongDescription").value = pkg.long_description || "";
 
-                // Reset checkboxes and file inputs
-                document.getElementById("updateIconCheckbox").checked = false;
-                document.getElementById("updateFileCheckbox").checked = false;
-                document.getElementById("editIconGroup").style.display = "none";
-                document.getElementById("editFileGroup").style.display = "none";
-                document.getElementById("editIcon").value = "";
-                document.getElementById("editFile").value = "";
-                document.getElementById("editSelectedIconName").textContent =
-                    "No icon selected";
-                document
-                    .getElementById("editSelectedIconName")
-                    .classList.remove("has-file");
-                document.getElementById("editSelectedFileName").textContent =
-                    "No file selected";
-                document
-                    .getElementById("editSelectedFileName")
-                    .classList.remove("has-file");
-                document.getElementById(
-                    "editIconPreviewContainer",
-                ).style.display = "none";
+                     // Show current icon if exists
+                     const currentIconContainer = document.getElementById("currentIconContainer");
+                     const currentIconPreview = document.getElementById("currentIconPreview");
+                     if (pkg.icon_url) {
+                         currentIconPreview.src = pkg.icon_url;
+                         currentIconContainer.style.display = "block";
+                     } else {
+                         currentIconContainer.style.display = "none";
+                     }
 
-                // Handle Ko-fi URL
-                const editKofiCheckbox =
-                    document.getElementById("editKofiCheckbox");
-                const editKofiGroup = document.getElementById("editKofiGroup");
-                const editKofiUrlEl = document.getElementById("editKofiUrl");
-                if (kofiUrl) {
-                    editKofiCheckbox.checked = true;
-                    editKofiGroup.style.display = "block";
-                    editKofiUrlEl.value = kofiUrl;
-                } else {
-                    editKofiCheckbox.checked = false;
-                    editKofiGroup.style.display = "none";
-                    editKofiUrlEl.value = "";
-                }
+                     // Reset checkboxes and file inputs
+                     document.getElementById("updateIconCheckbox").checked = false;
+                     document.getElementById("updateFileCheckbox").checked = false;
+                     document.getElementById("editIconGroup").style.display = "none";
+                     document.getElementById("editFileGroup").style.display = "none";
+                     document.getElementById("editIcon").value = "";
+                     document.getElementById("editFile").value = "";
+                     document.getElementById("editSelectedIconName").textContent = "No icon selected";
+                     document.getElementById("editSelectedIconName").classList.remove("has-file");
+                     document.getElementById("editSelectedFileName").textContent = "No file selected";
+                     document.getElementById("editSelectedFileName").classList.remove("has-file");
+                     document.getElementById("editIconPreviewContainer").style.display = "none";
 
-                // Handle category, YouTube, and Discord
-                document.getElementById("editCategory").value = categorySlug || "";
-                document.getElementById("editYoutube").value = youtubeUrl || "";
-                document.getElementById("editDiscord").value = discordUrl || "";
+                     // Handle Ko-fi URL
+                     const editKofiCheckbox = document.getElementById("editKofiCheckbox");
+                     const editKofiGroup = document.getElementById("editKofiGroup");
+                     const editKofiUrlEl = document.getElementById("editKofiUrl");
+                     if (pkg.kofi_url) {
+                         editKofiCheckbox.checked = true;
+                         editKofiGroup.style.display = "block";
+                         editKofiUrlEl.value = pkg.kofi_url;
+                     } else {
+                         editKofiCheckbox.checked = false;
+                         editKofiGroup.style.display = "none";
+                         editKofiUrlEl.value = "";
+                     }
 
-                // Reset messages
-                document.getElementById("editError").style.display = "none";
-                document.getElementById("editSuccess").style.display = "none";
-                document.getElementById("editProgress").style.display = "none";
-                document.getElementById("editBtn").disabled = false;
-                document.getElementById("editBtn").textContent = "Save Changes";
-            }
+                     // Handle category, YouTube, and Discord
+                     document.getElementById("editCategory").value = (pkg.category ? pkg.category.slug : "") || "";
+                     document.getElementById("editYoutube").value = pkg.youtube_url || "";
+                     document.getElementById("editDiscord").value = pkg.discord_url || "";
+
+                     // Reset messages
+                     document.getElementById("editError").style.display = "none";
+                     document.getElementById("editSuccess").style.display = "none";
+                     document.getElementById("editProgress").style.display = "none";
+                     document.getElementById("editBtn").disabled = false;
+                     document.getElementById("editBtn").textContent = "Save Changes";
+                 } catch (error) {
+                     console.error('Error opening edit modal:', error);
+                 }
+             }
 
             function closeEditModal() {
                 const modal = document.getElementById("editModal");
@@ -4089,63 +4098,27 @@
                         currentUserId &&
                         Number(pkg.author_id) === Number(currentUserId);
 
-                    // Escape values for use in onclick attribute
-                    const escapedName = escapeHtml(pkg.name)
-                        .replace(/\\/g, "\\\\")
-                        .replace(/'/g, "\\'");
-                    const escapedDescription = escapeHtml(pkg.description || "")
-                        .replace(/\\/g, "\\\\")
-                        .replace(/'/g, "\\'")
-                        .replace(/\n/g, "\\n");
-                    const escapedVersion = escapeHtml(pkg.version || "1.0.0");
-                    const escapedIconUrl = escapeHtml(pkg.icon_url || "")
-                        .replace(/\\/g, "\\\\")
-                        .replace(/'/g, "\\'");
-                    const escapedKofiUrl = escapeHtml(pkg.kofi_url || "")
-                        .replace(/\\/g, "\\\\")
-                        .replace(/'/g, "\\'");
-
                     // Download button - if Ko-fi URL exists, show support popup first
-                    const downloadUrl = `${API_URL}/packages/${encodeURIComponent(pkg.name)}/download`;
-                    const downloadButtonHtml = pkg.kofi_url
-                        ? `<button class="download-btn" onclick="showSupportPopup('${downloadUrl}', '${escapedKofiUrl}', '${escapeHtml(authorName).replace(/'/g, "\\'")}')">
-                               Download
-                             </button>`
-                        : `<a href="${downloadUrl}" class="download-btn" download>
-                               Download
-                             </a>`;
+                     const downloadUrl = `${API_URL}/packages/${encodeURIComponent(pkg.name)}/download`;
+                     const downloadButtonHtml = pkg.kofi_url
+                         ? `<button class="download-btn" data-action="support-popup" data-download-url="${escapeHtml(downloadUrl)}" data-kofi-url="${escapeHtml(pkg.kofi_url)}" data-author-name="${escapeHtml(authorName)}">
+                                Download
+                              </button>`
+                         : `<a href="${downloadUrl}" class="download-btn" download>
+                                Download
+                              </a>`;
 
-                    // View Details button - link to dedicated package page
-                    const viewDetailsBtn = `<a href="/package/${encodeURIComponent(pkg.name)}" class="view-details-btn">View Details</a>`;
+                     // View Details button - link to dedicated package page
+                     const viewDetailsBtn = `<a href="/package/${encodeURIComponent(pkg.name)}" class="view-details-btn">View Details</a>`;
 
-                    // Escape long description for onclick
-                    const escapedLongDescription = escapeHtml(
-                        pkg.long_description || "",
-                    )
-                        .replace(/\\/g, "\\\\")
-                        .replace(/'/g, "\\'")
-                        .replace(/\n/g, "\\n");
-
-                    // Prepare category slug for edit modal
-                    const categorySlug = pkg.category ? pkg.category.slug : "";
-                    const escapedCategorySlug = escapeHtml(categorySlug)
-                        .replace(/\\/g, "\\\\")
-                        .replace(/'/g, "\\'");
-                    const escapedYoutubeUrl = escapeHtml(pkg.youtube_url || "")
-                        .replace(/\\/g, "\\\\")
-                        .replace(/'/g, "\\'");
-                    const escapedDiscordUrl = escapeHtml(pkg.discord_url || "")
-                        .replace(/\\/g, "\\\\")
-                        .replace(/'/g, "\\'");
-
-                    const actionsHtml = isOwner
-                        ? `<div class="package-actions">
-                             ${viewDetailsBtn}
-                             ${downloadButtonHtml}
-                             <button class="edit-btn" onclick="openEditModal(${pkg.id}, '${escapedName}', '${escapedDescription}', '${escapedVersion}', '${escapedIconUrl}', '${escapedKofiUrl}', '${escapedLongDescription}', '${escapedCategorySlug}', '${escapedYoutubeUrl}', '${escapedDiscordUrl}')">
-                               Edit
-                             </button>
-                           </div>`
+                      const actionsHtml = isOwner
+                          ? `<div class="package-actions">
+                               ${viewDetailsBtn}
+                               ${downloadButtonHtml}
+                               <button class="edit-btn" data-action="edit-package" data-package-id="${pkg.id}" data-package-name="${escapeHtml(pkg.name)}">
+                                 Edit
+                               </button>
+                             </div>`
                         : `<div class="package-actions">
                              ${viewDetailsBtn}
                              ${downloadButtonHtml}

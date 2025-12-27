@@ -1702,26 +1702,23 @@
             : `<span style="color:#555;">-</span>`;
           const categorySlug = pkg.category ? pkg.category.slug : '';
 
-          const escapedLongDesc = escapeHtml(pkg.long_description || '').replace(/'/g, "\\'").replace(/\n/g, "\\n");
-          const escapedYoutubeUrl = escapeHtml(pkg.youtube_url || '').replace(/'/g, "\\'");
-          const escapedDiscordUrl = escapeHtml(pkg.discord_url || '').replace(/'/g, "\\'");
-          tableHTML += `
-            <tr>
-              <td class="icon-cell">${iconHtml}</td>
-              <td>${pkg.id}</td>
-              <td><strong>${escapeHtml(pkg.name)}</strong></td>
-              <td>${escapeHtml(authorName)}</td>
-              <td>${categoryHtml}</td>
-              <td>${pkg.version || '1.0.0'}</td>
-              <td>${pkg.downloads || 0}</td>
-              <td>${kofiHtml}</td>
-              <td>${createdDate}</td>
-              <td>
-                <button class="edit-btn" onclick="openEditModal(${pkg.id}, '${escapeHtml(pkg.name).replace(/'/g, "\\'")}', '${escapeHtml(pkg.description || '').replace(/'/g, "\\'")}', '${escapeHtml(pkg.version || '').replace(/'/g, "\\'")}', '${escapeHtml(pkg.icon_url || '').replace(/'/g, "\\'")}', '${escapeHtml(pkg.kofi_url || '').replace(/'/g, "\\'")}', '${escapedLongDesc}', '${escapeHtml(categorySlug).replace(/'/g, "\\'")}', '${escapedYoutubeUrl}', '${escapedDiscordUrl}')" title="Edit">Edit</button>
-                <button class="delete-btn" onclick="openDeleteModal(${pkg.id}, '${escapeHtml(pkg.name).replace(/'/g, "\\'")}')" title="Delete">Delete</button>
-              </td>
-            </tr>
-          `;
+           tableHTML += `
+             <tr>
+               <td class="icon-cell">${iconHtml}</td>
+               <td>${pkg.id}</td>
+               <td><strong>${escapeHtml(pkg.name)}</strong></td>
+               <td>${escapeHtml(authorName)}</td>
+               <td>${categoryHtml}</td>
+               <td>${pkg.version || '1.0.0'}</td>
+               <td>${pkg.downloads || 0}</td>
+               <td>${kofiHtml}</td>
+               <td>${createdDate}</td>
+                <td>
+                  <button class="edit-btn" data-action="edit-package" data-package-id="${pkg.id}" data-package-name="${escapeHtml(pkg.name)}" title="Edit">Edit</button>
+                  <button class="delete-btn" data-action="delete-package" data-package-id="${pkg.id}" data-package-name="${escapeHtml(pkg.name)}" title="Delete">Delete</button>
+                </td>
+             </tr>
+           `;
         }
 
         tableHTML += `
@@ -1812,23 +1809,37 @@
        return text.replace(/[&<>"']/g, m => map[m]);
      }
 
-      function openEditModal(packageId, packageName, description, version, iconUrl = '', kofiUrl = '', longDescription = '', categorySlug = '', youtubeUrl = '', discordUrl = '') {
-        packageToEdit = { id: packageId, name: packageName };
-        document.getElementById('editPackageName').value = packageName;
-        document.getElementById('editPackageDescription').value = description;
-        document.getElementById('editPackageVersion').value = version;
-        document.getElementById('editPackageIcon').value = iconUrl || '';
-        document.getElementById('editPackageKofi').value = kofiUrl || '';
-        document.getElementById('editPackageYoutube').value = youtubeUrl || '';
-        document.getElementById('editPackageDiscord').value = discordUrl || '';
-        // Decode escaped newlines for textarea
-        const decodedLongDesc = longDescription ? longDescription.replace(/\\n/g, "\n") : '';
-        document.getElementById('editPackageLongDescription').value = decodedLongDesc;
-        // Set category dropdown
-        document.getElementById('editPackageCategory').value = categorySlug || '';
-        document.getElementById('editError').style.display = 'none';
-        updateIconPreview();
-        document.getElementById('editPackageModal').style.display = 'block';
+      async function openEditModal(packageId, packageName) {
+        try {
+          const response = await fetch(`${API_URL}/packages/${encodeURIComponent(packageName)}/full`);
+          if (!response.ok) {
+            console.error('Failed to fetch package:', response.status);
+            return;
+          }
+          
+          const result = await response.json();
+          if (!result.success || !result.data) {
+            console.error('Invalid package data:', result);
+            return;
+          }
+          
+          const pkg = result.data;
+          packageToEdit = { id: packageId, name: pkg.name };
+          document.getElementById('editPackageName').value = pkg.name;
+          document.getElementById('editPackageDescription').value = pkg.description || '';
+          document.getElementById('editPackageVersion').value = pkg.version || '';
+          document.getElementById('editPackageIcon').value = pkg.icon_url || '';
+          document.getElementById('editPackageKofi').value = pkg.kofi_url || '';
+          document.getElementById('editPackageYoutube').value = pkg.youtube_url || '';
+          document.getElementById('editPackageDiscord').value = pkg.discord_url || '';
+          document.getElementById('editPackageLongDescription').value = pkg.long_description || '';
+          document.getElementById('editPackageCategory').value = (pkg.category ? pkg.category.slug : '') || '';
+          document.getElementById('editError').style.display = 'none';
+          updateIconPreview();
+          document.getElementById('editPackageModal').style.display = 'block';
+        } catch (error) {
+          console.error('Error opening edit modal:', error);
+        }
       }
 
       function updateIconPreview() {
@@ -1851,22 +1862,56 @@
         packageToEdit = null;
       }
 
-      document.addEventListener('DOMContentLoaded', () => {
-        const iconUrlInput = document.getElementById('editPackageIcon');
-        if (iconUrlInput) {
-          iconUrlInput.addEventListener('input', updateIconPreview);
-        }
-      });
+       document.addEventListener('DOMContentLoaded', () => {
+         const iconUrlInput = document.getElementById('editPackageIcon');
+         if (iconUrlInput) {
+           iconUrlInput.addEventListener('input', updateIconPreview);
+         }
+       });
 
-     function openDeleteModal(packageId, packageName) {
-       packageToDelete = { id: packageId, name: packageName };
-       const infoDiv = document.getElementById('deletePackageInfo');
-       infoDiv.innerHTML = `
-         <p><strong>Package:</strong> ${escapeHtml(packageName)}</p>
-         <p><strong>ID:</strong> ${packageId}</p>
-       `;
-       document.getElementById('deletePackageModal').style.display = 'block';
-     }
+       // Event delegation for edit and delete buttons
+       document.addEventListener('click', function (event) {
+         // Handle edit button clicks
+         if (event.target.matches('[data-action="edit-package"]')) {
+           const packageId = event.target.getAttribute('data-package-id');
+           const packageName = event.target.getAttribute('data-package-name');
+           openEditModal(parseInt(packageId), packageName);
+         }
+         
+         // Handle delete button clicks
+         if (event.target.matches('[data-action="delete-package"]')) {
+           const packageId = event.target.getAttribute('data-package-id');
+           const packageName = event.target.getAttribute('data-package-name');
+           openDeleteModal(parseInt(packageId), packageName);
+         }
+       });
+
+      async function openDeleteModal(packageId, packageName) {
+        try {
+          const response = await fetch(`${API_URL}/packages/${encodeURIComponent(packageName)}/full`);
+          if (!response.ok) {
+            console.error('Failed to fetch package:', response.status);
+            return;
+          }
+          
+          const result = await response.json();
+          if (!result.success || !result.data) {
+            console.error('Invalid package data:', result);
+            return;
+          }
+          
+          const pkg = result.data;
+          packageToDelete = { id: packageId, name: pkg.name };
+          const infoDiv = document.getElementById('deletePackageInfo');
+          infoDiv.innerHTML = `
+            <p><strong>Package:</strong> ${escapeHtml(pkg.name)}</p>
+            <p><strong>ID:</strong> ${packageId}</p>
+          `;
+          document.getElementById('deletePackageModal').style.display = 'block';
+        } catch (error) {
+          console.error('Error opening delete modal:', error);
+        }
+      }
 
      function closeDeleteModal() {
        document.getElementById('deletePackageModal').style.display = 'none';

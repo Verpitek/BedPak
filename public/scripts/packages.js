@@ -1520,12 +1520,12 @@ async function renderPackagesHtml(packages) {
     return null;
   }
 
-  let html = "";
-  for (const pkg of packages) {
-    const authorName = await getAuthorName(pkg.author_id);
-    const iconHtml = pkg.icon_url
-      ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)} icon" onerror="handleIconError(this)">`
-      : `<span style="font-size: 48px; color: #555;">📦</span>`;
+   let html = "";
+   for (const pkg of packages) {
+     const authorName = await getAuthorName(pkg.author_id);
+     const iconHtml = pkg.icon_url
+       ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)} icon" loading="lazy" onerror="handleIconError(this)">`
+       : `<span style="font-size: 48px; color: #555;">📦</span>`;
 
     // Check if current user owns this package
     const isOwner =
@@ -1541,48 +1541,51 @@ async function renderPackagesHtml(packages) {
                     Download
                    </a>`;
 
-    // View Details button - link to dedicated package page
-    const viewDetailsBtn = `<a href="/package/${encodeURIComponent(pkg.name)}" class="view-details-btn">View Details</a>`;
+     // View Details button - link to dedicated package page
+     const viewDetailsBtn = `<a href="/package/${encodeURIComponent(pkg.name)}" class="view-details-btn">View Details</a>`;
 
-    const actionsHtml = isOwner
-      ? `<div class="package-actions">
-                   ${viewDetailsBtn}
-                   ${downloadButtonHtml}
-                   <button class="edit-btn" data-action="edit-package" data-package-id="${pkg.id}" data-package-name="${escapeHtml(pkg.name)}">
-                     Edit
-                   </button>
-                 </div>`
-      : `<div class="package-actions">
-                 ${viewDetailsBtn}
-                 ${downloadButtonHtml}
-               </div>`;
+     const actionsHtml = isOwner
+       ? `<div class="package-actions">
+                    ${viewDetailsBtn}
+                    ${downloadButtonHtml}
+                    <button class="edit-btn" data-action="edit-package" data-package-id="${pkg.id}" data-package-name="${escapeHtml(pkg.name)}">
+                      Edit
+                    </button>
+                  </div>`
+       : `<div class="package-actions">
+                  ${viewDetailsBtn}
+                  ${downloadButtonHtml}
+                </div>`;
 
-    // Generate category HTML (single category instead of multiple tags)
-    const categorySlug = pkg.tag_slug || (pkg.category && pkg.category.slug);
-    const categoryName = pkg.tag_name || (pkg.category && pkg.category.name);
-    const categoryHtml = categorySlug
-      ? `<div class="package-category">
-                   <a href="/packages.html?category=${encodeURIComponent(categorySlug)}" class="category-badge">${escapeHtml(categoryName)}</a>
-               </div>`
-      : "";
+     // Generate category HTML (single category instead of multiple tags)
+     const categorySlug = pkg.tag_slug || (pkg.category && pkg.category.slug);
+     const categoryName = pkg.tag_name || (pkg.category && pkg.category.name);
+     const categoryHtml = categorySlug
+       ? `<div class="package-category">
+                    <a href="/packages.html?category=${encodeURIComponent(categorySlug)}" class="category-badge">${escapeHtml(categoryName)}</a>
+                </div>`
+       : "";
 
-    html += `
-<div class="package-card">
- <div class="package-icon">
-   ${iconHtml}
+     // Add loading="lazy" to icon images
+     const iconWithLazy = iconHtml.replace(/<img\s/g, '<img loading="lazy" ');
+
+     html += `
+ <div class="package-card">
+  <div class="package-icon">
+    ${iconWithLazy}
+  </div>
+  <h3>${escapeHtml(pkg.name)}</h3>
+  <div class="package-meta">
+    <span>Downloads: ${pkg.downloads || 0}</span>
+    <span>Date: ${formatDate(pkg.created_at)}</span>
+  </div>
+  ${categoryHtml}
+  <p class="package-description">${escapeHtml(pkg.description || "No description provided")}</p>
+  <span class="package-version">Version ${pkg.version || "1.0.0"}</span>
+  <p class="package-author">By: ${escapeHtml(authorName)}</p>
+  ${actionsHtml}
  </div>
- <h3>${escapeHtml(pkg.name)}</h3>
- <div class="package-meta">
-   <span>Downloads: ${pkg.downloads || 0}</span>
-   <span>Date: ${formatDate(pkg.created_at)}</span>
- </div>
- ${categoryHtml}
- <p class="package-description">${escapeHtml(pkg.description || "No description provided")}</p>
- <span class="package-version">Version ${pkg.version || "1.0.0"}</span>
- <p class="package-author">By: ${escapeHtml(authorName)}</p>
- ${actionsHtml}
-</div>
-`;
+ `;
   }
   return html;
 }

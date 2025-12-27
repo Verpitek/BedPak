@@ -2,11 +2,22 @@ const API_URL = "";
 let packageData = null;
 let currentUserId = null;
 
-// Configure marked for secure markdown rendering
+// Configure marked for secure markdown rendering with lazy loading
 if (typeof marked !== "undefined") {
+  // Create custom image renderer to add lazy loading
+  const renderer = new marked.Renderer();
+  const originalImageRenderer = renderer.image.bind(renderer);
+  
+  renderer.image = function(token) {
+    const html = originalImageRenderer(token);
+    // Add loading="lazy" to the image tag
+    return html.replace(/<img\s/, '<img loading="lazy" ');
+  };
+
   marked.setOptions({
     breaks: true,
     gfm: true,
+    renderer: renderer,
     highlight: function (code, lang) {
       if (typeof hljs !== "undefined" && lang && hljs.getLanguage(lang)) {
         try {
@@ -319,10 +330,10 @@ function renderPackage(pkg) {
       '<div class="no-description">No detailed description available</div>';
   }
 
-  // Icon HTML
-  const iconHtml = pkg.icon_url
-    ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)} icon" onerror="this.parentElement.innerHTML='<span style=font-size:48px;color:#555>&#128230;</span>'">`
-    : '<span style="font-size: 48px; color: #555;">&#128230;</span>';
+   // Icon HTML
+   const iconHtml = pkg.icon_url
+     ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)} icon" loading="lazy" onerror="this.parentElement.innerHTML='<span style=font-size:48px;color:#555>&#128230;</span>'">` 
+     : '<span style="font-size: 48px; color: #555;">&#128230;</span>';
 
   mainContent.innerHTML = `
         <div class="main-content">
@@ -389,13 +400,16 @@ function renderPackage(pkg) {
         </div>
     `;
 
-  // Apply syntax highlighting
-  if (typeof hljs !== "undefined") {
-    document.querySelectorAll("#markdownContent pre code").forEach((block) => {
-      hljs.highlightElement(block);
-    });
-  }
-}
+   // Apply syntax highlighting
+   if (typeof hljs !== "undefined") {
+     document.querySelectorAll("#markdownContent pre code").forEach((block) => {
+       hljs.highlightElement(block);
+     });
+   }
+
+   // Setup lazy loading for markdown images
+   setupMarkdownImageLazyLoading();
+ }
 
 // Show error state
 function showError(message) {
@@ -478,11 +492,24 @@ async function loadRelatedPackages(pkg) {
       return;
     }
 
-    renderRelatedPackages(result.data);
-  } catch (error) {
-    console.error("Error loading related packages:", error);
-    // Silently fail - related packages are optional
-  }
+     renderRelatedPackages(result.data);
+   } catch (error) {
+     console.error("Error loading related packages:", error);
+     // Silently fail - related packages are optional
+   }
+ }
+
+// Lazy load images in markdown content
+function setupMarkdownImageLazyLoading() {
+  const markdownContent = document.getElementById('markdownContent');
+  if (!markdownContent) return;
+
+  // Add loading="lazy" to all images in markdown
+  markdownContent.querySelectorAll('img').forEach(img => {
+    if (!img.hasAttribute('loading')) {
+      img.setAttribute('loading', 'lazy');
+    }
+  });
 }
 
 // Render related packages section
@@ -494,11 +521,11 @@ function renderRelatedPackages(packages) {
         <section class="related-section">
             <h2>Similar Addons</h2>
             <div class="related-grid">
-                ${packages
-                  .map((pkg) => {
-                    const iconHtml = pkg.icon_url
-                      ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)}" onerror="this.parentElement.innerHTML='<span style=font-size:24px;color:#555>&#128230;</span>'">`
-                      : '<span style="font-size: 24px; color: #555;">&#128230;</span>';
+                 ${packages
+                   .map((pkg) => {
+                     const iconHtml = pkg.icon_url
+                       ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span style=font-size:24px;color:#555>&#128230;</span>'">` 
+                       : '<span style="font-size: 24px; color: #555;">&#128230;</span>';
 
                     const categoryHtml = pkg.category
                       ? `<div class="related-card-tags"><span class="related-card-tag">${escapeHtml(pkg.category.name)}</span></div>`

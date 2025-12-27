@@ -2,6 +2,7 @@ import { readFile, writeFile, unlink, mkdir } from "fs/promises";
 import { createReadStream, existsSync } from "fs";
 import { createHash } from "crypto";
 import { join, dirname } from "path";
+import sharp from "sharp";
 
 const STORAGE_DIR = join(import.meta.dir, "..", "storage", "addons");
 const ICONS_DIR = join(import.meta.dir, "..", "storage", "icons");
@@ -312,48 +313,63 @@ function sanitizeSvg(buffer: Buffer): Buffer {
  * Save package icon to storage
  */
 export async function saveIcon(
-  packageId: number,
-  iconBuffer: Buffer
-): Promise<{ iconPath: string; iconUrl: string }> {
-  try {
-    // Validate file size
-    if (iconBuffer.length > MAX_ICON_SIZE) {
-      throw new Error(`Icon file too large. Maximum size is ${MAX_ICON_SIZE / (1024 * 1024)}MB`);
-    }
+   packageId: number,
+   iconBuffer: Buffer
+ ): Promise<{ iconPath: string; iconUrl: string }> {
+   try {
+     // Validate file size
+     if (iconBuffer.length > MAX_ICON_SIZE) {
+       throw new Error(`Icon file too large. Maximum size is ${MAX_ICON_SIZE / (1024 * 1024)}MB`);
+     }
 
-    // Validate file type
-    const typeInfo = validateIconType(iconBuffer);
-    if (!typeInfo.valid || !typeInfo.extension) {
-      throw new Error("Invalid icon format. Only PNG, JPEG, WebP, GIF, and SVG are supported");
-    }
+     // Validate file type
+     const typeInfo = validateIconType(iconBuffer);
+     if (!typeInfo.valid || !typeInfo.extension) {
+       throw new Error("Invalid icon format. Only PNG, JPEG, WebP, GIF, and SVG are supported");
+     }
 
-    await initializeStorage();
+     await initializeStorage();
 
-    // Sanitize SVG files to prevent XSS
-    let bufferToSave = iconBuffer;
-    if (typeInfo.extension === "svg") {
-      bufferToSave = sanitizeSvg(iconBuffer);
-    }
+     // Sanitize SVG files to prevent XSS
+     let bufferToSave = iconBuffer;
+     let extension = typeInfo.extension;
 
-    // Generate filename
-    const filename = `${packageId}.${typeInfo.extension}`;
-    const filePath = join(ICONS_DIR, filename);
+     if (typeInfo.extension === "svg") {
+       bufferToSave = sanitizeSvg(iconBuffer);
+     } else {
+       // Convert all non-SVG, non-WebP images to WebP for better performance
+       if (typeInfo.extension !== "webp") {
+         try {
+           bufferToSave = await sharp(iconBuffer)
+             .webp({ quality: 90 })
+             .toBuffer();
+           extension = "webp";
+         } catch (conversionErr) {
+           console.error(`Failed to convert ${typeInfo.extension} to WebP, falling back to original:`, conversionErr);
+           // Fall back to original if conversion fails
+         }
+       }
+     }
 
-    // Delete existing icon if exists (might be different extension)
-    await deleteIcon(packageId);
+     // Generate filename
+     const filename = `${packageId}.${extension}`;
+     const filePath = join(ICONS_DIR, filename);
 
-    // Write file to disk
-    await writeFile(filePath, bufferToSave);
+     // Delete existing icon if exists (might be different extension)
+     await deleteIcon(packageId);
 
-    return {
-      iconPath: filePath,
-      iconUrl: `/icons/${filename}`,
-    };
-  } catch (err) {
-    console.error("Failed to save icon:", err);
-    throw err;
-  }
-}
+     // Write file to disk
+     await writeFile(filePath, bufferToSave);
+
+     return {
+       iconPath: filePath,
+       iconUrl: `/icons/${filename}`,
+     };
+   } catch (err) {
+     console.error("Failed to save icon:", err);
+     throw err;
+   }
+ }
 
 /**
  * Delete package icon
@@ -376,15 +392,16 @@ export async function deleteIcon(packageId: number): Promise<void> {
  * Get icon file path for a package
  */
 export function getIconPath(packageId: number): string | null {
-  const extensions = ["png", "jpg", "webp", "gif", "svg"];
-  for (const ext of extensions) {
-    const filePath = join(ICONS_DIR, `${packageId}.${ext}`);
-    if (existsSync(filePath)) {
-      return filePath;
-    }
-  }
-  return null;
-}
+   // Check in order of preference (WebP first since we convert to it)
+   const extensions = ["webp", "svg", "png", "jpg", "gif"];
+   for (const ext of extensions) {
+     const filePath = join(ICONS_DIR, `${packageId}.${ext}`);
+     if (existsSync(filePath)) {
+       return filePath;
+     }
+   }
+   return null;
+ }
 
 /**
  * Get icon file for serving

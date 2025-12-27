@@ -8,6 +8,8 @@ let authorCache = {};
 let authToken = null;
 let currentUsername = null;
 let currentUserId = null;
+let totalPages = 0;
+let totalPackages = 0;
 
 // Turnstile tokens
 let loginTurnstileToken = null;
@@ -1431,88 +1433,163 @@ async function loadPackages() {
     container.innerHTML =
       '<div class="loading"><div class="spinner"></div></div>';
 
-    let allPackagesList = [];
-    let offset = 0;
-    const limit = 100;
+    // Reset pagination state
+    currentPage = 1;
+    totalPages = 0;
+    totalPackages = 0;
 
-    while (true) {
-      const response = await fetch(
-        `${API_URL}/packages?limit=${limit}&offset=${offset}`,
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to load packages");
-      }
-
-      const data = await response.json();
-      const packages = data.data || [];
-
-      if (packages.length === 0) {
-        break;
-      }
-
-      allPackagesList = allPackagesList.concat(packages);
-      offset += limit;
-    }
-
-    // Packages now include category data from the API, no need for extra /full calls
-    allPackages = allPackagesList;
-
-    // Pre-load author names for all packages
-    const uniqueAuthorIds = [
-      ...new Set(allPackagesList.map((p) => p.author_id)),
-    ];
-    for (const authorId of uniqueAuthorIds) {
-      await getAuthorName(authorId);
-    }
-
-    applyFilters();
+    // Load first page to get total count
+    await fetchAndRenderPage(1);
   } catch (error) {
     showMessage("Error loading packages: " + error.message, "error");
     document.getElementById("packagesContainer").innerHTML = "";
   }
 }
 
+async function fetchAndRenderPage(page) {
+  try {
+    const container = document.getElementById("packagesContainer");
+
+    const searchTerm = document.getElementById("search").value.toLowerCase();
+    const authorTerm = document.getElementById("author").value.toLowerCase();
+    const categoryFilter = document.getElementById("categoryFilter").value;
+    sortBy = document.getElementById("sortBy").value;
+
+    // Build query parameters
+    const params = new URLSearchParams();
+    params.append("limit", pageSize);
+    params.append("offset", (page - 1) * pageSize);
+
+    // Add server-side filters
+    if (categoryFilter && categoryFilter.length > 0) {
+      params.append("category", categoryFilter);
+    }
+
+    const response = await fetch(`${API_URL}/packages?${params.toString()}`);
+
+    if (!response.ok) {
+      throw new Error("Failed to load packages");
+    }
+
+    const data = await response.json();
+    const packages = data.data || [];
+    totalPackages = data.total || 0;
+    totalPages = Math.ceil(totalPackages / pageSize);
+    currentPage = page;
+
+    // Filter packages on client side (search and author filters)
+    let filteredPackages = packages.filter((pkg) => {
+      const matchesSearch =
+        (pkg.name && pkg.name.toLowerCase().includes(searchTerm)) ||
+        (pkg.description && pkg.description.toLowerCase().includes(searchTerm));
+
+      let matchesAuthor = true;
+      if (authorTerm) {
+        const authorName = authorCache[pkg.author_id] || "";
+        matchesAuthor = authorName.toLowerCase().includes(authorTerm);
+      }
+
+      return matchesSearch && matchesAuthor;
+    });
+
+    // Apply sorting
+    filteredPackages = sortPackages(filteredPackages, sortBy);
+
+    // Update counts
+    document.getElementById("totalCount").textContent = filteredPackages.length;
+    document.getElementById("displayCount").textContent = filteredPackages.length;
+
+    // Render packages
+    const packagesHtml = await renderPackagesHtml(filteredPackages);
+    container.innerHTML = packagesHtml || `
+      <div class="empty-state">
+        <p>No packages found</p>
+        <p style="font-size: 12px; color: #555;">Try adjusting your filters</p>
+      </div>
+    `;
+
+    renderServerPagination();
+    updateURLParams();
+  } catch (error) {
+    showMessage("Error loading packages: " + error.message, "error");
+  }
+}
+
+async function renderPackagesHtml(packages) {
+  if (packages.length === 0) {
+    return null;
+  }
+
+  let html = "";
+  for (const pkg of packages) {
+    const authorName = await getAuthorName(pkg.author_id);
+    const iconHtml = pkg.icon_url
+      ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)} icon" onerror="handleIconError(this)">`
+      : `<span style="font-size: 48px; color: #555;">📦</span>`;
+
+    // Check if current user owns this package
+    const isOwner =
+      currentUserId && Number(pkg.author_id) === Number(currentUserId);
+
+    // Download button - if Ko-fi URL exists, show support popup first
+    const downloadUrl = `${API_URL}/packages/${encodeURIComponent(pkg.name)}/download`;
+    const downloadButtonHtml = pkg.kofi_url
+      ? `<button class="download-btn" data-action="support-popup" data-download-url="${escapeHtml(downloadUrl)}" data-kofi-url="${escapeHtml(pkg.kofi_url)}" data-author-name="${escapeHtml(authorName)}">
+                    Download
+                   </button>`
+      : `<a href="${downloadUrl}" class="download-btn" download>
+                    Download
+                   </a>`;
+
+    // View Details button - link to dedicated package page
+    const viewDetailsBtn = `<a href="/package/${encodeURIComponent(pkg.name)}" class="view-details-btn">View Details</a>`;
+
+    const actionsHtml = isOwner
+      ? `<div class="package-actions">
+                   ${viewDetailsBtn}
+                   ${downloadButtonHtml}
+                   <button class="edit-btn" data-action="edit-package" data-package-id="${pkg.id}" data-package-name="${escapeHtml(pkg.name)}">
+                     Edit
+                   </button>
+                 </div>`
+      : `<div class="package-actions">
+                 ${viewDetailsBtn}
+                 ${downloadButtonHtml}
+               </div>`;
+
+    // Generate category HTML (single category instead of multiple tags)
+    const categorySlug = pkg.tag_slug || (pkg.category && pkg.category.slug);
+    const categoryName = pkg.tag_name || (pkg.category && pkg.category.name);
+    const categoryHtml = categorySlug
+      ? `<div class="package-category">
+                   <a href="/packages.html?category=${encodeURIComponent(categorySlug)}" class="category-badge">${escapeHtml(categoryName)}</a>
+               </div>`
+      : "";
+
+    html += `
+<div class="package-card">
+ <div class="package-icon">
+   ${iconHtml}
+ </div>
+ <h3>${escapeHtml(pkg.name)}</h3>
+ <div class="package-meta">
+   <span>Downloads: ${pkg.downloads || 0}</span>
+   <span>Date: ${formatDate(pkg.created_at)}</span>
+ </div>
+ ${categoryHtml}
+ <p class="package-description">${escapeHtml(pkg.description || "No description provided")}</p>
+ <span class="package-version">Version ${pkg.version || "1.0.0"}</span>
+ <p class="package-author">By: ${escapeHtml(authorName)}</p>
+ ${actionsHtml}
+</div>
+`;
+  }
+  return html;
+}
+
 async function applyFilters() {
-  const searchTerm = document.getElementById("search").value.toLowerCase();
-  const authorTerm = document.getElementById("author").value.toLowerCase();
-  const categoryFilter = document.getElementById("categoryFilter").value;
-  sortBy = document.getElementById("sortBy").value;
-
   currentPage = 1;
-
-  filteredPackages = allPackages.filter((pkg) => {
-    const matchesSearch =
-      (pkg.name && pkg.name.toLowerCase().includes(searchTerm)) ||
-      (pkg.description && pkg.description.toLowerCase().includes(searchTerm));
-
-    let matchesAuthor = true;
-    if (authorTerm) {
-      const authorName = authorCache[pkg.author_id];
-      matchesAuthor =
-        authorName && authorName.toLowerCase().includes(authorTerm);
-    }
-
-    // Check category filter
-    let matchesCategory = true;
-    if (categoryFilter) {
-      // Handle category from API response (could be tag_slug or category.slug)
-      const categorySlug = pkg.tag_slug || (pkg.category && pkg.category.slug);
-      matchesCategory = categorySlug && categorySlug === categoryFilter;
-    }
-
-    return matchesSearch && matchesAuthor && matchesCategory;
-  });
-
-  filteredPackages = sortPackages(filteredPackages, sortBy);
-
-  document.getElementById("totalCount").textContent = filteredPackages.length;
-
-  // Update URL with current filters
-  updateURLParams();
-
-  renderPackages();
-  renderPagination();
+  await fetchAndRenderPage(1);
 }
 
 function updateURLParams() {
@@ -1565,94 +1642,8 @@ function sortPackages(packages, sortType) {
   return sorted;
 }
 
-async function renderPackages() {
-  const container = document.getElementById("packagesContainer");
-  const start = (currentPage - 1) * pageSize;
-  const end = start + pageSize;
-  const paginated = filteredPackages.slice(start, end);
-
-  document.getElementById("displayCount").textContent = paginated.length;
-
-  if (paginated.length === 0) {
-    container.innerHTML = `
-<div class="empty-state">
-<p>No packages found</p>
-<p style="font-size: 12px; color: #555;">Try adjusting your filters</p>
-</div>
-`;
-    return;
-  }
-
-  let html = "";
-  for (const pkg of paginated) {
-    const authorName = await getAuthorName(pkg.author_id);
-    const iconHtml = pkg.icon_url
-      ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)} icon" onerror="handleIconError(this)">`
-      : `<span style="font-size: 48px; color: #555;">📦</span>`;
-
-    // Check if current user owns this package
-    const isOwner =
-      currentUserId && Number(pkg.author_id) === Number(currentUserId);
-
-    // Download button - if Ko-fi URL exists, show support popup first
-    const downloadUrl = `${API_URL}/packages/${encodeURIComponent(pkg.name)}/download`;
-    const downloadButtonHtml = pkg.kofi_url
-      ? `<button class="download-btn" data-action="support-popup" data-download-url="${escapeHtml(downloadUrl)}" data-kofi-url="${escapeHtml(pkg.kofi_url)}" data-author-name="${escapeHtml(authorName)}">
-                    Download
-                  </button>`
-      : `<a href="${downloadUrl}" class="download-btn" download>
-                    Download
-                  </a>`;
-
-    // View Details button - link to dedicated package page
-    const viewDetailsBtn = `<a href="/package/${encodeURIComponent(pkg.name)}" class="view-details-btn">View Details</a>`;
-
-    const actionsHtml = isOwner
-      ? `<div class="package-actions">
-                   ${viewDetailsBtn}
-                   ${downloadButtonHtml}
-                   <button class="edit-btn" data-action="edit-package" data-package-id="${pkg.id}" data-package-name="${escapeHtml(pkg.name)}">
-                     Edit
-                   </button>
-                 </div>`
-      : `<div class="package-actions">
-                 ${viewDetailsBtn}
-                 ${downloadButtonHtml}
-               </div>`;
-
-    // Generate category HTML (single category instead of multiple tags)
-    const categorySlug = pkg.tag_slug || (pkg.category && pkg.category.slug);
-    const categoryName = pkg.tag_name || (pkg.category && pkg.category.name);
-    const categoryHtml = categorySlug
-      ? `<div class="package-category">
-                   <a href="/packages.html?category=${encodeURIComponent(categorySlug)}" class="category-badge">${escapeHtml(categoryName)}</a>
-               </div>`
-      : "";
-
-    html += `
-<div class="package-card">
- <div class="package-icon">
-   ${iconHtml}
- </div>
- <h3>${escapeHtml(pkg.name)}</h3>
- <div class="package-meta">
-   <span>Downloads: ${pkg.downloads || 0}</span>
-   <span>Date: ${formatDate(pkg.created_at)}</span>
- </div>
- ${categoryHtml}
- <p class="package-description">${escapeHtml(pkg.description || "No description provided")}</p>
- <span class="package-version">Version ${pkg.version || "1.0.0"}</span>
- <p class="package-author">By: ${escapeHtml(authorName)}</p>
- ${actionsHtml}
-</div>
-`;
-  }
-  container.innerHTML = html;
-}
-
-function renderPagination() {
+function renderServerPagination() {
   const container = document.getElementById("pagination");
-  const totalPages = Math.ceil(filteredPackages.length / pageSize);
 
   if (totalPages <= 1) {
     container.innerHTML = "";
@@ -1661,40 +1652,37 @@ function renderPagination() {
 
   let html = "";
 
-  html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? "disabled" : ""}>Previous</button>`;
+  html += `<button onclick="goToServerPage(${currentPage - 1})" ${currentPage === 1 ? "disabled" : ""}>Previous</button>`;
 
   const startPage = Math.max(1, currentPage - 2);
   const endPage = Math.min(totalPages, currentPage + 2);
 
   if (startPage > 1) {
-    html += `<button onclick="goToPage(1)">1</button>`;
+    html += `<button onclick="goToServerPage(1)">1</button>`;
     if (startPage > 2) {
       html += `<span>...</span>`;
     }
   }
 
   for (let i = startPage; i <= endPage; i++) {
-    html += `<button onclick="goToPage(${i})" class="${i === currentPage ? "active" : ""}">${i}</button>`;
+    html += `<button onclick="goToServerPage(${i})" class="${i === currentPage ? "active" : ""}">${i}</button>`;
   }
 
   if (endPage < totalPages) {
     if (endPage < totalPages - 1) {
       html += `<span>...</span>`;
     }
-    html += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+    html += `<button onclick="goToServerPage(${totalPages})">${totalPages}</button>`;
   }
 
-  html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
+  html += `<button onclick="goToServerPage(${currentPage + 1})" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
 
   container.innerHTML = html;
 }
 
-function goToPage(page) {
-  const totalPages = Math.ceil(filteredPackages.length / pageSize);
+function goToServerPage(page) {
   if (page >= 1 && page <= totalPages) {
-    currentPage = page;
-    renderPackages();
-    renderPagination();
+    fetchAndRenderPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 }
@@ -1708,8 +1696,7 @@ function changePageSize(size) {
   });
   event.target.classList.add("active");
 
-  renderPackages();
-  renderPagination();
+  applyFilters();
 }
 
 function formatDate(dateString) {

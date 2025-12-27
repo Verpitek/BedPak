@@ -1313,6 +1313,127 @@ var require_browser = __commonJS((exports, module) => {
   };
 });
 
+// node_modules/has-flag/index.js
+var require_has_flag = __commonJS((exports, module) => {
+  module.exports = (flag, argv = process.argv) => {
+    const prefix = flag.startsWith("-") ? "" : flag.length === 1 ? "-" : "--";
+    const position = argv.indexOf(prefix + flag);
+    const terminatorPosition = argv.indexOf("--");
+    return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
+  };
+});
+
+// node_modules/supports-color/index.js
+var require_supports_color = __commonJS((exports, module) => {
+  var os = __require("os");
+  var tty = __require("tty");
+  var hasFlag = require_has_flag();
+  var { env } = process;
+  var flagForceColor;
+  if (hasFlag("no-color") || hasFlag("no-colors") || hasFlag("color=false") || hasFlag("color=never")) {
+    flagForceColor = 0;
+  } else if (hasFlag("color") || hasFlag("colors") || hasFlag("color=true") || hasFlag("color=always")) {
+    flagForceColor = 1;
+  }
+  function envForceColor() {
+    if ("FORCE_COLOR" in env) {
+      if (env.FORCE_COLOR === "true") {
+        return 1;
+      }
+      if (env.FORCE_COLOR === "false") {
+        return 0;
+      }
+      return env.FORCE_COLOR.length === 0 ? 1 : Math.min(Number.parseInt(env.FORCE_COLOR, 10), 3);
+    }
+  }
+  function translateLevel(level) {
+    if (level === 0) {
+      return false;
+    }
+    return {
+      level,
+      hasBasic: true,
+      has256: level >= 2,
+      has16m: level >= 3
+    };
+  }
+  function supportsColor(haveStream, { streamIsTTY, sniffFlags = true } = {}) {
+    const noFlagForceColor = envForceColor();
+    if (noFlagForceColor !== undefined) {
+      flagForceColor = noFlagForceColor;
+    }
+    const forceColor = sniffFlags ? flagForceColor : noFlagForceColor;
+    if (forceColor === 0) {
+      return 0;
+    }
+    if (sniffFlags) {
+      if (hasFlag("color=16m") || hasFlag("color=full") || hasFlag("color=truecolor")) {
+        return 3;
+      }
+      if (hasFlag("color=256")) {
+        return 2;
+      }
+    }
+    if (haveStream && !streamIsTTY && forceColor === undefined) {
+      return 0;
+    }
+    const min = forceColor || 0;
+    if (env.TERM === "dumb") {
+      return min;
+    }
+    if (process.platform === "win32") {
+      const osRelease = os.release().split(".");
+      if (Number(osRelease[0]) >= 10 && Number(osRelease[2]) >= 10586) {
+        return Number(osRelease[2]) >= 14931 ? 3 : 2;
+      }
+      return 1;
+    }
+    if ("CI" in env) {
+      if (["TRAVIS", "CIRCLECI", "APPVEYOR", "GITLAB_CI", "GITHUB_ACTIONS", "BUILDKITE", "DRONE"].some((sign) => (sign in env)) || env.CI_NAME === "codeship") {
+        return 1;
+      }
+      return min;
+    }
+    if ("TEAMCITY_VERSION" in env) {
+      return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
+    }
+    if (env.COLORTERM === "truecolor") {
+      return 3;
+    }
+    if ("TERM_PROGRAM" in env) {
+      const version = Number.parseInt((env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
+      switch (env.TERM_PROGRAM) {
+        case "iTerm.app":
+          return version >= 3 ? 3 : 2;
+        case "Apple_Terminal":
+          return 2;
+      }
+    }
+    if (/-256(color)?$/i.test(env.TERM)) {
+      return 2;
+    }
+    if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
+      return 1;
+    }
+    if ("COLORTERM" in env) {
+      return 1;
+    }
+    return min;
+  }
+  function getSupportLevel(stream, options = {}) {
+    const level = supportsColor(stream, {
+      streamIsTTY: stream && stream.isTTY,
+      ...options
+    });
+    return translateLevel(level);
+  }
+  module.exports = {
+    supportsColor: getSupportLevel,
+    stdout: getSupportLevel({ isTTY: tty.isatty(1) }),
+    stderr: getSupportLevel({ isTTY: tty.isatty(2) })
+  };
+});
+
 // node_modules/debug/src/node.js
 var require_node = __commonJS((exports, module) => {
   var tty = __require("tty");
@@ -1326,7 +1447,7 @@ var require_node = __commonJS((exports, module) => {
   exports.destroy = util.deprecate(() => {}, "Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
   exports.colors = [6, 2, 3, 4, 5, 1];
   try {
-    const supportsColor = (()=>{throw new Error("Cannot require module "+"supports-color");})();
+    const supportsColor = require_supports_color();
     if (supportsColor && (supportsColor.stderr || supportsColor).level >= 2) {
       exports.colors = [
         20,
@@ -22469,6 +22590,12 @@ class DB {
         await this.sqlite`ALTER TABLE packages ADD COLUMN youtube_url TEXT`;
         console.log("\u2713 Migration: Added youtube_url column to packages table");
       }
+      const packagesTableInfoForDiscord = await this.sqlite`PRAGMA table_info(packages)`;
+      const hasDiscordUrlColumn = packagesTableInfoForDiscord.some((col) => col.name === "discord_url");
+      if (!hasDiscordUrlColumn) {
+        await this.sqlite`ALTER TABLE packages ADD COLUMN discord_url TEXT`;
+        console.log("\u2713 Migration: Added discord_url column to packages table");
+      }
       const packagesTableInfoForCategory = await this.sqlite`PRAGMA table_info(packages)`;
       const hasCategoryIdColumn = packagesTableInfoForCategory.some((col) => col.name === "category_id");
       if (!hasCategoryIdColumn) {
@@ -22577,25 +22704,34 @@ class DB {
   async getAllUsers() {
     return await this.sqlite`SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC`;
   }
-  async createPackage(name, description, authorId, filePath, fileHash, version, iconUrl, kofiUrl, longDescription, youtubeUrl, categoryId) {
+  async createPackage(name, description, authorId, filePath, fileHash, version, iconUrl, kofiUrl, longDescription, youtubeUrl, discordUrl, categoryId) {
     const iconUrlValue = iconUrl || null;
     const kofiUrlValue = kofiUrl || null;
     const longDescValue = longDescription || null;
     const youtubeUrlValue = youtubeUrl || null;
+    const discordUrlValue = discordUrl || null;
     const categoryIdValue = categoryId || null;
-    return await this.sqlite`INSERT INTO packages (name, description, author_id, file_path, file_hash, version, icon_url, kofi_url, long_description, youtube_url, category_id) VALUES(${name}, ${description}, ${authorId}, ${filePath}, ${fileHash}, ${version}, ${iconUrlValue}, ${kofiUrlValue}, ${longDescValue}, ${youtubeUrlValue}, ${categoryIdValue}) RETURNING *`;
+    return await this.sqlite`INSERT INTO packages (name, description, author_id, file_path, file_hash, version, icon_url, kofi_url, long_description, youtube_url, discord_url, category_id) VALUES(${name}, ${description}, ${authorId}, ${filePath}, ${fileHash}, ${version}, ${iconUrlValue}, ${kofiUrlValue}, ${longDescValue}, ${youtubeUrlValue}, ${discordUrlValue}, ${categoryIdValue}) RETURNING *`;
   }
   async getPackage(name) {
     const results = await this.sqlite`SELECT * FROM packages WHERE name = ${name}`;
     return results[0];
   }
   async getAllPackages(limit = 20, offset = 0) {
-    return await this.sqlite`SELECT * FROM packages ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
+    return await this.sqlite`
+      SELECT 
+        p.*,
+        t.id as tag_id, t.name as tag_name, t.slug as tag_slug
+      FROM packages p
+      LEFT JOIN tags t ON p.category_id = t.id
+      ORDER BY p.created_at DESC 
+      LIMIT ${limit} OFFSET ${offset}
+    `;
   }
   async getPackagesByAuthor(authorId) {
     return await this.sqlite`SELECT * FROM packages WHERE author_id = ${authorId} ORDER BY created_at DESC`;
   }
-  async updatePackage(packageId, name, description, version, iconUrl, kofiUrl, longDescription, youtubeUrl, categoryId) {
+  async updatePackage(packageId, name, description, version, iconUrl, kofiUrl, longDescription, youtubeUrl, discordUrl, categoryId) {
     const currentPkg = await this.sqlite`SELECT * FROM packages WHERE id = ${packageId}`;
     if (!currentPkg || currentPkg.length === 0) {
       return [];
@@ -22608,8 +22744,9 @@ class DB {
     const newKofiUrl = kofiUrl !== undefined ? kofiUrl || null : current.kofi_url;
     const newLongDescription = longDescription !== undefined ? longDescription || null : current.long_description;
     const newYoutubeUrl = youtubeUrl !== undefined ? youtubeUrl || null : current.youtube_url;
+    const newDiscordUrl = discordUrl !== undefined ? discordUrl || null : current.discord_url;
     const newCategoryId = categoryId !== undefined ? categoryId : current.category_id;
-    return await this.sqlite`UPDATE packages SET name = ${newName}, description = ${newDescription}, version = ${newVersion}, icon_url = ${newIconUrl}, kofi_url = ${newKofiUrl}, long_description = ${newLongDescription}, youtube_url = ${newYoutubeUrl}, category_id = ${newCategoryId}, updated_at = CURRENT_TIMESTAMP WHERE id = ${packageId} RETURNING *`;
+    return await this.sqlite`UPDATE packages SET name = ${newName}, description = ${newDescription}, version = ${newVersion}, icon_url = ${newIconUrl}, kofi_url = ${newKofiUrl}, long_description = ${newLongDescription}, youtube_url = ${newYoutubeUrl}, discord_url = ${newDiscordUrl}, category_id = ${newCategoryId}, updated_at = CURRENT_TIMESTAMP WHERE id = ${packageId} RETURNING *`;
   }
   async deletePackage(packageId) {
     await this.sqlite`DELETE FROM packages WHERE id = ${packageId}`;
@@ -22784,8 +22921,11 @@ class DB {
       return [];
     }
     return await this.sqlite`
-      SELECT p.*
+      SELECT 
+        p.*,
+        t.id as tag_id, t.name as tag_name, t.slug as tag_slug
       FROM packages p
+      LEFT JOIN tags t ON p.category_id = t.id
       WHERE p.category_id = ${category.id}
       ORDER BY p.created_at DESC
       LIMIT ${limit} OFFSET ${offset}
@@ -23134,7 +23274,7 @@ var EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 var PACKAGE_NAME_REGEX = /^[a-zA-Z0-9_-]{1,64}$/;
 var VERSION_REGEX = /^\d+\.\d+\.\d+$/;
 var RATE_LIMIT_WINDOW = 60 * 1000;
-var RATE_LIMIT_MAX_REQUESTS = 100;
+var RATE_LIMIT_MAX_REQUESTS = 600;
 var LOGIN_RATE_LIMIT_MAX = 5;
 var LOGIN_RATE_LIMIT_WINDOW = 15 * 60 * 1000;
 var rateLimitStore = new Map;
@@ -23151,7 +23291,11 @@ function checkRateLimit(store, key, maxRequests, windowMs) {
     return { allowed: false, remaining: 0, resetTime: entry.resetTime };
   }
   entry.count++;
-  return { allowed: true, remaining: maxRequests - entry.count, resetTime: entry.resetTime };
+  return {
+    allowed: true,
+    remaining: maxRequests - entry.count,
+    resetTime: entry.resetTime
+  };
 }
 function getClientIP(headers, server, request) {
   const forwarded = headers["x-forwarded-for"];
@@ -23190,7 +23334,10 @@ function validateUsername(username) {
     return { valid: false, error: "Username must be at most 32 characters" };
   }
   if (!USERNAME_REGEX.test(username)) {
-    return { valid: false, error: "Username can only contain letters, numbers, underscores, and hyphens" };
+    return {
+      valid: false,
+      error: "Username can only contain letters, numbers, underscores, and hyphens"
+    };
   }
   return { valid: true };
 }
@@ -23211,10 +23358,16 @@ function validatePackageName(name) {
     return { valid: false, error: "Package name is required" };
   }
   if (name.length > 64) {
-    return { valid: false, error: "Package name must be at most 64 characters" };
+    return {
+      valid: false,
+      error: "Package name must be at most 64 characters"
+    };
   }
   if (!PACKAGE_NAME_REGEX.test(name)) {
-    return { valid: false, error: "Package name can only contain letters, numbers, underscores, and hyphens" };
+    return {
+      valid: false,
+      error: "Package name can only contain letters, numbers, underscores, and hyphens"
+    };
   }
   return { valid: true };
 }
@@ -23223,7 +23376,10 @@ function validateVersion(version) {
     return { valid: true };
   }
   if (!VERSION_REGEX.test(version)) {
-    return { valid: false, error: "Version must be in format X.Y.Z (e.g., 1.0.0)" };
+    return {
+      valid: false,
+      error: "Version must be in format X.Y.Z (e.g., 1.0.0)"
+    };
   }
   return { valid: true };
 }
@@ -23249,7 +23405,10 @@ var app = new Elysia().use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
-})).use(staticPlugin()).onRequest(({ request, set: set2 }) => {
+})).use(staticPlugin({
+  assets: "public",
+  prefix: ""
+})).onRequest(({ request, set: set2 }) => {
   request.startTime = Date.now();
 }).onAfterHandle(({ request, set: set2, server }) => {
   Object.entries(securityHeaders).forEach(([header, value]) => {
@@ -23344,7 +23503,10 @@ var app = new Elysia().use(cors({
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.valid) {
       set2.status = 400;
-      return { error: "Password does not meet requirements", details: passwordValidation.errors };
+      return {
+        error: "Password does not meet requirements",
+        details: passwordValidation.errors
+      };
     }
     const existingUser = await database.getUser(username);
     if (existingUser) {
@@ -23439,6 +23601,7 @@ var app = new Elysia().use(cors({
       set2.status = 404;
       return { error: "User not found" };
     }
+    set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     return {
       id: user.id,
       username: user.username,
@@ -23462,6 +23625,7 @@ var app = new Elysia().use(cors({
       set2.status = 404;
       return { error: "User not found" };
     }
+    set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     return {
       id: user.id,
       username: user.username,
@@ -23543,13 +23707,17 @@ var app = new Elysia().use(cors({
     const validRoles = ["user", "developer", "admin"];
     if (!validRoles.includes(newRole)) {
       set2.status = 400;
-      return { error: `Invalid role. Must be one of: ${validRoles.join(", ")}` };
+      return {
+        error: `Invalid role. Must be one of: ${validRoles.join(", ")}`
+      };
     }
     if (targetUser.role === "admin" && newRole !== "admin") {
       const adminCount = await database.getAdminCount();
       if (adminCount <= 1) {
         set2.status = 400;
-        return { error: "Cannot demote the last admin. Promote another user to admin first." };
+        return {
+          error: "Cannot demote the last admin. Promote another user to admin first."
+        };
       }
     }
     const updatedUser = await database.updateUserRole(targetUserId, newRole);
@@ -23598,7 +23766,9 @@ var app = new Elysia().use(cors({
     const slugRegex = /^[a-z0-9-]+$/;
     if (!slugRegex.test(slug) || slug.length < 1 || slug.length > 32) {
       set2.status = 400;
-      return { error: "Tag slug must be lowercase alphanumeric with hyphens, 1-32 characters" };
+      return {
+        error: "Tag slug must be lowercase alphanumeric with hyphens, 1-32 characters"
+      };
     }
     const existingTag = await database.getTagBySlug(slug);
     if (existingTag) {
@@ -23658,6 +23828,7 @@ var app = new Elysia().use(cors({
 }).get("/categories", async ({ set: set2 }) => {
   try {
     const categories = await database.getAllTags();
+    set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     return { success: true, data: categories };
   } catch (err) {
     console.error("Fetch categories error:", err);
@@ -23676,9 +23847,11 @@ var app = new Elysia().use(cors({
       }
       const limit = Math.min(Math.max(parsedLimit, 1), 50);
       const tags2 = await database.getPopularTags(limit);
+      set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { success: true, data: tags2 };
     }
     const tags = await database.getAllTags();
+    set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     return { success: true, data: tags };
   } catch (err) {
     console.error("Fetch tags error:", err);
@@ -23696,6 +23869,7 @@ var app = new Elysia().use(cors({
       set2.status = 404;
       return { error: "Tag not found" };
     }
+    set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     return { success: true, data: tag };
   } catch (err) {
     console.error("Fetch tag error:", err);
@@ -23717,6 +23891,7 @@ var app = new Elysia().use(cors({
       const categorySlug = categoryParam.trim().toLowerCase();
       const packages2 = await database.getPackagesByCategory(categorySlug, limit, offset);
       const total2 = await database.getPackagesCountByCategory(categorySlug);
+      set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return {
         data: packages2,
         limit,
@@ -23727,6 +23902,7 @@ var app = new Elysia().use(cors({
     }
     const packages = await database.getAllPackages(limit, offset);
     const total = await database.getTotalPackageCount();
+    set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     return {
       data: packages,
       limit,
@@ -23749,6 +23925,7 @@ var app = new Elysia().use(cors({
       set2.status = 404;
       return { error: "Package not found" };
     }
+    set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     return { success: true, data: fullData };
   } catch (err) {
     console.error("Fetch full package data error:", err);
@@ -23767,6 +23944,7 @@ var app = new Elysia().use(cors({
       return { error: "Package not found" };
     }
     if (!fullData.category) {
+      set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { success: true, data: [] };
     }
     const parsedLimit = parseInt(query.limit || "6");
@@ -23792,6 +23970,7 @@ var app = new Elysia().use(cors({
         });
       }
     }
+    set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     return { success: true, data: filtered };
   } catch (err) {
     console.error("Fetch related packages error:", err);
@@ -23809,6 +23988,7 @@ var app = new Elysia().use(cors({
       set2.status = 404;
       return { error: "Package not found" };
     }
+    set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     return { data: pkg };
   } catch (err) {
     console.error("Fetch package error:", err);
@@ -23827,6 +24007,7 @@ var app = new Elysia().use(cors({
       return { error: "User not found" };
     }
     const packages = await database.getPackagesByAuthor(user.id);
+    set2.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     return {
       author: username,
       data: packages,
@@ -23853,7 +24034,9 @@ var app = new Elysia().use(cors({
     const currentUser = await database.getUserById(payload.id);
     if (!currentUser || currentUser.role !== "developer" && currentUser.role !== "admin") {
       context.set.status = 403;
-      return { error: "Forbidden: Only developers and admins can upload addons" };
+      return {
+        error: "Forbidden: Only developers and admins can upload addons"
+      };
     }
     let name;
     let description;
@@ -23861,6 +24044,7 @@ var app = new Elysia().use(cors({
     let kofiUrl;
     let longDescription;
     let youtubeUrl;
+    let discordUrl;
     let category;
     let iconBuffer;
     let fileBuffer;
@@ -23871,6 +24055,7 @@ var app = new Elysia().use(cors({
       kofiUrl = context.body.get("kofiUrl") || undefined;
       longDescription = context.body.get("longDescription") || undefined;
       youtubeUrl = context.body.get("youtubeUrl") || undefined;
+      discordUrl = context.body.get("discordUrl") || undefined;
       category = context.body.get("category") || undefined;
       const file = context.body.get("file");
       const iconFile = context.body.get("icon");
@@ -23888,6 +24073,7 @@ var app = new Elysia().use(cors({
       kofiUrl = bodyObj.kofiUrl;
       longDescription = bodyObj.longDescription;
       youtubeUrl = bodyObj.youtubeUrl;
+      discordUrl = bodyObj.discordUrl;
       category = bodyObj.category;
       if (bodyObj.fileBase64) {
         fileBuffer = Buffer.from(bodyObj.fileBase64, "base64");
@@ -23918,11 +24104,15 @@ var app = new Elysia().use(cors({
     }
     if (fileBuffer.length > MAX_FILE_SIZE) {
       context.set.status = 400;
-      return { error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB` };
+      return {
+        error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+      };
     }
     if (fileBuffer.length < 4 || !(fileBuffer[0] === 80 && fileBuffer[1] === 75 && fileBuffer[2] === 3 && fileBuffer[3] === 4)) {
       context.set.status = 400;
-      return { error: "Invalid file format. Only .mcaddon files (ZIP format) are supported" };
+      return {
+        error: "Invalid file format. Only .mcaddon files (ZIP format) are supported"
+      };
     }
     const existingPackage = await database.getPackage(name);
     if (existingPackage) {
@@ -23933,14 +24123,27 @@ var app = new Elysia().use(cors({
       const kofiUrlPattern = /^https?:\/\/(www\.)?ko-fi\.com\/[a-zA-Z0-9_]+\/?$/;
       if (!kofiUrlPattern.test(kofiUrl)) {
         context.set.status = 400;
-        return { error: "Invalid Ko-fi URL. Must be in format: https://ko-fi.com/username" };
+        return {
+          error: "Invalid Ko-fi URL. Must be in format: https://ko-fi.com/username"
+        };
       }
     }
     if (youtubeUrl) {
       const youtubeUrlPattern = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]+/;
       if (!youtubeUrlPattern.test(youtubeUrl)) {
         context.set.status = 400;
-        return { error: "Invalid YouTube URL. Must be a valid YouTube video URL" };
+        return {
+          error: "Invalid YouTube URL. Must be a valid YouTube video URL"
+        };
+      }
+    }
+    if (discordUrl) {
+      const discordUrlPattern = /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
+      if (!discordUrlPattern.test(discordUrl)) {
+        context.set.status = 400;
+        return {
+          error: "Invalid Discord URL. Must be a valid Discord invite link"
+        };
       }
     }
     let categoryId;
@@ -23953,7 +24156,7 @@ var app = new Elysia().use(cors({
       }
       categoryId = categoryRecord.id;
     }
-    const newPackage = await database.createPackage(name, description || "", payload.id, "", "", version || "1.0.0", undefined, kofiUrl || undefined, longDescription || undefined, youtubeUrl || undefined, categoryId);
+    const newPackage = await database.createPackage(name, description || "", payload.id, "", "", version || "1.0.0", undefined, kofiUrl || undefined, longDescription || undefined, youtubeUrl || undefined, discordUrl || undefined, categoryId);
     const packageData = newPackage[0];
     const packageId = packageData?.id;
     if (!packageId) {
@@ -24066,6 +24269,7 @@ var app = new Elysia().use(cors({
     let kofiUrl;
     let longDescription;
     let youtubeUrl;
+    let discordUrl;
     let category;
     if (typeof body === "object" && body !== null) {
       const bodyObj = body;
@@ -24082,6 +24286,9 @@ var app = new Elysia().use(cors({
       }
       if ("youtubeUrl" in bodyObj) {
         youtubeUrl = bodyObj.youtubeUrl;
+      }
+      if ("discordUrl" in bodyObj) {
+        discordUrl = bodyObj.discordUrl;
       }
       if ("category" in bodyObj) {
         category = bodyObj.category;
@@ -24112,14 +24319,27 @@ var app = new Elysia().use(cors({
       const kofiUrlPattern = /^https?:\/\/(www\.)?ko-fi\.com\/[a-zA-Z0-9_]+\/?$/;
       if (!kofiUrlPattern.test(kofiUrl)) {
         set2.status = 400;
-        return { error: "Invalid Ko-fi URL. Must be in format: https://ko-fi.com/username" };
+        return {
+          error: "Invalid Ko-fi URL. Must be in format: https://ko-fi.com/username"
+        };
       }
     }
     if (youtubeUrl !== undefined && youtubeUrl !== null && youtubeUrl !== "") {
       const youtubeUrlPattern = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]+/;
       if (!youtubeUrlPattern.test(youtubeUrl)) {
         set2.status = 400;
-        return { error: "Invalid YouTube URL. Must be a valid YouTube video URL" };
+        return {
+          error: "Invalid YouTube URL. Must be a valid YouTube video URL"
+        };
+      }
+    }
+    if (discordUrl !== undefined && discordUrl !== null && discordUrl !== "") {
+      const discordUrlPattern = /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
+      if (!discordUrlPattern.test(discordUrl)) {
+        set2.status = 400;
+        return {
+          error: "Invalid Discord URL. Must be a valid Discord invite link"
+        };
       }
     }
     let categoryId;
@@ -24157,11 +24377,15 @@ var app = new Elysia().use(cors({
       const fileBuffer = Buffer.from(fileBase64, "base64");
       if (fileBuffer.length > MAX_FILE_SIZE) {
         set2.status = 400;
-        return { error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB` };
+        return {
+          error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+        };
       }
       if (fileBuffer.length < 4 || !(fileBuffer[0] === 80 && fileBuffer[1] === 75 && fileBuffer[2] === 3 && fileBuffer[3] === 4)) {
         set2.status = 400;
-        return { error: "Invalid file format. Only .mcaddon files (ZIP format) are supported" };
+        return {
+          error: "Invalid file format. Only .mcaddon files (ZIP format) are supported"
+        };
       }
       try {
         const currentName = packageData.name;
@@ -24174,7 +24398,7 @@ var app = new Elysia().use(cors({
         return { error: "Failed to update addon file" };
       }
     }
-    const updatedPackage = await database.updatePackage(packageId, name, description, version, iconUrl, kofiUrl, longDescription, youtubeUrl, categoryId);
+    const updatedPackage = await database.updatePackage(packageId, name, description, version, iconUrl, kofiUrl, longDescription, youtubeUrl, discordUrl, categoryId);
     const updatedPkgName = name || packageData.name;
     const fullPackageData = await database.getFullPackageData(updatedPkgName);
     return {

@@ -1,433 +1,383 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service - BedPak | Minecraft Bedrock Addons Repository</title>
-    <link rel="icon" type="image/svg+xml" href="/logos/bedpak.svg">
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="BedPak Terms of Service - Rules and guidelines for using the Minecraft Bedrock addon repository. User responsibilities, content policies, and usage terms." />
-    <meta name="keywords" content="BedPak terms of service, usage policy, Minecraft addon terms, content policy, user agreement" />
-    <meta name="author" content="BedPak" />
-    <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#C4A574" />
-    <link rel="canonical" href="https://bedpak.com/terms-of-service.html" />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="article" />
-    <meta property="og:url" content="https://bedpak.com/terms-of-service.html" />
-    <meta property="og:title" content="Terms of Service - BedPak" />
-    <meta property="og:description" content="Rules and guidelines for using the BedPak Minecraft Bedrock addons repository." />
-    <meta property="og:image" content="https://bedpak.com/logos/bedpak.svg" />
-    <meta property="og:site_name" content="BedPak" />
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Terms of Service - BedPak" />
-    <meta name="twitter:description" content="Rules and guidelines for using the BedPak Minecraft Bedrock addons repository." />
-    
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": "Terms of Service",
-        "description": "BedPak Terms of Service - Rules and guidelines for using the Minecraft Bedrock addons repository.",
-        "publisher": {
-            "@type": "Organization",
-            "name": "BedPak",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://bedpak.com/logos/bedpak.svg"
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>
+            Terms of Service - BedPak | Minecraft Bedrock Addons Repository
+        </title>
+        <link rel="icon" type="image/svg+xml" href="/logos/bedpak.svg" />
+        <link rel="stylesheet" href="/styles/styles.css" />
+        <link rel="stylesheet" href="/styles/tos.css" />
+
+        <!-- SEO Meta Tags -->
+        <meta
+            name="description"
+            content="BedPak Terms of Service - Rules and guidelines for using the Minecraft Bedrock addon repository. User responsibilities, content policies, and usage terms."
+        />
+        <meta
+            name="keywords"
+            content="BedPak terms of service, usage policy, Minecraft addon terms, content policy, user agreement"
+        />
+        <meta name="author" content="BedPak" />
+        <meta name="robots" content="index, follow" />
+        <meta name="theme-color" content="#C4A574" />
+        <link rel="canonical" href="https://bedpak.com/terms-of-service.html" />
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="article" />
+        <meta
+            property="og:url"
+            content="https://bedpak.com/terms-of-service.html"
+        />
+        <meta property="og:title" content="Terms of Service - BedPak" />
+        <meta
+            property="og:description"
+            content="Rules and guidelines for using the BedPak Minecraft Bedrock addons repository."
+        />
+        <meta
+            property="og:image"
+            content="https://bedpak.com/logos/bedpak.svg"
+        />
+        <meta property="og:site_name" content="BedPak" />
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Terms of Service - BedPak" />
+        <meta
+            name="twitter:description"
+            content="Rules and guidelines for using the BedPak Minecraft Bedrock addons repository."
+        />
+
+        <!-- Structured Data -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "WebPage",
+                "name": "Terms of Service",
+                "description": "BedPak Terms of Service - Rules and guidelines for using the Minecraft Bedrock addons repository.",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "BedPak",
+                    "logo": {
+                        "@type": "ImageObject",
+                        "url": "https://bedpak.com/logos/bedpak.svg"
+                    }
+                },
+                "mainEntityOfPage": {
+                    "@type": "WebPage",
+                    "@id": "https://bedpak.com/terms-of-service.html"
+                }
             }
-        },
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": "https://bedpak.com/terms-of-service.html"
-        }
-    }
-    </script>
-    <style>
-        @font-face {
-            font-family: "Monocraft";
-            src: url("/fonts/Monocraft.woff2") format("woff2");
-            font-weight: normal;
-            font-style: normal;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-
-        body {
-            font-family: "Monocraft", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #1a1a1a;
-            color: #d0d0d0;
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: -100px;
-            z-index: -1;
-            background: repeating-linear-gradient(
-                -45deg,
-                #1a1a1a,
-                #1a1a1a 30px,
-                #0f0f0f 30px,
-                #0f0f0f 60px
-            );
-            background-size: 84.85px 84.85px;
-            animation: stripe-move 20s linear infinite;
-        }
-
-        @keyframes stripe-move {
-            from {
-                background-position: 0 0;
-            }
-            to {
-                background-position: 84.85px 84.85px;
-            }
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 30px 0;
-            border-bottom: 1px solid #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .header-logo {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .header-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .header h1 {
-            font-size: 36px;
-            margin: 0;
-            color: #fff;
-        }
-
-        .content {
-            background: #222;
-            border: 1px solid #333;
-            padding: 30px;
-            margin-bottom: 40px;
-            line-height: 1.8;
-        }
-
-        .content h2 {
-            color: #c4a574;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-size: 24px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-        }
-
-        .content h2:first-child {
-            margin-top: 0;
-        }
-
-        .content h3 {
-            color: #d0d0d0;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-
-        .content p {
-            margin-bottom: 15px;
-            color: #aaa;
-        }
-
-        .content ul,
-        .content ol {
-            margin-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        .content li {
-            margin-bottom: 8px;
-            color: #aaa;
-        }
-
-        .content strong {
-            color: #c4a574;
-        }
-
-        .content code {
-            background: #1a1a1a;
-            padding: 2px 6px;
-            border-radius: 3px;
-            color: #88cc88;
-            font-size: 13px;
-        }
-
-        .footer {
-            background: #222;
-            border-top: 1px solid #333;
-            padding: 30px;
-            text-align: center;
-            color: #888;
-            margin-top: 40px;
-        }
-
-        .footer p {
-            margin: 8px 0;
-            font-size: 14px;
-        }
-
-        .footer a {
-            color: #c4a574;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .footer a:hover {
-            color: #d0b576;
-        }
-
-        .nav-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .nav-links a {
-            color: #c4a574;
-            text-decoration: none;
-            font-size: 14px;
-            padding: 8px 12px;
-            border: 1px solid #333;
-            transition: all 0.3s;
-        }
-
-        .nav-links a:hover {
-            background: #c4a574;
-            color: #222;
-        }
-
-        .nav-links a.active {
-            background: #c4a574;
-            color: #222;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .header h1 {
-                font-size: 24px;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .content h2 {
-                font-size: 20px;
-            }
-
-            .content h3 {
-                font-size: 16px;
-            }
-
-            .footer {
-                padding: 20px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="header-logo">
-                <img src="/logos/bedpak.svg" alt="BedPak Logo" />
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="header-logo">
+                    <img src="/logos/bedpak.svg" alt="BedPak Logo" />
+                </div>
+                <h1>Terms of Service</h1>
             </div>
-            <h1>Terms of Service</h1>
-        </div>
 
-        <div class="nav-links">
-            <a href="/packages.html">Back to Repository</a>
-            <a href="/terms-of-service.html" class="active">Terms of Service</a>
-            <a href="/privacy-policy.html">Privacy Policy</a>
-        </div>
-
-        <div class="content">
-            <h2>Terms of Service</h2>
-            <p><strong>Last Updated: December 24, 2025</strong></p>
-
-            <h2>1. Agreement to Terms</h2>
-            <p>By accessing, registering for, or using BedPak ("Service," "we," "us," "our"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not use the Service. Your continued use of BedPak constitutes acceptance of these Terms.</p>
-
-            <h2>2. Eligibility and Account Registration</h2>
-            <p>You must be at least 13 years old to use BedPak. If you are under 18, you represent that you have parental or guardian consent to use the Service.</p>
-            <p>When creating an account, you agree to provide accurate, complete, and current information, maintain the confidentiality of your password, and accept responsibility for all activities under your account.</p>
-
-            <h2>3. User Content and Intellectual Property</h2>
-
-            <h3>3.1 Ownership</h3>
-            <p>You retain all ownership rights to Content you upload to BedPak. By uploading Content, you represent that:</p>
-            <ul>
-                <li>You own or have the right to distribute the Content</li>
-                <li>The Content does not infringe on third-party intellectual property rights</li>
-                <li>The Content complies with all applicable laws</li>
-            </ul>
-
-            <h3>3.2 License Grant</h3>
-            <p>By uploading Content to BedPak, you grant users a non-exclusive, worldwide license to download and use your add-ons for personal, non-commercial purposes.</p>
-
-            <h3>3.3 Content Restrictions</h3>
-            <p>Users may not upload Content that:</p>
-            <ul>
-                <li>Violates intellectual property rights (copyright, trademark, patent)</li>
-                <li>Contains malware, viruses, or malicious code</li>
-                <li>Promotes illegal activities, violence, or hate</li>
-                <li>Contains explicit sexual content or child exploitation material</li>
-                <li>Harasses, threatens, or defames any person or entity</li>
-                <li>Violates Minecraft's End User License Agreement or community guidelines</li>
-                <li>Circumvents game protections or enables unauthorized modifications</li>
-            </ul>
-            <p>We reserve the right to remove Content that violates these restrictions without notice.</p>
-
-            <h2>4. Service Usage Rules</h2>
-
-            <h3>4.1 Prohibited Activities</h3>
-            <p>You agree not to:</p>
-            <ul>
-                <li>Use automated tools, bots, or scripts to access BedPak (except official integrations)</li>
-                <li>Attempt to bypass or circumvent rate limiting or security measures</li>
-                <li>Access, tamper with, or disrupt BedPak systems or infrastructure</li>
-                <li>Collect data through unauthorized scraping or automated means</li>
-                <li>Use BedPak for commercial purposes without authorization</li>
-                <li>Engage in denial-of-service attacks or other malicious activities</li>
-                <li>Reverse engineer or decompile BedPak code</li>
-                <li>Impersonate another user or entity</li>
-                <li>Manipulate download counts or use fraudulent techniques</li>
-            </ul>
-
-            <h3>4.2 Rate Limiting</h3>
-            <p>BedPak implements rate limiting to ensure fair service access:</p>
-            <ul>
-                <li>General API: Maximum 100 requests per minute per IP address</li>
-                <li>Login attempts: Maximum 5 attempts per 15 minutes per IP address</li>
-                <li>Exceeding limits may result in temporary access restrictions</li>
-            </ul>
-
-            <h2>5. Account Suspension and Termination</h2>
-
-            <h3>5.1 Grounds for Suspension</h3>
-            <p>We may suspend or terminate your account if you:</p>
-            <ul>
-                <li>Violate these Terms or our policies</li>
-                <li>Engage in fraudulent, illegal, or harmful activities</li>
-                <li>Violate intellectual property or other laws</li>
-                <li>Repeatedly upload prohibited Content</li>
-                <li>Harass other users or administrators</li>
-                <li>Engage in abuse or malicious behavior</li>
-            </ul>
-
-            <h3>5.2 Account Deletion</h3>
-            <p>You may delete your account at any time by contacting support. Upon deletion, your account will be deactivated and personal data will be deleted within 30 days.</p>
-
-            <h2>6. Warranties and Disclaimers</h2>
-
-            <h3>6.1 "As Is" Basis</h3>
-            <p>BedPak is provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose, or uninterrupted service.</p>
-
-            <h3>6.2 User Content Disclaimer</h3>
-            <p>We do not warrant that user-uploaded Content is safe, legal, or compatible with your system. Users are responsible for reviewing and testing Content before use.</p>
-
-            <h2>7. Limitation of Liability</h2>
-            <p>To the fullest extent permitted by law, BedPak shall not be liable for indirect, incidental, special, consequential, or punitive damages, including loss of profits, revenue, data, or goodwill. Our total liability shall not exceed the amount you paid to use BedPak in the past 12 months (or $0 if you have not paid anything).</p>
-
-            <h2>8. Indemnification</h2>
-            <p>You agree to indemnify and hold harmless BedPak from claims arising from your use of BedPak, Content you upload, violation of these Terms, or infringement of third-party intellectual property rights.</p>
-
-            <h2>9. Privacy and Data Protection</h2>
-            <p>BedPak's privacy practices are governed by our Privacy Policy. By using BedPak, you consent to collection and processing of your personal data, storage of Content on our servers, IP address collection, and retention of usage data.</p>
-
-            <h2>10. Intellectual Property Rights</h2>
-
-            <h3>10.1 BedPak Ownership</h3>
-            <p>BedPak, its interface, code, and branding are owned by BedPak and protected by intellectual property laws. You may not copy, modify, distribute, reverse engineer, or create derivative works based on BedPak.</p>
-
-            <h3>10.2 Feedback</h3>
-            <p>Any feedback, suggestions, or ideas you provide to BedPak may be used without restriction or compensation.</p>
-
-            <h2>11. Modifications to Terms and Service</h2>
-
-            <h3>11.1 Changes to Terms</h3>
-            <p>We may modify these Terms at any time. Changes become effective when posted. Material changes will be announced via email or prominent notice. Your continued use constitutes acceptance.</p>
-
-            <h3>11.2 Service Changes</h3>
-            <p>We may modify, suspend, or discontinue any feature of BedPak, impose new limitations or fees, or remove Content deemed inappropriate.</p>
-
-            <h2>12. Governing Law and Dispute Resolution</h2>
-
-            <h3>12.1 Dispute Resolution</h3>
-            <p>Before pursuing litigation, you agree to:</p>
-            <ol>
-                <li><strong>Informal Resolution</strong>: Contact us to resolve the dispute informally</li>
-                <li><strong>Arbitration</strong>: If unresolved, disputes shall be resolved by binding arbitration rather than in court</li>
-            </ol>
-
-            <h3>12.2 Exceptions</h3>
-            <p>Arbitration does not apply to intellectual property infringement claims or claims for injunctive relief.</p>
-
-            <h2>13. Special Provisions</h2>
-
-            <h3>13.1 Minecraft Compliance</h3>
-            <p>BedPak is an independent service and is not affiliated with, endorsed by, or associated with Microsoft, Mojang Studios, or Minecraft. Users are responsible for complying with Minecraft's End User License Agreement and community guidelines.</p>
-
-            <h3>13.2 No Warranty of Compatibility</h3>
-            <p>Add-ons are created by community members. We do not guarantee compatibility with any Minecraft version or device.</p>
-        </div>
-
-        <div class="footer">
             <div class="nav-links">
-                <a href="/packages.html">Back to Repository</a>
-                <a href="/terms-of-service.html" class="active">Terms of Service</a>
+                <a href="/">Back to Repository</a>
+                <a href="/terms-of-service.html" class="active"
+                    >Terms of Service</a
+                >
                 <a href="/privacy-policy.html">Privacy Policy</a>
-                <a href="https://discord.gg/fyNQNrr7dC" target="_blank">Discord</a>
             </div>
-            <p>&copy; 2025 BedPak. All rights reserved.</p>
-            <p>BedPak is an independent service and is not affiliated with Microsoft or Mojang Studios.</p>
+
+            <div class="content">
+                <h2>Terms of Service</h2>
+                <p><strong>Last Updated: December 24, 2025</strong></p>
+
+                <h2>1. Agreement to Terms</h2>
+                <p>
+                    By accessing, registering for, or using BedPak ("Service,"
+                    "we," "us," "our"), you agree to be bound by these Terms of
+                    Service ("Terms"). If you do not agree to these Terms, you
+                    may not use the Service. Your continued use of BedPak
+                    constitutes acceptance of these Terms.
+                </p>
+
+                <h2>2. Eligibility and Account Registration</h2>
+                <p>
+                    You must be at least 13 years old to use BedPak. If you are
+                    under 18, you represent that you have parental or guardian
+                    consent to use the Service.
+                </p>
+                <p>
+                    When creating an account, you agree to provide accurate,
+                    complete, and current information, maintain the
+                    confidentiality of your password, and accept responsibility
+                    for all activities under your account.
+                </p>
+
+                <h2>3. User Content and Intellectual Property</h2>
+
+                <h3>3.1 Ownership</h3>
+                <p>
+                    You retain all ownership rights to Content you upload to
+                    BedPak. By uploading Content, you represent that:
+                </p>
+                <ul>
+                    <li>You own or have the right to distribute the Content</li>
+                    <li>
+                        The Content does not infringe on third-party
+                        intellectual property rights
+                    </li>
+                    <li>The Content complies with all applicable laws</li>
+                </ul>
+
+                <h3>3.2 License Grant</h3>
+                <p>
+                    By uploading Content to BedPak, you grant users a
+                    non-exclusive, worldwide license to download and use your
+                    add-ons for personal, non-commercial purposes.
+                </p>
+
+                <h3>3.3 Content Restrictions</h3>
+                <p>Users may not upload Content that:</p>
+                <ul>
+                    <li>
+                        Violates intellectual property rights (copyright,
+                        trademark, patent)
+                    </li>
+                    <li>Contains malware, viruses, or malicious code</li>
+                    <li>Promotes illegal activities, violence, or hate</li>
+                    <li>
+                        Contains explicit sexual content or child exploitation
+                        material
+                    </li>
+                    <li>
+                        Harasses, threatens, or defames any person or entity
+                    </li>
+                    <li>
+                        Violates Minecraft's End User License Agreement or
+                        community guidelines
+                    </li>
+                    <li>
+                        Circumvents game protections or enables unauthorized
+                        modifications
+                    </li>
+                </ul>
+                <p>
+                    We reserve the right to remove Content that violates these
+                    restrictions without notice.
+                </p>
+
+                <h2>4. Service Usage Rules</h2>
+
+                <h3>4.1 Prohibited Activities</h3>
+                <p>You agree not to:</p>
+                <ul>
+                    <li>
+                        Use automated tools, bots, or scripts to access BedPak
+                        (except official integrations)
+                    </li>
+                    <li>
+                        Attempt to bypass or circumvent rate limiting or
+                        security measures
+                    </li>
+                    <li>
+                        Access, tamper with, or disrupt BedPak systems or
+                        infrastructure
+                    </li>
+                    <li>
+                        Collect data through unauthorized scraping or automated
+                        means
+                    </li>
+                    <li>
+                        Use BedPak for commercial purposes without authorization
+                    </li>
+                    <li>
+                        Engage in denial-of-service attacks or other malicious
+                        activities
+                    </li>
+                    <li>Reverse engineer or decompile BedPak code</li>
+                    <li>Impersonate another user or entity</li>
+                    <li>
+                        Manipulate download counts or use fraudulent techniques
+                    </li>
+                </ul>
+
+                <h3>4.2 Rate Limiting</h3>
+                <p>
+                    BedPak implements rate limiting to ensure fair service
+                    access:
+                </p>
+                <ul>
+                    <li>
+                        General API: Maximum 100 requests per minute per IP
+                        address
+                    </li>
+                    <li>
+                        Login attempts: Maximum 5 attempts per 15 minutes per IP
+                        address
+                    </li>
+                    <li>
+                        Exceeding limits may result in temporary access
+                        restrictions
+                    </li>
+                </ul>
+
+                <h2>5. Account Suspension and Termination</h2>
+
+                <h3>5.1 Grounds for Suspension</h3>
+                <p>We may suspend or terminate your account if you:</p>
+                <ul>
+                    <li>Violate these Terms or our policies</li>
+                    <li>
+                        Engage in fraudulent, illegal, or harmful activities
+                    </li>
+                    <li>Violate intellectual property or other laws</li>
+                    <li>Repeatedly upload prohibited Content</li>
+                    <li>Harass other users or administrators</li>
+                    <li>Engage in abuse or malicious behavior</li>
+                </ul>
+
+                <h3>5.2 Account Deletion</h3>
+                <p>
+                    You may delete your account at any time by contacting
+                    support. Upon deletion, your account will be deactivated and
+                    personal data will be deleted within 30 days.
+                </p>
+
+                <h2>6. Warranties and Disclaimers</h2>
+
+                <h3>6.1 "As Is" Basis</h3>
+                <p>
+                    BedPak is provided on an <strong>"AS IS"</strong> and
+                    <strong>"AS AVAILABLE"</strong> basis without warranties of
+                    any kind, express or implied, including merchantability,
+                    fitness for a particular purpose, or uninterrupted service.
+                </p>
+
+                <h3>6.2 User Content Disclaimer</h3>
+                <p>
+                    We do not warrant that user-uploaded Content is safe, legal,
+                    or compatible with your system. Users are responsible for
+                    reviewing and testing Content before use.
+                </p>
+
+                <h2>7. Limitation of Liability</h2>
+                <p>
+                    To the fullest extent permitted by law, BedPak shall not be
+                    liable for indirect, incidental, special, consequential, or
+                    punitive damages, including loss of profits, revenue, data,
+                    or goodwill. Our total liability shall not exceed the amount
+                    you paid to use BedPak in the past 12 months (or $0 if you
+                    have not paid anything).
+                </p>
+
+                <h2>8. Indemnification</h2>
+                <p>
+                    You agree to indemnify and hold harmless BedPak from claims
+                    arising from your use of BedPak, Content you upload,
+                    violation of these Terms, or infringement of third-party
+                    intellectual property rights.
+                </p>
+
+                <h2>9. Privacy and Data Protection</h2>
+                <p>
+                    BedPak's privacy practices are governed by our Privacy
+                    Policy. By using BedPak, you consent to collection and
+                    processing of your personal data, storage of Content on our
+                    servers, IP address collection, and retention of usage data.
+                </p>
+
+                <h2>10. Intellectual Property Rights</h2>
+
+                <h3>10.1 BedPak Ownership</h3>
+                <p>
+                    BedPak, its interface, code, and branding are owned by
+                    BedPak and protected by intellectual property laws. You may
+                    not copy, modify, distribute, reverse engineer, or create
+                    derivative works based on BedPak.
+                </p>
+
+                <h3>10.2 Feedback</h3>
+                <p>
+                    Any feedback, suggestions, or ideas you provide to BedPak
+                    may be used without restriction or compensation.
+                </p>
+
+                <h2>11. Modifications to Terms and Service</h2>
+
+                <h3>11.1 Changes to Terms</h3>
+                <p>
+                    We may modify these Terms at any time. Changes become
+                    effective when posted. Material changes will be announced
+                    via email or prominent notice. Your continued use
+                    constitutes acceptance.
+                </p>
+
+                <h3>11.2 Service Changes</h3>
+                <p>
+                    We may modify, suspend, or discontinue any feature of
+                    BedPak, impose new limitations or fees, or remove Content
+                    deemed inappropriate.
+                </p>
+
+                <h2>12. Governing Law and Dispute Resolution</h2>
+
+                <h3>12.1 Dispute Resolution</h3>
+                <p>Before pursuing litigation, you agree to:</p>
+                <ol>
+                    <li>
+                        <strong>Informal Resolution</strong>: Contact us to
+                        resolve the dispute informally
+                    </li>
+                    <li>
+                        <strong>Arbitration</strong>: If unresolved, disputes
+                        shall be resolved by binding arbitration rather than in
+                        court
+                    </li>
+                </ol>
+
+                <h3>12.2 Exceptions</h3>
+                <p>
+                    Arbitration does not apply to intellectual property
+                    infringement claims or claims for injunctive relief.
+                </p>
+
+                <h2>13. Special Provisions</h2>
+
+                <h3>13.1 Minecraft Compliance</h3>
+                <p>
+                    BedPak is an independent service and is not affiliated with,
+                    endorsed by, or associated with Microsoft, Mojang Studios,
+                    or Minecraft. Users are responsible for complying with
+                    Minecraft's End User License Agreement and community
+                    guidelines.
+                </p>
+
+                <h3>13.2 No Warranty of Compatibility</h3>
+                <p>
+                    Add-ons are created by community members. We do not
+                    guarantee compatibility with any Minecraft version or
+                    device.
+                </p>
+            </div>
+
+            <div class="footer">
+                <div class="nav-links">
+                    <a href="/">Back to Repository</a>
+                    <a href="/terms-of-service.html" class="active"
+                        >Terms of Service</a
+                    >
+                    <a href="/privacy-policy.html">Privacy Policy</a>
+                    <a href="https://discord.gg/fyNQNrr7dC" target="_blank"
+                        >Discord</a
+                    >
+                </div>
+                <p>&copy; 2025 BedPak. All rights reserved.</p>
+                <p>
+                    BedPak is an independent service and is not affiliated with
+                    Microsoft or Mojang Studios.
+                </p>
+            </div>
         </div>
-    </div>
-</body>
+    </body>
 </html>

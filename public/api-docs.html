@@ -3,59 +3,87 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>API Documentation - BedPak | Minecraft Bedrock Addons REST API</title>
+        <title>
+            API Documentation - BedPak | Minecraft Bedrock Addons REST API
+        </title>
         <link rel="icon" type="image/svg+xml" href="/logos/bedpak.svg" />
-        <link rel="stylesheet" href="styles/styles.css">
-        <link rel="stylesheet" href="styles/apidocs.css">
-        
+        <link rel="stylesheet" href="/styles/styles.css" />
+        <link rel="stylesheet" href="/styles/apidocs.css" />
+
         <!-- SEO Meta Tags -->
-        <meta name="description" content="BedPak REST API documentation. Learn how to programmatically upload, download, and manage Minecraft Bedrock addons (.mcaddon files). Complete API reference with examples." />
-        <meta name="keywords" content="BedPak API, Minecraft Bedrock API, mcaddon API, REST API, addon repository API, developer documentation" />
+        <meta
+            name="description"
+            content="BedPak REST API documentation. Learn how to programmatically upload, download, and manage Minecraft Bedrock addons (.mcaddon files). Complete API reference with examples."
+        />
+        <meta
+            name="keywords"
+            content="BedPak API, Minecraft Bedrock API, mcaddon API, REST API, addon repository API, developer documentation"
+        />
         <meta name="author" content="BedPak" />
         <meta name="robots" content="index, follow" />
         <meta name="theme-color" content="#C4A574" />
         <link rel="canonical" href="https://bedpak.com/api-docs.html" />
-        
+
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="article" />
         <meta property="og:url" content="https://bedpak.com/api-docs.html" />
-        <meta property="og:title" content="BedPak API Documentation - Minecraft Bedrock Addons REST API" />
-        <meta property="og:description" content="Complete REST API documentation for BedPak. Upload, download, and manage Minecraft Bedrock addons programmatically." />
-        <meta property="og:image" content="https://bedpak.com/logos/bedpak.svg" />
+        <meta
+            property="og:title"
+            content="BedPak API Documentation - Minecraft Bedrock Addons REST API"
+        />
+        <meta
+            property="og:description"
+            content="Complete REST API documentation for BedPak. Upload, download, and manage Minecraft Bedrock addons programmatically."
+        />
+        <meta
+            property="og:image"
+            content="https://bedpak.com/logos/bedpak.svg"
+        />
         <meta property="og:site_name" content="BedPak" />
-        
+
         <!-- Twitter Card -->
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content="BedPak API Documentation" />
-        <meta name="twitter:description" content="Complete REST API documentation for managing Minecraft Bedrock addons programmatically." />
-        <meta name="twitter:image" content="https://bedpak.com/logos/bedpak.svg" />
-        
+        <meta
+            name="twitter:description"
+            content="Complete REST API documentation for managing Minecraft Bedrock addons programmatically."
+        />
+        <meta
+            name="twitter:image"
+            content="https://bedpak.com/logos/bedpak.svg"
+        />
+
         <!-- Structured Data - TechArticle -->
         <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "TechArticle",
-            "headline": "BedPak API Documentation",
-            "description": "Complete REST API documentation for BedPak - upload, download, and manage Minecraft Bedrock addons (.mcaddon files) programmatically.",
-            "author": {
-                "@type": "Organization",
-                "name": "BedPak"
-            },
-            "publisher": {
-                "@type": "Organization",
-                "name": "BedPak",
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": "https://bedpak.com/logos/bedpak.svg"
-                }
-            },
-            "mainEntityOfPage": {
-                "@type": "WebPage",
-                "@id": "https://bedpak.com/api-docs.html"
-            },
-            "articleSection": "Documentation",
-            "keywords": ["REST API", "Minecraft Bedrock", "mcaddon", "addon repository"]
-        }
+            {
+                "@context": "https://schema.org",
+                "@type": "TechArticle",
+                "headline": "BedPak API Documentation",
+                "description": "Complete REST API documentation for BedPak - upload, download, and manage Minecraft Bedrock addons (.mcaddon files) programmatically.",
+                "author": {
+                    "@type": "Organization",
+                    "name": "BedPak"
+                },
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "BedPak",
+                    "logo": {
+                        "@type": "ImageObject",
+                        "url": "https://bedpak.com/logos/bedpak.svg"
+                    }
+                },
+                "mainEntityOfPage": {
+                    "@type": "WebPage",
+                    "@id": "https://bedpak.com/api-docs.html"
+                },
+                "articleSection": "Documentation",
+                "keywords": [
+                    "REST API",
+                    "Minecraft Bedrock",
+                    "mcaddon",
+                    "addon repository"
+                ]
+            }
         </script>
     </head>
     <body>
@@ -68,7 +96,7 @@
             </div>
 
             <div class="nav-links">
-                <a href="/packages.html">Back to Repository</a>
+                <a href="/">Back to Repository</a>
                 <a href="/terms-of-service.html">Terms of Service</a>
                 <a href="/privacy-policy.html">Privacy Policy</a>
                 <a href="/api-docs.html" class="active">API Docs</a>
@@ -77,15 +105,17 @@
             <div class="content">
                 <h2>Overview</h2>
                 <p>
-                    The BedPak API allows you to programmatically interact with the
-                    Minecraft Bedrock add-on repository. You can list packages,
-                    upload new add-ons, download files, and manage your packages.
+                    The BedPak API allows you to programmatically interact with
+                    the Minecraft Bedrock add-on repository. You can list
+                    packages, upload new add-ons, download files, and manage
+                    your packages.
                 </p>
 
                 <div class="note">
                     <div class="note-title">Base URL</div>
-                    All API endpoints are relative to the base URL of your BedPak instance.
-                    For local development, this is typically <code>http://localhost:3000</code>
+                    All API endpoints are relative to the base URL of your
+                    BedPak instance. For local development, this is typically
+                    <code>http://localhost:3000</code>
                 </div>
 
                 <div class="toc">
@@ -95,15 +125,18 @@
                         <li><a href="#users">User Endpoints</a></li>
                         <li><a href="#packages">Package Endpoints</a></li>
                         <li><a href="#errors">Error Responses</a></li>
-                        <li><a href="#file-format">File Format Requirements</a></li>
+                        <li>
+                            <a href="#file-format">File Format Requirements</a>
+                        </li>
                     </ul>
                 </div>
 
                 <h2 id="authentication">Authentication</h2>
                 <p>
-                    BedPak uses JWT (JSON Web Token) authentication. After logging in,
-                    include the token in the <code>Authorization</code> header for
-                    authenticated requests.
+                    BedPak uses JWT (JSON Web Token) authentication. After
+                    logging in, include the token in the
+                    <code>Authorization</code> header for authenticated
+                    requests.
                 </p>
 
                 <h3>Register a New User</h3>
@@ -112,7 +145,9 @@
                         <span class="method-badge method-post">POST</span>
                         <span class="endpoint-path">/auth/register</span>
                     </div>
-                    <p class="endpoint-description">Create a new user account.</p>
+                    <p class="endpoint-description">
+                        Create a new user account.
+                    </p>
 
                     <table class="param-table">
                         <tr>
@@ -121,17 +156,29 @@
                             <th>Description</th>
                         </tr>
                         <tr>
-                            <td>username <span class="param-required">required</span></td>
+                            <td>
+                                username
+                                <span class="param-required">required</span>
+                            </td>
                             <td>string</td>
-                            <td>Unique username (alphanumeric, underscores, 3-32 chars)</td>
+                            <td>
+                                Unique username (alphanumeric, underscores, 3-32
+                                chars)
+                            </td>
                         </tr>
                         <tr>
-                            <td>email <span class="param-required">required</span></td>
+                            <td>
+                                email
+                                <span class="param-required">required</span>
+                            </td>
                             <td>string</td>
                             <td>Valid email address</td>
                         </tr>
                         <tr>
-                            <td>password <span class="param-required">required</span></td>
+                            <td>
+                                password
+                                <span class="param-required">required</span>
+                            </td>
                             <td>string</td>
                             <td>Min 8 chars, 1 number, 1 special character</td>
                         </tr>
@@ -166,7 +213,9 @@
                         <span class="method-badge method-post">POST</span>
                         <span class="endpoint-path">/auth/login</span>
                     </div>
-                    <p class="endpoint-description">Authenticate and receive a JWT token.</p>
+                    <p class="endpoint-description">
+                        Authenticate and receive a JWT token.
+                    </p>
 
                     <table class="param-table">
                         <tr>
@@ -175,12 +224,18 @@
                             <th>Description</th>
                         </tr>
                         <tr>
-                            <td>username <span class="param-required">required</span></td>
+                            <td>
+                                username
+                                <span class="param-required">required</span>
+                            </td>
                             <td>string</td>
                             <td>Your username</td>
                         </tr>
                         <tr>
-                            <td>password <span class="param-required">required</span></td>
+                            <td>
+                                password
+                                <span class="param-required">required</span>
+                            </td>
                             <td>string</td>
                             <td>Your password</td>
                         </tr>
@@ -209,15 +264,16 @@
 
                     <div class="note">
                         <div class="note-title">Token Expiration</div>
-                        JWT tokens expire after 7 days. Store the token securely and
-                        include it in the Authorization header for authenticated requests.
+                        JWT tokens expire after 7 days. Store the token securely
+                        and include it in the Authorization header for
+                        authenticated requests.
                     </div>
                 </div>
 
                 <h3>Using Authentication</h3>
                 <p>
-                    For endpoints that require authentication, include the JWT token
-                    in the <code>Authorization</code> header:
+                    For endpoints that require authentication, include the JWT
+                    token in the <code>Authorization</code> header:
                 </p>
                 <div class="code-block">
                     <pre><code>Authorization: Bearer YOUR_JWT_TOKEN</code></pre>
@@ -231,7 +287,9 @@
                         <span class="method-badge method-get">GET</span>
                         <span class="endpoint-path">/user/{username}</span>
                     </div>
-                    <p class="endpoint-description">Retrieve public user information by username.</p>
+                    <p class="endpoint-description">
+                        Retrieve public user information by username.
+                    </p>
 
                     <div class="code-block">
                         <pre><code>curl /user/myuser</code></pre>
@@ -252,7 +310,9 @@
                         <span class="method-badge method-get">GET</span>
                         <span class="endpoint-path">/user/id/{id}</span>
                     </div>
-                    <p class="endpoint-description">Retrieve public user information by user ID.</p>
+                    <p class="endpoint-description">
+                        Retrieve public user information by user ID.
+                    </p>
 
                     <div class="code-block">
                         <pre><code>curl /user/id/1</code></pre>
@@ -275,7 +335,9 @@
                         <span class="method-badge method-get">GET</span>
                         <span class="endpoint-path">/packages</span>
                     </div>
-                    <p class="endpoint-description">Retrieve a paginated list of all packages.</p>
+                    <p class="endpoint-description">
+                        Retrieve a paginated list of all packages.
+                    </p>
 
                     <table class="param-table">
                         <tr>
@@ -284,12 +346,18 @@
                             <th>Description</th>
                         </tr>
                         <tr>
-                            <td>limit <span class="param-optional">optional</span></td>
+                            <td>
+                                limit
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>number</td>
                             <td>Number of results per page (default: 20)</td>
                         </tr>
                         <tr>
-                            <td>offset <span class="param-optional">optional</span></td>
+                            <td>
+                                offset
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>number</td>
                             <td>Number of results to skip (default: 0)</td>
                         </tr>
@@ -331,7 +399,9 @@
                         <span class="method-badge method-get">GET</span>
                         <span class="endpoint-path">/packages/{name}</span>
                     </div>
-                    <p class="endpoint-description">Retrieve details of a specific package by name.</p>
+                    <p class="endpoint-description">
+                        Retrieve details of a specific package by name.
+                    </p>
 
                     <div class="code-block">
                         <pre><code>curl /packages/MyAddon</code></pre>
@@ -360,9 +430,13 @@
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method-badge method-get">GET</span>
-                        <span class="endpoint-path">/packages/author/{username}</span>
+                        <span class="endpoint-path"
+                            >/packages/author/{username}</span
+                        >
                     </div>
-                    <p class="endpoint-description">Retrieve all packages uploaded by a specific user.</p>
+                    <p class="endpoint-description">
+                        Retrieve all packages uploaded by a specific user.
+                    </p>
 
                     <div class="code-block">
                         <pre><code>curl /packages/author/myuser</code></pre>
@@ -389,10 +463,13 @@
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method-badge method-get">GET</span>
-                        <span class="endpoint-path">/packages/{name}/download</span>
+                        <span class="endpoint-path"
+                            >/packages/{name}/download</span
+                        >
                     </div>
                     <p class="endpoint-description">
-                        Download the .mcaddon file for a package. This increments the download counter.
+                        Download the .mcaddon file for a package. This
+                        increments the download counter.
                     </p>
 
                     <div class="code-block">
@@ -401,7 +478,8 @@
 
                     <div class="note">
                         <div class="note-title">Response</div>
-                        Returns the binary .mcaddon file with appropriate Content-Disposition headers.
+                        Returns the binary .mcaddon file with appropriate
+                        Content-Disposition headers.
                     </div>
                 </div>
 
@@ -412,7 +490,9 @@
                         <span class="endpoint-path">/packages</span>
                         <span class="auth-badge">Auth Required</span>
                     </div>
-                    <p class="endpoint-description">Upload a new add-on package.</p>
+                    <p class="endpoint-description">
+                        Upload a new add-on package.
+                    </p>
 
                     <table class="param-table">
                         <tr>
@@ -421,34 +501,61 @@
                             <th>Description</th>
                         </tr>
                         <tr>
-                            <td>name <span class="param-required">required</span></td>
+                            <td>
+                                name
+                                <span class="param-required">required</span>
+                            </td>
                             <td>string</td>
-                            <td>Unique package name (letters, numbers, underscores, hyphens, 1-64 chars)</td>
+                            <td>
+                                Unique package name (letters, numbers,
+                                underscores, hyphens, 1-64 chars)
+                            </td>
                         </tr>
                         <tr>
-                            <td>fileBase64 <span class="param-required">required</span></td>
+                            <td>
+                                fileBase64
+                                <span class="param-required">required</span>
+                            </td>
                             <td>string</td>
                             <td>Base64-encoded .mcaddon file (max 200MB)</td>
                         </tr>
                         <tr>
-                            <td>description <span class="param-optional">optional</span></td>
+                            <td>
+                                description
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>string</td>
                             <td>Package description</td>
                         </tr>
                         <tr>
-                            <td>version <span class="param-optional">optional</span></td>
+                            <td>
+                                version
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>string</td>
                             <td>Version string (e.g., "1.0.0")</td>
                         </tr>
                         <tr>
-                            <td>iconBase64 <span class="param-optional">optional</span></td>
+                            <td>
+                                iconBase64
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>string</td>
-                            <td>Base64-encoded icon image (PNG, JPG, WebP, GIF, SVG, max 2MB)</td>
+                            <td>
+                                Base64-encoded icon image (PNG, JPG, WebP, GIF,
+                                SVG, max 2MB)
+                            </td>
                         </tr>
                         <tr>
-                            <td>kofiUrl <span class="param-optional">optional</span></td>
+                            <td>
+                                kofiUrl
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>string</td>
-                            <td>Ko-fi support URL (e.g., "https://ko-fi.com/username")</td>
+                            <td>
+                                Ko-fi support URL (e.g.,
+                                "https://ko-fi.com/username")
+                            </td>
                         </tr>
                     </table>
 
@@ -486,9 +593,10 @@ curl -X POST /packages \
 
                     <div class="warning">
                         <div class="warning-title">File Requirements</div>
-                        Only valid .mcaddon files (ZIP format) are accepted. The file is verified
-                        by checking for ZIP magic bytes. SVG icons are automatically sanitized
-                        to prevent XSS attacks.
+                        Only valid .mcaddon files (ZIP format) are accepted. The
+                        file is verified by checking for ZIP magic bytes. SVG
+                        icons are automatically sanitized to prevent XSS
+                        attacks.
                     </div>
                 </div>
 
@@ -500,7 +608,8 @@ curl -X POST /packages \
                         <span class="auth-badge">Auth Required</span>
                     </div>
                     <p class="endpoint-description">
-                        Update an existing package. Only the package owner or admin can update.
+                        Update an existing package. Only the package owner or
+                        admin can update.
                     </p>
 
                     <table class="param-table">
@@ -510,32 +619,50 @@ curl -X POST /packages \
                             <th>Description</th>
                         </tr>
                         <tr>
-                            <td>name <span class="param-optional">optional</span></td>
+                            <td>
+                                name
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>string</td>
                             <td>New package name</td>
                         </tr>
                         <tr>
-                            <td>description <span class="param-optional">optional</span></td>
+                            <td>
+                                description
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>string</td>
                             <td>New description</td>
                         </tr>
                         <tr>
-                            <td>version <span class="param-optional">optional</span></td>
+                            <td>
+                                version
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>string</td>
                             <td>New version string</td>
                         </tr>
                         <tr>
-                            <td>iconBase64 <span class="param-optional">optional</span></td>
+                            <td>
+                                iconBase64
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>string</td>
                             <td>New icon (base64-encoded)</td>
                         </tr>
                         <tr>
-                            <td>fileBase64 <span class="param-optional">optional</span></td>
+                            <td>
+                                fileBase64
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>string</td>
                             <td>New addon file (base64-encoded)</td>
                         </tr>
                         <tr>
-                            <td>kofiUrl <span class="param-optional">optional</span></td>
+                            <td>
+                                kofiUrl
+                                <span class="param-optional">optional</span>
+                            </td>
                             <td>string|null</td>
                             <td>Ko-fi URL (set to null to remove)</td>
                         </tr>
@@ -573,7 +700,8 @@ curl -X POST /packages \
                         <span class="auth-badge">Auth Required</span>
                     </div>
                     <p class="endpoint-description">
-                        Delete a package and its associated files. Only the package owner or admin can delete.
+                        Delete a package and its associated files. Only the
+                        package owner or admin can delete.
                     </p>
 
                     <div class="code-block">
@@ -591,8 +719,8 @@ curl -X POST /packages \
 
                     <div class="warning">
                         <div class="warning-title">Warning</div>
-                        Deletion is permanent. The package database record and all associated
-                        files (addon and icon) will be removed.
+                        Deletion is permanent. The package database record and
+                        all associated files (addon and icon) will be removed.
                     </div>
                 </div>
 
@@ -641,8 +769,9 @@ curl -X POST /packages \
 
                 <h3>.mcaddon Files</h3>
                 <p>
-                    Only <code>.mcaddon</code> files are accepted for upload. These files must be
-                    valid ZIP archives (verified by checking for ZIP magic bytes: <code>PK\x03\x04</code>).
+                    Only <code>.mcaddon</code> files are accepted for upload.
+                    These files must be valid ZIP archives (verified by checking
+                    for ZIP magic bytes: <code>PK\x03\x04</code>).
                 </p>
 
                 <div class="note">
@@ -659,9 +788,15 @@ curl -X POST /packages \
 
                 <h3>Icon Files</h3>
                 <ul>
-                    <li><strong>Supported formats:</strong> PNG, JPEG, WebP, GIF, SVG</li>
+                    <li>
+                        <strong>Supported formats:</strong> PNG, JPEG, WebP,
+                        GIF, SVG
+                    </li>
                     <li><strong>Maximum size:</strong> 2MB</li>
-                    <li><strong>SVG sanitization:</strong> SVG files are automatically sanitized to prevent XSS attacks</li>
+                    <li>
+                        <strong>SVG sanitization:</strong> SVG files are
+                        automatically sanitized to prevent XSS attacks
+                    </li>
                 </ul>
 
                 <h3>File Size Limits</h3>
@@ -687,17 +822,22 @@ curl -X POST /packages \
                     <li>Use base64 encoding for file uploads</li>
                     <li>Package names must be unique across the repository</li>
                     <li>Only you (or admin) can update/delete your packages</li>
-                    <li>Download counter tracks popularity and is incremented on each download</li>
+                    <li>
+                        Download counter tracks popularity and is incremented on
+                        each download
+                    </li>
                 </ul>
             </div>
 
             <div class="footer">
                 <div class="nav-links">
-                    <a href="/packages.html">Back to Repository</a>
+                    <a href="/">Back to Repository</a>
                     <a href="/terms-of-service.html">Terms of Service</a>
                     <a href="/privacy-policy.html">Privacy Policy</a>
                     <a href="/api-docs.html" class="active">API Docs</a>
-                    <a href="https://discord.gg/fyNQNrr7dC" target="_blank">Discord</a>
+                    <a href="https://discord.gg/fyNQNrr7dC" target="_blank"
+                        >Discord</a
+                    >
                 </div>
                 <p>&copy; 2025 BedPak. All rights reserved.</p>
                 <p>

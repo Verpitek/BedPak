@@ -53,7 +53,7 @@ function checkRateLimit(
   store: Map<string, RateLimitEntry>,
   key: string,
   maxRequests: number,
-  windowMs: number
+  windowMs: number,
 ): { allowed: boolean; remaining: number; resetTime: number } {
   const now = Date.now();
   const entry = store.get(key);
@@ -70,11 +70,19 @@ function checkRateLimit(
   }
 
   entry.count++;
-  return { allowed: true, remaining: maxRequests - entry.count, resetTime: entry.resetTime };
+  return {
+    allowed: true,
+    remaining: maxRequests - entry.count,
+    resetTime: entry.resetTime,
+  };
 }
 
 // Get client IP from request
-function getClientIP(headers: Record<string, string | undefined>, server: { requestIP?: (req: Request) => { address: string } | null } | null, request: Request): string {
+function getClientIP(
+  headers: Record<string, string | undefined>,
+  server: { requestIP?: (req: Request) => { address: string } | null } | null,
+  request: Request,
+): string {
   // Check X-Forwarded-For header (for reverse proxies)
   const forwarded = headers["x-forwarded-for"];
   if (forwarded) {
@@ -109,7 +117,10 @@ setInterval(() => {
 }, 60 * 1000); // Clean up every minute
 
 // Input validation helpers
-function validateUsername(username: string): { valid: boolean; error?: string } {
+function validateUsername(username: string): {
+  valid: boolean;
+  error?: string;
+} {
   if (!username || username.length < 3) {
     return { valid: false, error: "Username must be at least 3 characters" };
   }
@@ -117,7 +128,11 @@ function validateUsername(username: string): { valid: boolean; error?: string } 
     return { valid: false, error: "Username must be at most 32 characters" };
   }
   if (!USERNAME_REGEX.test(username)) {
-    return { valid: false, error: "Username can only contain letters, numbers, underscores, and hyphens" };
+    return {
+      valid: false,
+      error:
+        "Username can only contain letters, numbers, underscores, and hyphens",
+    };
   }
   return { valid: true };
 }
@@ -140,10 +155,17 @@ function validatePackageName(name: string): { valid: boolean; error?: string } {
     return { valid: false, error: "Package name is required" };
   }
   if (name.length > 64) {
-    return { valid: false, error: "Package name must be at most 64 characters" };
+    return {
+      valid: false,
+      error: "Package name must be at most 64 characters",
+    };
   }
   if (!PACKAGE_NAME_REGEX.test(name)) {
-    return { valid: false, error: "Package name can only contain letters, numbers, underscores, and hyphens" };
+    return {
+      valid: false,
+      error:
+        "Package name can only contain letters, numbers, underscores, and hyphens",
+    };
   }
   return { valid: true };
 }
@@ -153,7 +175,10 @@ function validateVersion(version: string): { valid: boolean; error?: string } {
     return { valid: true }; // Version is optional, defaults to 1.0.0
   }
   if (!VERSION_REGEX.test(version)) {
-    return { valid: false, error: "Version must be in format X.Y.Z (e.g., 1.0.0)" };
+    return {
+      valid: false,
+      error: "Version must be in format X.Y.Z (e.g., 1.0.0)",
+    };
   }
   return { valid: true };
 }
@@ -179,20 +204,35 @@ const securityHeaders = {
 };
 
 // Request logging helper
-function logRequest(method: string, path: string, status: number, duration: number, ip: string): void {
+function logRequest(
+  method: string,
+  path: string,
+  status: number,
+  duration: number,
+  ip: string,
+): void {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${method} ${path} ${status} ${duration}ms - ${ip}`);
+  console.log(
+    `[${timestamp}] ${method} ${path} ${status} ${duration}ms - ${ip}`,
+  );
 }
 
 const app = new Elysia()
   // CORS configuration
-  .use(cors({
-    origin: process.env.CORS_ORIGINS?.split(",") || true, // Allow all origins by default, or specify via env
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  }))
-  .use(staticPlugin({ noCache: true }))
+  .use(
+    cors({
+      origin: process.env.CORS_ORIGINS?.split(",") || true, // Allow all origins by default, or specify via env
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
+    }),
+  )
+  .use(
+    staticPlugin({
+      assets: "public", // The physical folder in your project
+      prefix: "", // This removes the need to put '/public' in your HTML tags
+    }),
+  )
   // Request logging and security headers middleware
   .onRequest(({ request, set }) => {
     // Store request start time for logging
@@ -203,34 +243,52 @@ const app = new Elysia()
     Object.entries(securityHeaders).forEach(([header, value]) => {
       set.headers[header] = value;
     });
-    
+
     // Log request
-    const startTime = (request as Request & { startTime?: number }).startTime || Date.now();
+    const startTime =
+      (request as Request & { startTime?: number }).startTime || Date.now();
     const duration = Date.now() - startTime;
-    const ip = getClientIP(request.headers as unknown as Record<string, string | undefined>, server, request);
+    const ip = getClientIP(
+      request.headers as unknown as Record<string, string | undefined>,
+      server,
+      request,
+    );
     const url = new URL(request.url);
     logRequest(request.method, url.pathname, set.status || 200, duration, ip);
   })
   // Global rate limiting middleware
   .onBeforeHandle(({ request, set, server }) => {
-    const ip = getClientIP(request.headers as unknown as Record<string, string | undefined>, server, request);
+    const ip = getClientIP(
+      request.headers as unknown as Record<string, string | undefined>,
+      server,
+      request,
+    );
     const url = new URL(request.url);
-    
+
     // Skip rate limiting for static files and health check
     if (url.pathname.startsWith("/public/") || url.pathname === "/health") {
       return;
     }
-    
-    const rateLimit = checkRateLimit(rateLimitStore, ip, RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_WINDOW);
-    
+
+    const rateLimit = checkRateLimit(
+      rateLimitStore,
+      ip,
+      RATE_LIMIT_MAX_REQUESTS,
+      RATE_LIMIT_WINDOW,
+    );
+
     // Set rate limit headers
     set.headers["X-RateLimit-Limit"] = String(RATE_LIMIT_MAX_REQUESTS);
     set.headers["X-RateLimit-Remaining"] = String(rateLimit.remaining);
-    set.headers["X-RateLimit-Reset"] = String(Math.ceil(rateLimit.resetTime / 1000));
-    
+    set.headers["X-RateLimit-Reset"] = String(
+      Math.ceil(rateLimit.resetTime / 1000),
+    );
+
     if (!rateLimit.allowed) {
       set.status = 429;
-      set.headers["Retry-After"] = String(Math.ceil((rateLimit.resetTime - Date.now()) / 1000));
+      set.headers["Retry-After"] = String(
+        Math.ceil((rateLimit.resetTime - Date.now()) / 1000),
+      );
       return { error: "Too many requests. Please try again later." };
     }
   })
@@ -253,25 +311,27 @@ const app = new Elysia()
   .get("/admin", () => Bun.file("./public/admin.html"))
   .get("/admin.html", () => Bun.file("./public/admin.html"))
   .get("/privacy-policy.html", () => Bun.file("./public/privacy-policy.html"))
-  .get("/terms-of-service.html", () => Bun.file("./public/terms-of-service.html"))
+  .get("/terms-of-service.html", () =>
+    Bun.file("./public/terms-of-service.html"),
+  )
   .get("/api-docs.html", () => Bun.file("./public/api-docs.html"))
   .get("/package/:name", () => Bun.file("./public/package.html"))
-   .get("/fonts/:filename", ({ params: { filename } }) => {
-     // Prevent path traversal by using only the base filename
-     const safeFilename = basename(filename);
-     if (safeFilename !== filename || filename.includes("..")) {
-       return new Response("Invalid filename", { status: 400 });
-     }
-     return Bun.file(`./public/fonts/${safeFilename}`);
-   })
-   .get("/logos/:filename", ({ params: { filename } }) => {
-     // Prevent path traversal by using only the base filename
-     const safeFilename = basename(filename);
-     if (safeFilename !== filename || filename.includes("..")) {
-       return new Response("Invalid filename", { status: 400 });
-     }
-     return Bun.file(`./public/logos/${safeFilename}`);
-   })
+  .get("/fonts/:filename", ({ params: { filename } }) => {
+    // Prevent path traversal by using only the base filename
+    const safeFilename = basename(filename);
+    if (safeFilename !== filename || filename.includes("..")) {
+      return new Response("Invalid filename", { status: 400 });
+    }
+    return Bun.file(`./public/fonts/${safeFilename}`);
+  })
+  .get("/logos/:filename", ({ params: { filename } }) => {
+    // Prevent path traversal by using only the base filename
+    const safeFilename = basename(filename);
+    if (safeFilename !== filename || filename.includes("..")) {
+      return new Response("Invalid filename", { status: 400 });
+    }
+    return Bun.file(`./public/logos/${safeFilename}`);
+  })
   .get("/icons/:filename", ({ params: { filename }, set }) => {
     // Prevent path traversal
     const safeFilename = basename(filename);
@@ -279,26 +339,27 @@ const app = new Elysia()
       set.status = 400;
       return new Response("Invalid filename", { status: 400 });
     }
-    
+
     const iconData = getIconFile(safeFilename);
     if (!iconData) {
       set.status = 404;
       return new Response("Icon not found", { status: 404 });
     }
-    
+
     // Build headers - add CSP for SVG to prevent script execution
     const headers: Record<string, string> = {
       "Content-Type": iconData.mimeType,
       "Cache-Control": "public, max-age=86400", // Cache for 24 hours
       "X-Content-Type-Options": "nosniff",
     };
-    
+
     // Extra security for SVG files
     if (iconData.mimeType === "image/svg+xml") {
-      headers["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'";
+      headers["Content-Security-Policy"] =
+        "default-src 'none'; style-src 'unsafe-inline'";
       headers["Content-Disposition"] = "inline";
     }
-    
+
     return new Response(iconData.file, { headers });
   })
   .post("/auth/register", async ({ body, set, request, server }) => {
@@ -311,7 +372,11 @@ const app = new Elysia()
       };
 
       // Verify Turnstile CAPTCHA
-      const ip = getClientIP(request.headers as unknown as Record<string, string | undefined>, server, request);
+      const ip = getClientIP(
+        request.headers as unknown as Record<string, string | undefined>,
+        server,
+        request,
+      );
       const turnstileResult = await verifyTurnstile(turnstileToken, ip);
       if (!turnstileResult.success) {
         set.status = 400;
@@ -342,7 +407,10 @@ const app = new Elysia()
       const passwordValidation = validatePassword(password);
       if (!passwordValidation.valid) {
         set.status = 400;
-        return { error: "Password does not meet requirements", details: passwordValidation.errors };
+        return {
+          error: "Password does not meet requirements",
+          details: passwordValidation.errors,
+        };
       }
 
       // Check if user already exists
@@ -360,7 +428,12 @@ const app = new Elysia()
 
       // Hash password and create user
       const passwordHash = await hashPassword(password);
-      const newUser = await database.createUser(username, email, passwordHash, "user");
+      const newUser = await database.createUser(
+        username,
+        email,
+        passwordHash,
+        "user",
+      );
 
       set.status = 201;
       return {
@@ -382,19 +455,32 @@ const app = new Elysia()
   .post("/auth/login", async ({ body, set, request, server }) => {
     try {
       // Apply stricter rate limiting for login endpoint
-      const ip = getClientIP(request.headers as unknown as Record<string, string | undefined>, server, request);
-      const loginRateLimit = checkRateLimit(loginRateLimitStore, ip, LOGIN_RATE_LIMIT_MAX, LOGIN_RATE_LIMIT_WINDOW);
-      
+      const ip = getClientIP(
+        request.headers as unknown as Record<string, string | undefined>,
+        server,
+        request,
+      );
+      const loginRateLimit = checkRateLimit(
+        loginRateLimitStore,
+        ip,
+        LOGIN_RATE_LIMIT_MAX,
+        LOGIN_RATE_LIMIT_WINDOW,
+      );
+
       set.headers["X-RateLimit-Limit"] = String(LOGIN_RATE_LIMIT_MAX);
       set.headers["X-RateLimit-Remaining"] = String(loginRateLimit.remaining);
-      set.headers["X-RateLimit-Reset"] = String(Math.ceil(loginRateLimit.resetTime / 1000));
-      
+      set.headers["X-RateLimit-Reset"] = String(
+        Math.ceil(loginRateLimit.resetTime / 1000),
+      );
+
       if (!loginRateLimit.allowed) {
         set.status = 429;
-        set.headers["Retry-After"] = String(Math.ceil((loginRateLimit.resetTime - Date.now()) / 1000));
+        set.headers["Retry-After"] = String(
+          Math.ceil((loginRateLimit.resetTime - Date.now()) / 1000),
+        );
         return { error: "Too many login attempts. Please try again later." };
       }
-      
+
       const { username, password, turnstileToken } = body as {
         username?: string;
         password?: string;
@@ -453,299 +539,315 @@ const app = new Elysia()
       return { error: "Failed to login" };
     }
   })
-   .get("/user/:username", async ({ params: { username }, set }) => {
-       try {
-         if (!username || username.length === 0) {
-           set.status = 400;
-           return { error: "Username is required" };
-         }
+  .get("/user/:username", async ({ params: { username }, set }) => {
+    try {
+      if (!username || username.length === 0) {
+        set.status = 400;
+        return { error: "Username is required" };
+      }
 
-          const user = await database.getUser(username);
-          
-          if (!user) {
-            set.status = 404;
-            return { error: "User not found" };
-          }
+      const user = await database.getUser(username);
 
-          // Return only non-sensitive user data
-          set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+      if (!user) {
+        set.status = 404;
+        return { error: "User not found" };
+      }
+
+      // Return only non-sensitive user data
+      set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+      return {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        created_at: user.created_at,
+      };
+    } catch (err) {
+      console.error("Fetch user error:", err);
+      set.status = 500;
+      return { error: "Failed to fetch user" };
+    }
+  })
+  .get("/user/id/:userId", async ({ params: { userId }, set }) => {
+    try {
+      const id = parseInt(userId);
+      if (isNaN(id)) {
+        set.status = 400;
+        return { error: "Invalid user ID" };
+      }
+
+      const user = await database.getUserById(id);
+
+      if (!user) {
+        set.status = 404;
+        return { error: "User not found" };
+      }
+
+      // Return only non-sensitive user data
+      set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+      return {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        created_at: user.created_at,
+      };
+    } catch (err) {
+      console.error("Fetch user by ID error:", err);
+      set.status = 500;
+      return { error: "Failed to fetch user" };
+    }
+  })
+  .get("/admin/users", async ({ headers, set }) => {
+    try {
+      // Extract and verify token
+      const authHeader = headers["authorization"];
+      const token = extractToken(authHeader);
+
+      if (!token) {
+        set.status = 401;
+        return { error: "Unauthorized: Missing or invalid token" };
+      }
+
+      const payload = verifyToken(token);
+      if (!payload) {
+        set.status = 401;
+        return { error: "Unauthorized: Invalid or expired token" };
+      }
+
+      // Re-verify admin role from database (in case role was changed)
+      const currentUser = await database.getUserById(payload.id);
+      if (!currentUser || currentUser.role !== "admin") {
+        set.status = 403;
+        return { error: "Forbidden: Only admins can view users" };
+      }
+
+      // Get all users
+      const users = await database.getAllUsers();
+
+      return {
+        success: true,
+        users: users.map((user: Record<string, unknown>) => ({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          created_at: user.created_at,
+        })),
+      };
+    } catch (err) {
+      console.error("Fetch users error:", err);
+      set.status = 500;
+      return { error: "Failed to fetch users" };
+    }
+  })
+  .put(
+    "/admin/users/:userId/role",
+    async ({ params: { userId }, headers, body, set }) => {
+      try {
+        // Extract and verify token
+        const authHeader = headers["authorization"];
+        const token = extractToken(authHeader);
+
+        if (!token) {
+          set.status = 401;
+          return { error: "Unauthorized: Missing or invalid token" };
+        }
+
+        const payload = verifyToken(token);
+        if (!payload) {
+          set.status = 401;
+          return { error: "Unauthorized: Invalid or expired token" };
+        }
+
+        // Re-verify admin role from database (in case role was changed)
+        const currentUser = await database.getUserById(payload.id);
+        if (!currentUser || currentUser.role !== "admin") {
+          set.status = 403;
+          return { error: "Forbidden: Only admins can change user roles" };
+        }
+
+        // Get target user
+        const targetUserId = parseInt(userId);
+        if (isNaN(targetUserId)) {
+          set.status = 400;
+          return { error: "Invalid user ID" };
+        }
+
+        const targetUser = await database.getUserById(targetUserId);
+
+        if (!targetUser) {
+          set.status = 404;
+          return { error: "User not found" };
+        }
+
+        // Validate new role
+        const newRole = body.role;
+        if (!newRole) {
+          set.status = 400;
+          return { error: "Role is required" };
+        }
+
+        const validRoles = ["user", "developer", "admin"];
+        if (!validRoles.includes(newRole)) {
+          set.status = 400;
           return {
-            id: user.id,
-            username: user.username,
-            role: user.role,
-            created_at: user.created_at,
+            error: `Invalid role. Must be one of: ${validRoles.join(", ")}`,
           };
-       } catch (err) {
-         console.error("Fetch user error:", err);
-         set.status = 500;
-         return { error: "Failed to fetch user" };
-       }
-     })
-   .get("/user/id/:userId", async ({ params: { userId }, set }) => {
-       try {
-         const id = parseInt(userId);
-         if (isNaN(id)) {
-           set.status = 400;
-           return { error: "Invalid user ID" };
-         }
+        }
 
-          const user = await database.getUserById(id);
-          
-          if (!user) {
-            set.status = 404;
-            return { error: "User not found" };
+        // Prevent demoting the last admin
+        if (targetUser.role === "admin" && newRole !== "admin") {
+          const adminCount = await database.getAdminCount();
+          if (adminCount <= 1) {
+            set.status = 400;
+            return {
+              error:
+                "Cannot demote the last admin. Promote another user to admin first.",
+            };
           }
+        }
 
-          // Return only non-sensitive user data
-          set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
-          return {
-            id: user.id,
-            username: user.username,
-            role: user.role,
-            created_at: user.created_at,
-          };
-       } catch (err) {
-         console.error("Fetch user by ID error:", err);
-         set.status = 500;
-         return { error: "Failed to fetch user" };
-       }
-     })
-   .get("/admin/users", async ({ headers, set }) => {
-     try {
-       // Extract and verify token
-       const authHeader = headers["authorization"];
-       const token = extractToken(authHeader);
-       
-       if (!token) {
-         set.status = 401;
-         return { error: "Unauthorized: Missing or invalid token" };
-       }
-       
-       const payload = verifyToken(token);
-       if (!payload) {
-         set.status = 401;
-         return { error: "Unauthorized: Invalid or expired token" };
-       }
-       
-       // Re-verify admin role from database (in case role was changed)
-       const currentUser = await database.getUserById(payload.id);
-       if (!currentUser || currentUser.role !== "admin") {
-         set.status = 403;
-         return { error: "Forbidden: Only admins can view users" };
-       }
-       
-       // Get all users
-       const users = await database.getAllUsers();
-       
-       return {
-         success: true,
-         users: users.map((user: Record<string, unknown>) => ({
-           id: user.id,
-           username: user.username,
-           email: user.email,
-           role: user.role,
-           created_at: user.created_at,
-         })),
-       };
-     } catch (err) {
-       console.error("Fetch users error:", err);
-       set.status = 500;
-       return { error: "Failed to fetch users" };
-     }
-   })
-   .put("/admin/users/:userId/role", async ({ params: { userId }, headers, body, set }) => {
-     try {
-       // Extract and verify token
-       const authHeader = headers["authorization"];
-       const token = extractToken(authHeader);
-       
-       if (!token) {
-         set.status = 401;
-         return { error: "Unauthorized: Missing or invalid token" };
-       }
-       
-       const payload = verifyToken(token);
-       if (!payload) {
-         set.status = 401;
-         return { error: "Unauthorized: Invalid or expired token" };
-       }
-       
-       // Re-verify admin role from database (in case role was changed)
-       const currentUser = await database.getUserById(payload.id);
-       if (!currentUser || currentUser.role !== "admin") {
-         set.status = 403;
-         return { error: "Forbidden: Only admins can change user roles" };
-       }
-       
-       // Get target user
-       const targetUserId = parseInt(userId);
-       if (isNaN(targetUserId)) {
-         set.status = 400;
-         return { error: "Invalid user ID" };
-       }
-       
-       const targetUser = await database.getUserById(targetUserId);
-       
-       if (!targetUser) {
-         set.status = 404;
-         return { error: "User not found" };
-       }
-       
-       // Validate new role
-       const newRole = body.role;
-       if (!newRole) {
-         set.status = 400;
-         return { error: "Role is required" };
-       }
-       
-       const validRoles = ["user", "developer", "admin"];
-       if (!validRoles.includes(newRole)) {
-         set.status = 400;
-         return { error: `Invalid role. Must be one of: ${validRoles.join(", ")}` };
-       }
-       
-       // Prevent demoting the last admin
-       if (targetUser.role === "admin" && newRole !== "admin") {
-         const adminCount = await database.getAdminCount();
-         if (adminCount <= 1) {
-           set.status = 400;
-           return { error: "Cannot demote the last admin. Promote another user to admin first." };
-         }
-       }
-       
-       // Update user role
-       const updatedUser = await database.updateUserRole(targetUserId, newRole);
-       const userData = (updatedUser as unknown as Record<string, unknown>[])[0];
-       
-       return {
-         success: true,
-         message: "User role updated successfully",
-         user: {
-           id: userData.id,
-           username: userData.username,
-           role: userData.role,
-         },
-       };
-     } catch (err) {
-       console.error("Update user role error:", err);
-       set.status = 500;
-       return { error: "Failed to update user role" };
-     }
-   })
-   .post("/admin/tags", async ({ headers, body, set }) => {
-     try {
-       // Extract and verify token
-       const authHeader = headers["authorization"];
-       const token = extractToken(authHeader);
-       
-       if (!token) {
-         set.status = 401;
-         return { error: "Unauthorized: Missing or invalid token" };
-       }
-       
-       const payload = verifyToken(token);
-       if (!payload) {
-         set.status = 401;
-         return { error: "Unauthorized: Invalid or expired token" };
-       }
-       
-       // Re-verify admin role from database
-       const currentUser = await database.getUserById(payload.id);
-       if (!currentUser || currentUser.role !== "admin") {
-         set.status = 403;
-         return { error: "Forbidden: Only admins can create tags" };
-       }
-       
-       const { name, slug } = body as { name?: string; slug?: string };
-       
-       if (!name || !slug) {
-         set.status = 400;
-         return { error: "Name and slug are required" };
-       }
-       
-       // Validate name
-       if (name.length < 1 || name.length > 32) {
-         set.status = 400;
-         return { error: "Tag name must be between 1 and 32 characters" };
-       }
-       
-       // Validate slug (lowercase, alphanumeric, hyphens only)
-       const slugRegex = /^[a-z0-9-]+$/;
-       if (!slugRegex.test(slug) || slug.length < 1 || slug.length > 32) {
-         set.status = 400;
-         return { error: "Tag slug must be lowercase alphanumeric with hyphens, 1-32 characters" };
-       }
-       
-       // Check if tag already exists
-       const existingTag = await database.getTagBySlug(slug);
-       if (existingTag) {
-         set.status = 409;
-         return { error: "Tag with this slug already exists" };
-       }
-       
-       const newTag = await database.createTag(name, slug);
-       
-       set.status = 201;
-       return {
-         success: true,
-         message: "Tag created successfully",
-         data: newTag[0],
-       };
-     } catch (err) {
-       console.error("Create tag error:", err);
-       set.status = 500;
-       return { error: "Failed to create tag" };
-     }
-   })
-   .delete("/admin/tags/:id", async ({ params: { id }, headers, set }) => {
-     try {
-       // Extract and verify token
-       const authHeader = headers["authorization"];
-       const token = extractToken(authHeader);
-       
-       if (!token) {
-         set.status = 401;
-         return { error: "Unauthorized: Missing or invalid token" };
-       }
-       
-       const payload = verifyToken(token);
-       if (!payload) {
-         set.status = 401;
-         return { error: "Unauthorized: Invalid or expired token" };
-       }
-       
-       // Re-verify admin role from database
-       const currentUser = await database.getUserById(payload.id);
-       if (!currentUser || currentUser.role !== "admin") {
-         set.status = 403;
-         return { error: "Forbidden: Only admins can delete tags" };
-       }
-       
-       const tagId = parseInt(id);
-       if (isNaN(tagId)) {
-         set.status = 400;
-         return { error: "Invalid tag ID" };
-       }
-       
-       // Check if tag exists
-       const tag = await database.getTagById(tagId);
-       if (!tag) {
-         set.status = 404;
-         return { error: "Tag not found" };
-       }
-       
-       await database.deleteTag(tagId);
-       
-       return {
-         success: true,
-         message: "Tag deleted successfully",
-       };
-     } catch (err) {
-       console.error("Delete tag error:", err);
-       set.status = 500;
-       return { error: "Failed to delete tag" };
-     }
-   })
+        // Update user role
+        const updatedUser = await database.updateUserRole(
+          targetUserId,
+          newRole,
+        );
+        const userData = (
+          updatedUser as unknown as Record<string, unknown>[]
+        )[0];
+
+        return {
+          success: true,
+          message: "User role updated successfully",
+          user: {
+            id: userData.id,
+            username: userData.username,
+            role: userData.role,
+          },
+        };
+      } catch (err) {
+        console.error("Update user role error:", err);
+        set.status = 500;
+        return { error: "Failed to update user role" };
+      }
+    },
+  )
+  .post("/admin/tags", async ({ headers, body, set }) => {
+    try {
+      // Extract and verify token
+      const authHeader = headers["authorization"];
+      const token = extractToken(authHeader);
+
+      if (!token) {
+        set.status = 401;
+        return { error: "Unauthorized: Missing or invalid token" };
+      }
+
+      const payload = verifyToken(token);
+      if (!payload) {
+        set.status = 401;
+        return { error: "Unauthorized: Invalid or expired token" };
+      }
+
+      // Re-verify admin role from database
+      const currentUser = await database.getUserById(payload.id);
+      if (!currentUser || currentUser.role !== "admin") {
+        set.status = 403;
+        return { error: "Forbidden: Only admins can create tags" };
+      }
+
+      const { name, slug } = body as { name?: string; slug?: string };
+
+      if (!name || !slug) {
+        set.status = 400;
+        return { error: "Name and slug are required" };
+      }
+
+      // Validate name
+      if (name.length < 1 || name.length > 32) {
+        set.status = 400;
+        return { error: "Tag name must be between 1 and 32 characters" };
+      }
+
+      // Validate slug (lowercase, alphanumeric, hyphens only)
+      const slugRegex = /^[a-z0-9-]+$/;
+      if (!slugRegex.test(slug) || slug.length < 1 || slug.length > 32) {
+        set.status = 400;
+        return {
+          error:
+            "Tag slug must be lowercase alphanumeric with hyphens, 1-32 characters",
+        };
+      }
+
+      // Check if tag already exists
+      const existingTag = await database.getTagBySlug(slug);
+      if (existingTag) {
+        set.status = 409;
+        return { error: "Tag with this slug already exists" };
+      }
+
+      const newTag = await database.createTag(name, slug);
+
+      set.status = 201;
+      return {
+        success: true,
+        message: "Tag created successfully",
+        data: newTag[0],
+      };
+    } catch (err) {
+      console.error("Create tag error:", err);
+      set.status = 500;
+      return { error: "Failed to create tag" };
+    }
+  })
+  .delete("/admin/tags/:id", async ({ params: { id }, headers, set }) => {
+    try {
+      // Extract and verify token
+      const authHeader = headers["authorization"];
+      const token = extractToken(authHeader);
+
+      if (!token) {
+        set.status = 401;
+        return { error: "Unauthorized: Missing or invalid token" };
+      }
+
+      const payload = verifyToken(token);
+      if (!payload) {
+        set.status = 401;
+        return { error: "Unauthorized: Invalid or expired token" };
+      }
+
+      // Re-verify admin role from database
+      const currentUser = await database.getUserById(payload.id);
+      if (!currentUser || currentUser.role !== "admin") {
+        set.status = 403;
+        return { error: "Forbidden: Only admins can delete tags" };
+      }
+
+      const tagId = parseInt(id);
+      if (isNaN(tagId)) {
+        set.status = 400;
+        return { error: "Invalid tag ID" };
+      }
+
+      // Check if tag exists
+      const tag = await database.getTagById(tagId);
+      if (!tag) {
+        set.status = 404;
+        return { error: "Tag not found" };
+      }
+
+      await database.deleteTag(tagId);
+
+      return {
+        success: true,
+        message: "Tag deleted successfully",
+      };
+    } catch (err) {
+      console.error("Delete tag error:", err);
+      set.status = 500;
+      return { error: "Failed to delete tag" };
+    }
+  })
   // ==================== CATEGORY ENDPOINTS ====================
   .get("/categories", async ({ set }) => {
     try {
@@ -763,7 +865,7 @@ const app = new Elysia()
     try {
       const popular = query.popular === "true";
       const limitParam = query.limit;
-      
+
       if (popular) {
         const parsedLimit = limitParam ? parseInt(limitParam) : 10;
         if (isNaN(parsedLimit) || parsedLimit < 1) {
@@ -775,7 +877,7 @@ const app = new Elysia()
         set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
         return { success: true, data: tags };
       }
-      
+
       const tags = await database.getAllTags();
       set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { success: true, data: tags };
@@ -791,14 +893,14 @@ const app = new Elysia()
         set.status = 400;
         return { error: "Tag slug is required" };
       }
-      
+
       const tag = await database.getTagBySlug(slug);
-      
+
       if (!tag) {
         set.status = 404;
         return { error: "Tag not found" };
       }
-      
+
       set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { success: true, data: tag };
     } catch (err) {
@@ -812,41 +914,45 @@ const app = new Elysia()
       const parsedLimit = parseInt(query.limit || "20");
       const parsedOffset = parseInt(query.offset || "0");
       const categoryParam = query.category;
-      
+
       if (isNaN(parsedLimit) || isNaN(parsedOffset)) {
         set.status = 400;
         return { error: "Invalid limit or offset parameters" };
       }
-      
+
       const limit = Math.min(Math.max(parsedLimit, 1), 100);
       const offset = Math.max(parsedOffset, 0);
-      
+
       // Handle category filtering (single category system)
       if (categoryParam && categoryParam.length > 0) {
         const categorySlug = categoryParam.trim().toLowerCase();
-        
-        const packages = await database.getPackagesByCategory(categorySlug, limit, offset);
+
+        const packages = await database.getPackagesByCategory(
+          categorySlug,
+          limit,
+          offset,
+        );
         const total = await database.getPackagesCountByCategory(categorySlug);
-        
+
         set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
         return {
           data: packages,
           limit,
           offset,
           total,
-          filters: { category: categorySlug }
+          filters: { category: categorySlug },
         };
       }
-      
+
       const packages = await database.getAllPackages(limit, offset);
       const total = await database.getTotalPackageCount();
-      
+
       set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return {
         data: packages,
         limit,
         offset,
-        total
+        total,
       };
     } catch (err) {
       console.error("Fetch packages error:", err);
@@ -860,14 +966,14 @@ const app = new Elysia()
         set.status = 400;
         return { error: "Package name is required" };
       }
-      
+
       const fullData = await database.getFullPackageData(name);
-      
+
       if (!fullData) {
         set.status = 404;
         return { error: "Package not found" };
       }
-      
+
       set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { success: true, data: fullData };
     } catch (err) {
@@ -882,27 +988,31 @@ const app = new Elysia()
         set.status = 400;
         return { error: "Package name is required" };
       }
-      
+
       // Get the package to find its category
       const fullData = await database.getFullPackageData(name);
-      
+
       if (!fullData) {
         set.status = 404;
         return { error: "Package not found" };
       }
-      
+
       // If package has no category, return empty array
       if (!fullData.category) {
         set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
         return { success: true, data: [] };
       }
-      
+
       const parsedLimit = parseInt(query.limit || "6");
       const limit = Math.min(Math.max(parsedLimit, 1), 10);
-      
+
       // Get packages in the same category
-      const relatedPackages = await database.getPackagesByCategory(fullData.category.slug, limit + 1, 0);
-      
+      const relatedPackages = await database.getPackagesByCategory(
+        fullData.category.slug,
+        limit + 1,
+        0,
+      );
+
       // Filter out the current package and enrich with category data
       const filtered = [];
       for (const pkg of relatedPackages) {
@@ -939,14 +1049,14 @@ const app = new Elysia()
         set.status = 400;
         return { error: "Package name is required" };
       }
-      
+
       const pkg = await database.getPackage(name);
-      
+
       if (!pkg) {
         set.status = 404;
         return { error: "Package not found" };
       }
-      
+
       set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return { data: pkg };
     } catch (err) {
@@ -961,21 +1071,21 @@ const app = new Elysia()
         set.status = 400;
         return { error: "Author username is required" };
       }
-      
+
       const user = await database.getUser(username);
-      
+
       if (!user) {
         set.status = 404;
         return { error: "User not found" };
       }
-      
+
       const packages = await database.getPackagesByAuthor(user.id);
-      
+
       set.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
       return {
         author: username,
         data: packages,
-        total: packages.length
+        total: packages.length,
       };
     } catch (err) {
       console.error("Fetch user packages error:", err);
@@ -988,25 +1098,30 @@ const app = new Elysia()
       // Extract and verify token
       const authHeader = context.headers["authorization"];
       const token = extractToken(authHeader);
-      
+
       if (!token) {
         context.set.status = 401;
         return { error: "Unauthorized: Missing or invalid token" };
       }
-      
+
       const payload = verifyToken(token);
       if (!payload) {
         context.set.status = 401;
         return { error: "Unauthorized: Invalid or expired token" };
       }
-      
+
       // Re-verify role from database
       const currentUser = await database.getUserById(payload.id);
-      if (!currentUser || (currentUser.role !== "developer" && currentUser.role !== "admin")) {
+      if (
+        !currentUser ||
+        (currentUser.role !== "developer" && currentUser.role !== "admin")
+      ) {
         context.set.status = 403;
-        return { error: "Forbidden: Only developers and admins can upload addons" };
+        return {
+          error: "Forbidden: Only developers and admins can upload addons",
+        };
       }
-       
+
       // Handle FormData
       let name: string | undefined;
       let description: string | undefined;
@@ -1018,19 +1133,23 @@ const app = new Elysia()
       let category: string | undefined; // single category slug
       let iconBuffer: Buffer | undefined;
       let fileBuffer: Buffer | undefined;
-      
+
       if (context.body instanceof FormData) {
-        name = context.body.get("name") as string | null || undefined;
-        description = context.body.get("description") as string | null || undefined;
-        version = context.body.get("version") as string | null || undefined;
-        kofiUrl = context.body.get("kofiUrl") as string | null || undefined;
-        longDescription = context.body.get("longDescription") as string | null || undefined;
-        youtubeUrl = context.body.get("youtubeUrl") as string | null || undefined;
-        discordUrl = context.body.get("discordUrl") as string | null || undefined;
-        category = context.body.get("category") as string | null || undefined;
+        name = (context.body.get("name") as string | null) || undefined;
+        description =
+          (context.body.get("description") as string | null) || undefined;
+        version = (context.body.get("version") as string | null) || undefined;
+        kofiUrl = (context.body.get("kofiUrl") as string | null) || undefined;
+        longDescription =
+          (context.body.get("longDescription") as string | null) || undefined;
+        youtubeUrl =
+          (context.body.get("youtubeUrl") as string | null) || undefined;
+        discordUrl =
+          (context.body.get("discordUrl") as string | null) || undefined;
+        category = (context.body.get("category") as string | null) || undefined;
         const file = context.body.get("file") as File | null;
         const iconFile = context.body.get("icon") as File | null;
-        
+
         if (file) {
           fileBuffer = Buffer.from(await file.arrayBuffer());
         }
@@ -1047,7 +1166,7 @@ const app = new Elysia()
         youtubeUrl = bodyObj.youtubeUrl as string | undefined;
         discordUrl = bodyObj.discordUrl as string | undefined;
         category = bodyObj.category as string | undefined;
-        
+
         // If file is base64 encoded
         if (bodyObj.fileBase64) {
           fileBuffer = Buffer.from(bodyObj.fileBase64 as string, "base64");
@@ -1057,19 +1176,19 @@ const app = new Elysia()
           iconBuffer = Buffer.from(bodyObj.iconBase64 as string, "base64");
         }
       }
-      
+
       // Validate package name
       if (!name) {
         context.set.status = 400;
         return { error: "Package name is required" };
       }
-      
+
       const nameValidation = validatePackageName(name);
       if (!nameValidation.valid) {
         context.set.status = 400;
         return { error: nameValidation.error };
       }
-      
+
       // Validate version if provided
       if (version) {
         const versionValidation = validateVersion(version);
@@ -1078,60 +1197,78 @@ const app = new Elysia()
           return { error: versionValidation.error };
         }
       }
-      
+
       if (!fileBuffer) {
         context.set.status = 400;
         return { error: "Package file is required" };
       }
-      
+
       // Check file size limit
       if (fileBuffer.length > MAX_FILE_SIZE) {
         context.set.status = 400;
-        return { error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB` };
+        return {
+          error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+        };
       }
 
       // Validate file is .mcaddon (ZIP format)
-      if (fileBuffer.length < 4 || !(
-        fileBuffer[0] === 0x50 &&
-        fileBuffer[1] === 0x4b &&
-        fileBuffer[2] === 0x03 &&
-        fileBuffer[3] === 0x04
-      )) {
+      if (
+        fileBuffer.length < 4 ||
+        !(
+          fileBuffer[0] === 0x50 &&
+          fileBuffer[1] === 0x4b &&
+          fileBuffer[2] === 0x03 &&
+          fileBuffer[3] === 0x04
+        )
+      ) {
         context.set.status = 400;
-        return { error: "Invalid file format. Only .mcaddon files (ZIP format) are supported" };
+        return {
+          error:
+            "Invalid file format. Only .mcaddon files (ZIP format) are supported",
+        };
       }
-      
+
       // Check if package already exists
       const existingPackage = await database.getPackage(name);
       if (existingPackage) {
         context.set.status = 409;
         return { error: "Package name already exists" };
       }
-      
+
       // Validate kofiUrl if provided (must be a valid Ko-fi URL)
       if (kofiUrl) {
-        const kofiUrlPattern = /^https?:\/\/(www\.)?ko-fi\.com\/[a-zA-Z0-9_]+\/?$/;
+        const kofiUrlPattern =
+          /^https?:\/\/(www\.)?ko-fi\.com\/[a-zA-Z0-9_]+\/?$/;
         if (!kofiUrlPattern.test(kofiUrl)) {
           context.set.status = 400;
-          return { error: "Invalid Ko-fi URL. Must be in format: https://ko-fi.com/username" };
+          return {
+            error:
+              "Invalid Ko-fi URL. Must be in format: https://ko-fi.com/username",
+          };
         }
       }
 
       // Validate youtubeUrl if provided
       if (youtubeUrl) {
-        const youtubeUrlPattern = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]+/;
+        const youtubeUrlPattern =
+          /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]+/;
         if (!youtubeUrlPattern.test(youtubeUrl)) {
           context.set.status = 400;
-          return { error: "Invalid YouTube URL. Must be a valid YouTube video URL" };
+          return {
+            error: "Invalid YouTube URL. Must be a valid YouTube video URL",
+          };
         }
       }
 
       // Validate discordUrl if provided
       if (discordUrl) {
-        const discordUrlPattern = /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
+        const discordUrlPattern =
+          /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
         if (!discordUrlPattern.test(discordUrl)) {
           context.set.status = 400;
-          return { error: "Invalid Discord URL. Must be a valid Discord invite link" };
+          return {
+            error: "Invalid Discord URL. Must be a valid Discord invite link",
+          };
         }
       }
 
@@ -1160,25 +1297,27 @@ const app = new Elysia()
         longDescription || undefined,
         youtubeUrl || undefined,
         discordUrl || undefined,
-        categoryId
+        categoryId,
       );
-      
-      const packageData = (newPackage as unknown as Record<string, unknown>[])[0];
+
+      const packageData = (
+        newPackage as unknown as Record<string, unknown>[]
+      )[0];
       const packageId = packageData?.id;
-      
+
       if (!packageId) {
         context.set.status = 500;
         return { error: "Failed to create package record" };
       }
-      
+
       // Save file to storage
       try {
         const { filePath, fileHash } = await saveAddon(
           packageId as number,
           name,
-          fileBuffer
+          fileBuffer,
         );
-        
+
         // Save icon if provided
         let iconUrl: string | undefined;
         if (iconBuffer) {
@@ -1190,10 +1329,16 @@ const app = new Elysia()
             console.error("Failed to save icon:", iconErr);
           }
         }
-        
+
         // Update package with icon URL if we have one
         if (iconUrl) {
-          await database.updatePackage(packageId as number, undefined, undefined, undefined, iconUrl);
+          await database.updatePackage(
+            packageId as number,
+            undefined,
+            undefined,
+            undefined,
+            iconUrl,
+          );
         }
       } catch (saveErr) {
         // Cleanup: delete package record and icon if file save fails
@@ -1201,10 +1346,10 @@ const app = new Elysia()
         await deleteIcon(packageId as number);
         throw saveErr;
       }
-      
+
       // Fetch updated package with tags
       const pkg = await database.getFullPackageData(name);
-      
+
       context.set.status = 201;
       return {
         success: true,
@@ -1223,36 +1368,36 @@ const app = new Elysia()
         set.status = 400;
         return { error: "Package name is required" };
       }
-      
+
       const pkg = await database.getPackage(name);
-      
+
       if (!pkg) {
         set.status = 404;
         return { error: "Package not found" };
       }
-      
+
       // Get the latest addon file
       const filePath = await getLatestAddonFile(pkg.id, name);
-      
+
       if (!filePath) {
         set.status = 404;
         return { error: "Package file not found" };
       }
-      
+
       // Increment download counter
       await database.incrementDownloads(pkg.id);
-      
+
       // Return file stream
       const stream = getAddonStream(filePath);
-      
+
       if (!stream) {
         set.status = 500;
         return { error: "Failed to read package file" };
       }
-      
+
       // Sanitize filename for Content-Disposition header
       const safeFilename = sanitizeFilename(name);
-      
+
       return new Response(stream as unknown as BodyInit, {
         headers: {
           "Content-Type": "application/octet-stream",
@@ -1270,46 +1415,50 @@ const app = new Elysia()
       // Extract and verify token
       const authHeader = headers["authorization"];
       const token = extractToken(authHeader);
-      
+
       if (!token) {
         set.status = 401;
         return { error: "Unauthorized: Missing or invalid token" };
       }
-      
+
       const payload = verifyToken(token);
       if (!payload) {
         set.status = 401;
         return { error: "Unauthorized: Invalid or expired token" };
       }
-      
+
       // Get package
       const packageId = parseInt(id);
       if (isNaN(packageId)) {
         set.status = 400;
         return { error: "Invalid package ID" };
       }
-      
-      const pkg = await database.sqlite`SELECT * FROM packages WHERE id = ${packageId}`;
-      
+
+      const pkg =
+        await database.sqlite`SELECT * FROM packages WHERE id = ${packageId}`;
+
       if (!pkg || pkg.length === 0) {
         set.status = 404;
         return { error: "Package not found" };
       }
-      
+
       const packageData = pkg[0] as Record<string, unknown>;
-      
+
       // Re-verify user from database and check ownership
       const currentUser = await database.getUserById(payload.id);
       if (!currentUser) {
         set.status = 401;
         return { error: "Unauthorized: User not found" };
       }
-      
-      if (packageData.author_id !== payload.id && currentUser.role !== "admin") {
+
+      if (
+        packageData.author_id !== payload.id &&
+        currentUser.role !== "admin"
+      ) {
         set.status = 403;
         return { error: "Forbidden: You do not own this package" };
       }
-      
+
       // Parse body
       let name: string | undefined;
       let description: string | undefined;
@@ -1321,7 +1470,7 @@ const app = new Elysia()
       let youtubeUrl: string | null | undefined;
       let discordUrl: string | null | undefined;
       let category: string | null | undefined; // single category slug
-      
+
       if (typeof body === "object" && body !== null) {
         const bodyObj = body as Record<string, unknown>;
         name = bodyObj.name as string | undefined;
@@ -1350,7 +1499,7 @@ const app = new Elysia()
           category = bodyObj.category as string | null;
         }
       }
-      
+
       // Validate inputs if provided
       if (name) {
         const nameValidation = validatePackageName(name);
@@ -1358,7 +1507,7 @@ const app = new Elysia()
           set.status = 400;
           return { error: nameValidation.error };
         }
-        
+
         // Check if new name conflicts with existing package (excluding current)
         if (name !== packageData.name) {
           const existingPackage = await database.getPackage(name);
@@ -1368,7 +1517,7 @@ const app = new Elysia()
           }
         }
       }
-      
+
       if (version) {
         const versionValidation = validateVersion(version);
         if (!versionValidation.valid) {
@@ -1379,28 +1528,46 @@ const app = new Elysia()
 
       // Validate kofiUrl if provided (must be a valid Ko-fi URL or null to remove)
       if (kofiUrl !== undefined && kofiUrl !== null && kofiUrl !== "") {
-        const kofiUrlPattern = /^https?:\/\/(www\.)?ko-fi\.com\/[a-zA-Z0-9_]+\/?$/;
+        const kofiUrlPattern =
+          /^https?:\/\/(www\.)?ko-fi\.com\/[a-zA-Z0-9_]+\/?$/;
         if (!kofiUrlPattern.test(kofiUrl)) {
           set.status = 400;
-          return { error: "Invalid Ko-fi URL. Must be in format: https://ko-fi.com/username" };
+          return {
+            error:
+              "Invalid Ko-fi URL. Must be in format: https://ko-fi.com/username",
+          };
         }
       }
 
       // Validate youtubeUrl if provided
-      if (youtubeUrl !== undefined && youtubeUrl !== null && youtubeUrl !== "") {
-        const youtubeUrlPattern = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]+/;
+      if (
+        youtubeUrl !== undefined &&
+        youtubeUrl !== null &&
+        youtubeUrl !== ""
+      ) {
+        const youtubeUrlPattern =
+          /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]+/;
         if (!youtubeUrlPattern.test(youtubeUrl)) {
           set.status = 400;
-          return { error: "Invalid YouTube URL. Must be a valid YouTube video URL" };
+          return {
+            error: "Invalid YouTube URL. Must be a valid YouTube video URL",
+          };
         }
       }
 
       // Validate discordUrl if provided
-      if (discordUrl !== undefined && discordUrl !== null && discordUrl !== "") {
-        const discordUrlPattern = /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
+      if (
+        discordUrl !== undefined &&
+        discordUrl !== null &&
+        discordUrl !== ""
+      ) {
+        const discordUrlPattern =
+          /^https?:\/\/(www\.)?(discord\.(gg|com)\/|discordapp\.com\/invite\/)[a-zA-Z0-9_-]+/;
         if (!discordUrlPattern.test(discordUrl)) {
           set.status = 400;
-          return { error: "Invalid Discord URL. Must be a valid Discord invite link" };
+          return {
+            error: "Invalid Discord URL. Must be a valid Discord invite link",
+          };
         }
       }
 
@@ -1420,23 +1587,23 @@ const app = new Elysia()
           categoryId = categoryRecord.id;
         }
       }
-      
+
       let iconUrl: string | undefined;
-      
+
       // Handle icon update
       if (iconBase64) {
         const iconBuffer = Buffer.from(iconBase64, "base64");
-        
+
         // Validate icon size (2MB max)
         if (iconBuffer.length > 2 * 1024 * 1024) {
           set.status = 400;
           return { error: "Icon file too large. Maximum size is 2MB" };
         }
-        
+
         try {
           // Delete old icon first
           await deleteIcon(packageId);
-          
+
           // Save new icon
           const iconResult = await saveIcon(packageId, iconBuffer);
           iconUrl = iconResult.iconUrl;
@@ -1446,33 +1613,41 @@ const app = new Elysia()
           return { error: "Failed to update icon" };
         }
       }
-      
+
       // Handle addon file update
       if (fileBase64) {
         const fileBuffer = Buffer.from(fileBase64, "base64");
-        
+
         // Check file size limit
         if (fileBuffer.length > MAX_FILE_SIZE) {
           set.status = 400;
-          return { error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB` };
+          return {
+            error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+          };
         }
-        
+
         // Validate file is .mcaddon (ZIP format)
-        if (fileBuffer.length < 4 || !(
-          fileBuffer[0] === 0x50 &&
-          fileBuffer[1] === 0x4b &&
-          fileBuffer[2] === 0x03 &&
-          fileBuffer[3] === 0x04
-        )) {
+        if (
+          fileBuffer.length < 4 ||
+          !(
+            fileBuffer[0] === 0x50 &&
+            fileBuffer[1] === 0x4b &&
+            fileBuffer[2] === 0x03 &&
+            fileBuffer[3] === 0x04
+          )
+        ) {
           set.status = 400;
-          return { error: "Invalid file format. Only .mcaddon files (ZIP format) are supported" };
+          return {
+            error:
+              "Invalid file format. Only .mcaddon files (ZIP format) are supported",
+          };
         }
-        
+
         try {
           // Delete old addon files
           const currentName = packageData.name as string;
           await deleteAddon(packageId, currentName);
-          
+
           // Save new addon file with the new name (or current name if not changing)
           const addonName = name || currentName;
           await saveAddon(packageId, addonName, fileBuffer);
@@ -1482,7 +1657,7 @@ const app = new Elysia()
           return { error: "Failed to update addon file" };
         }
       }
-      
+
       // Update package metadata
       const updatedPackage = await database.updatePackage(
         packageId,
@@ -1494,13 +1669,13 @@ const app = new Elysia()
         longDescription,
         youtubeUrl,
         discordUrl,
-        categoryId
+        categoryId,
       );
-      
+
       // Get updated package name for full data fetch
-      const updatedPkgName = name || packageData.name as string;
+      const updatedPkgName = name || (packageData.name as string);
       const fullPackageData = await database.getFullPackageData(updatedPkgName);
-      
+
       return {
         success: true,
         message: "Package updated successfully",
@@ -1517,53 +1692,57 @@ const app = new Elysia()
       // Extract and verify token
       const authHeader = headers["authorization"];
       const token = extractToken(authHeader);
-      
+
       if (!token) {
         set.status = 401;
         return { error: "Unauthorized: Missing or invalid token" };
       }
-      
+
       const payload = verifyToken(token);
       if (!payload) {
         set.status = 401;
         return { error: "Unauthorized: Invalid or expired token" };
       }
-      
+
       // Get package
       const packageId = parseInt(id);
       if (isNaN(packageId)) {
         set.status = 400;
         return { error: "Invalid package ID" };
       }
-      
-      const pkg = await database.sqlite`SELECT * FROM packages WHERE id = ${packageId}`;
-      
+
+      const pkg =
+        await database.sqlite`SELECT * FROM packages WHERE id = ${packageId}`;
+
       if (!pkg || pkg.length === 0) {
         set.status = 404;
         return { error: "Package not found" };
       }
-      
+
       const packageData = pkg[0] as Record<string, unknown>;
-      
+
       // Re-verify user from database and check ownership
       const currentUser = await database.getUserById(payload.id);
       if (!currentUser) {
         set.status = 401;
         return { error: "Unauthorized: User not found" };
       }
-      
-      if (packageData.author_id !== payload.id && currentUser.role !== "admin") {
+
+      if (
+        packageData.author_id !== payload.id &&
+        currentUser.role !== "admin"
+      ) {
         set.status = 403;
         return { error: "Forbidden: You do not own this package" };
       }
-      
+
       // Delete files from storage
       const packageName = packageData.name as string;
       await deleteAddon(packageId, packageName);
-      
+
       // Delete package from database
       await database.deletePackage(packageId);
-      
+
       return {
         success: true,
         message: "Package deleted successfully",
@@ -1576,9 +1755,7 @@ const app = new Elysia()
   })
   .listen(3000);
 
-console.log(
-  `running at ${app.server?.hostname}:${app.server?.port}`,
-);
+console.log(`running at ${app.server?.hostname}:${app.server?.port}`);
 
 if (DEV_MODE) {
   console.log("DEV MODE ENABLED - CAPTCHA verification is disabled");
@@ -1590,9 +1767,9 @@ let isShuttingDown = false;
 async function gracefulShutdown(signal: string): Promise<void> {
   if (isShuttingDown) return;
   isShuttingDown = true;
-  
+
   console.log(`\n${signal} received. Starting graceful shutdown...`);
-  
+
   // Stop accepting new connections
   try {
     app.stop();
@@ -1600,11 +1777,11 @@ async function gracefulShutdown(signal: string): Promise<void> {
   } catch (err) {
     console.error("Error stopping server:", err);
   }
-  
+
   // Give existing requests time to complete (5 seconds)
   console.log("Waiting for existing requests to complete...");
-  await new Promise(resolve => setTimeout(resolve, 5000));
-  
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
   // Close database connection
   try {
     database.sqlite.close();
@@ -1612,7 +1789,7 @@ async function gracefulShutdown(signal: string): Promise<void> {
   } catch (err) {
     console.error("Error closing database:", err);
   }
-  
+
   console.log("Graceful shutdown complete");
   process.exit(0);
 }

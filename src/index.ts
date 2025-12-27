@@ -36,7 +36,7 @@ const VERSION_REGEX = /^\d+\.\d+\.\d+$/;
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute window
-const RATE_LIMIT_MAX_REQUESTS = 100; // Max requests per window for general endpoints
+const RATE_LIMIT_MAX_REQUESTS = 600; // Max requests per window for general endpoints
 const LOGIN_RATE_LIMIT_MAX = 5; // Max login attempts per window
 const LOGIN_RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minute window for login
 

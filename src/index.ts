@@ -192,7 +192,7 @@ const app = new Elysia()
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }))
-  .use(staticPlugin())
+  .use(staticPlugin({ noCache: true }))
   // Request logging and security headers middleware
   .onRequest(({ request, set }) => {
     // Store request start time for logging

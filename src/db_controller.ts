@@ -346,7 +346,15 @@ export class DB {
   }
 
   public async getAllPackages(limit: number = 20, offset: number = 0) {
-    return await this.sqlite`SELECT * FROM packages ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
+    return await this.sqlite`
+      SELECT 
+        p.*,
+        t.id as tag_id, t.name as tag_name, t.slug as tag_slug
+      FROM packages p
+      LEFT JOIN tags t ON p.category_id = t.id
+      ORDER BY p.created_at DESC 
+      LIMIT ${limit} OFFSET ${offset}
+    `;
   }
 
   public async getPackagesByAuthor(authorId: number) {
@@ -611,8 +619,11 @@ export class DB {
     }
 
     return await this.sqlite`
-      SELECT p.*
+      SELECT 
+        p.*,
+        t.id as tag_id, t.name as tag_name, t.slug as tag_slug
       FROM packages p
+      LEFT JOIN tags t ON p.category_id = t.id
       WHERE p.category_id = ${category.id}
       ORDER BY p.created_at DESC
       LIMIT ${limit} OFFSET ${offset}

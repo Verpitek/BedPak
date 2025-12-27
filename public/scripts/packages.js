@@ -1455,31 +1455,8 @@ async function loadPackages() {
       offset += limit;
     }
 
-    // Fetch full data with category for each package
-    // We fetch them in batches for better performance
-    const packagesWithCategory = await Promise.all(
-      allPackagesList.map(async (pkg) => {
-        try {
-          const fullResp = await fetch(
-            `${API_URL}/packages/${encodeURIComponent(pkg.name)}/full`,
-          );
-          if (fullResp.ok) {
-            const fullData = await fullResp.json();
-            if (fullData.success && fullData.data) {
-              return {
-                ...pkg,
-                category: fullData.data.category || null,
-              };
-            }
-          }
-        } catch (e) {
-          console.error("Failed to fetch category for", pkg.name);
-        }
-        return { ...pkg, category: null };
-      }),
-    );
-
-    allPackages = packagesWithCategory;
+    // Packages now include category data from the API, no need for extra /full calls
+    allPackages = allPackagesList;
 
     // Pre-load author names for all packages
     const uniqueAuthorIds = [
@@ -1519,7 +1496,9 @@ async function applyFilters() {
     // Check category filter
     let matchesCategory = true;
     if (categoryFilter) {
-      matchesCategory = pkg.category && pkg.category.slug === categoryFilter;
+      // Handle category from API response (could be tag_slug or category.slug)
+      const categorySlug = pkg.tag_slug || (pkg.category && pkg.category.slug);
+      matchesCategory = categorySlug && categorySlug === categoryFilter;
     }
 
     return matchesSearch && matchesAuthor && matchesCategory;
@@ -1642,9 +1621,11 @@ async function renderPackages() {
                </div>`;
 
     // Generate category HTML (single category instead of multiple tags)
-    const categoryHtml = pkg.category
+    const categorySlug = pkg.tag_slug || (pkg.category && pkg.category.slug);
+    const categoryName = pkg.tag_name || (pkg.category && pkg.category.name);
+    const categoryHtml = categorySlug
       ? `<div class="package-category">
-                   <a href="/packages.html?category=${encodeURIComponent(pkg.category.slug)}" class="category-badge">${escapeHtml(pkg.category.name)}</a>
+                   <a href="/packages.html?category=${encodeURIComponent(categorySlug)}" class="category-badge">${escapeHtml(categoryName)}</a>
                </div>`
       : "";
 

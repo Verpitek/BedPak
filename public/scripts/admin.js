@@ -239,48 +239,50 @@ function renderFilteredUsers(filteredUsers, page) {
   const end = start + paginationState.users.itemsPerPage;
   const paginatedUsers = filteredUsers.slice(start, end);
 
-  let tableHTML = `
-    <div class="table-wrapper">
-      <table class="user-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Current Role</th>
-            <th>New Role</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-  `;
+   let tableHTML = `
+     <div class="table-wrapper">
+       <table class="user-table">
+         <thead>
+           <tr>
+             <th>ID</th>
+             <th>Username</th>
+             <th>Email</th>
+             <th>Current Role</th>
+             <th>New Role</th>
+             <th>Actions</th>
+           </tr>
+         </thead>
+         <tbody>
+   `;
 
-  paginatedUsers.forEach(user => {
-    tableHTML += `
-      <tr>
-        <td>${user.id}</td>
-        <td>${user.username}</td>
-        <td>${user.email}</td>
-        <td><strong>${user.role}</strong></td>
-        <td>
-          <select class="role-select" id="role-${user.id}">
-            <option value="user" ${user.role === 'user' ? 'selected' : ''}>user</option>
-            <option value="developer" ${user.role === 'developer' ? 'selected' : ''}>developer</option>
-            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>admin</option>
-          </select>
-        </td>
-        <td>
-          <button class="update-role-btn" onclick="updateUserRole(${user.id})">Update</button>
-        </td>
-      </tr>
-    `;
-  });
+   paginatedUsers.forEach(user => {
+     tableHTML += `
+       <tr>
+         <td>${user.id}</td>
+         <td>${escapeHtml(user.username)}</td>
+         <td>${escapeHtml(user.email)}</td>
+         <td><strong>${user.role}</strong></td>
+         <td>
+           <select class="role-select" id="role-${user.id}">
+             <option value="user" ${user.role === 'user' ? 'selected' : ''}>user</option>
+             <option value="developer" ${user.role === 'developer' ? 'selected' : ''}>developer</option>
+             <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>admin</option>
+           </select>
+         </td>
+         <td style="display: flex; gap: 5px;">
+           <button class="update-role-btn" onclick="updateUserRole(${user.id})">Role</button>
+           <button class="edit-btn" data-action="edit-user" data-user-id="${user.id}" data-user-username="${escapeHtml(user.username)}" data-user-email="${escapeHtml(user.email)}" title="Edit">Edit</button>
+           <button class="delete-btn" data-action="delete-user" data-user-id="${user.id}" data-user-username="${escapeHtml(user.username)}" title="Delete">Delete</button>
+         </td>
+       </tr>
+     `;
+   });
 
-  tableHTML += `
-        </tbody>
-      </table>
-    </div>
-  `;
+   tableHTML += `
+         </tbody>
+       </table>
+     </div>
+   `;
 
   container.innerHTML = tableHTML;
 
@@ -910,38 +912,205 @@ window.onclick = function(event) {
    }
  }
 
-async function confirmDeletePackage() {
-  if (!packageToDelete) {
-    return;
-  }
+ async function confirmDeletePackage() {
+   if (!packageToDelete) {
+     return;
+   }
 
-  const packageId = packageToDelete.id;
+   const packageId = packageToDelete.id;
 
-  try {
-    const response = await fetch(`${API_URL}/packages/${packageId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-      },
-    });
+   try {
+     const response = await fetch(`${API_URL}/packages/${packageId}`, {
+       method: 'DELETE',
+       headers: {
+         'Authorization': `Bearer ${authToken}`,
+       },
+     });
 
-    const data = await response.json();
+     const data = await response.json();
 
-    if (!response.ok || !data.success) {
-      throw new Error(data.error || 'Failed to delete package');
-    }
+     if (!response.ok || !data.success) {
+       throw new Error(data.error || 'Failed to delete package');
+     }
 
-    const successDiv = document.getElementById('packageSuccessMsg');
-    successDiv.textContent = 'Package deleted successfully!';
-    successDiv.style.display = 'block';
+     const successDiv = document.getElementById('packageSuccessMsg');
+     successDiv.textContent = 'Package deleted successfully!';
+     successDiv.style.display = 'block';
 
-    setTimeout(() => {
-      successDiv.style.display = 'none';
-    }, 3000);
+     setTimeout(() => {
+       successDiv.style.display = 'none';
+     }, 3000);
 
-    closeDeleteModal();
-    loadPackages();
-  } catch (error) {
-    alert('Error: ' + error.message);
-  }
-}
+     closeDeleteModal();
+     loadPackages();
+   } catch (error) {
+     alert('Error: ' + error.message);
+   }
+ }
+
+ // ==================== USER MANAGEMENT ====================
+
+ let userToEdit = null;
+ let userToDelete = null;
+
+ async function openEditUserModal(userId, username, email) {
+   userToEdit = { id: userId, username };
+   document.getElementById('editUserUsername').value = username;
+   document.getElementById('editUserEmail').value = email;
+   document.getElementById('editUserPassword').value = '';
+   document.getElementById('editUserError').style.display = 'none';
+   document.getElementById('editUserModal').style.display = 'block';
+ }
+
+ function closeEditUserModal() {
+   document.getElementById('editUserModal').style.display = 'none';
+   userToEdit = null;
+ }
+
+ async function saveUserChanges(event) {
+   event.preventDefault();
+
+   if (!userToEdit) {
+     return;
+   }
+
+   const username = document.getElementById('editUserUsername').value;
+   const email = document.getElementById('editUserEmail').value;
+   const password = document.getElementById('editUserPassword').value;
+   const errorDiv = document.getElementById('editUserError');
+
+   errorDiv.style.display = 'none';
+
+   // Basic validation
+   if (!username || !email) {
+     errorDiv.textContent = 'Username and email are required';
+     errorDiv.style.display = 'block';
+     return;
+   }
+
+   const requestBody = {
+     username,
+     email,
+     password: password || null,
+   };
+
+   try {
+     const response = await fetch(`${API_URL}/admin/users/${userToEdit.id}`, {
+       method: 'PUT',
+       headers: {
+         'Content-Type': 'application/json',
+         'Authorization': `Bearer ${authToken}`,
+       },
+       body: JSON.stringify(requestBody),
+     });
+
+     const data = await response.json();
+
+     if (!response.ok || !data.success) {
+       throw new Error(data.error || 'Failed to update user');
+     }
+
+     const successDiv = document.getElementById('successMsg');
+     successDiv.textContent = 'User updated successfully!';
+     successDiv.style.display = 'block';
+
+     setTimeout(() => {
+       successDiv.style.display = 'none';
+     }, 3000);
+
+     closeEditUserModal();
+     loadUsers();
+   } catch (error) {
+     errorDiv.textContent = error.message;
+     errorDiv.style.display = 'block';
+   }
+ }
+
+ async function openDeleteUserModal(userId, username) {
+   userToDelete = { id: userId, username };
+   const infoDiv = document.getElementById('deleteUserInfo');
+   infoDiv.innerHTML = `
+     <p><strong>Username:</strong> ${escapeHtml(username)}</p>
+     <p><strong>ID:</strong> ${userId}</p>
+   `;
+   document.getElementById('deleteUserModal').style.display = 'block';
+ }
+
+ function closeDeleteUserModal() {
+   document.getElementById('deleteUserModal').style.display = 'none';
+   userToDelete = null;
+ }
+
+ async function confirmDeleteUser() {
+   if (!userToDelete) {
+     return;
+   }
+
+   const userId = userToDelete.id;
+
+   try {
+     const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+       method: 'DELETE',
+       headers: {
+         'Authorization': `Bearer ${authToken}`,
+       },
+     });
+
+     const data = await response.json();
+
+     if (!response.ok || !data.success) {
+       throw new Error(data.error || 'Failed to delete user');
+     }
+
+     const successDiv = document.getElementById('successMsg');
+     successDiv.textContent = 'User deleted successfully!';
+     successDiv.style.display = 'block';
+
+     setTimeout(() => {
+       successDiv.style.display = 'none';
+     }, 3000);
+
+     closeDeleteUserModal();
+     loadUsers();
+   } catch (error) {
+     alert('Error: ' + error.message);
+   }
+ }
+
+ // Event delegation for edit and delete user buttons
+ document.addEventListener('click', function (event) {
+   // Handle edit user button clicks
+   if (event.target.matches('[data-action="edit-user"]')) {
+     const userId = event.target.getAttribute('data-user-id');
+     const username = event.target.getAttribute('data-user-username');
+     const email = event.target.getAttribute('data-user-email');
+     openEditUserModal(parseInt(userId), username, email);
+   }
+
+   // Handle delete user button clicks
+   if (event.target.matches('[data-action="delete-user"]')) {
+     const userId = event.target.getAttribute('data-user-id');
+     const username = event.target.getAttribute('data-user-username');
+     openDeleteUserModal(parseInt(userId), username);
+   }
+ });
+
+ window.onclick = function(event) {
+   const editUserModal = document.getElementById('editUserModal');
+   const deleteUserModal = document.getElementById('deleteUserModal');
+   const editPackageModal = document.getElementById('editPackageModal');
+   const deletePackageModal = document.getElementById('deletePackageModal');
+   
+   if (event.target === editUserModal) {
+     editUserModal.style.display = 'none';
+   }
+   if (event.target === deleteUserModal) {
+     deleteUserModal.style.display = 'none';
+   }
+   if (event.target === editPackageModal) {
+     editPackageModal.style.display = 'none';
+   }
+   if (event.target === deletePackageModal) {
+     deletePackageModal.style.display = 'none';
+   }
+ }

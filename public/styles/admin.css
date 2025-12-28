@@ -160,6 +160,53 @@
     text-align: center;
 }
 
+.edit-btn {
+    padding: 6px 12px;
+    background: #3a4a5a;
+    color: #88bbff;
+    border: 1px solid #5a6a7a;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s;
+    border-radius: 3px;
+}
+
+.edit-btn:hover {
+    background: #4a5a6a;
+}
+
+.delete-btn {
+    padding: 6px 12px;
+    background: #5a3a3a;
+    color: #ff8888;
+    border: 1px solid #7a5a5a;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s;
+    border-radius: 3px;
+}
+
+.delete-btn:hover {
+    background: #6a4a4a;
+}
+
+.user-info {
+    background: #1a1a1a;
+    padding: 15px;
+    border: 1px solid #333;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.user-info p {
+    margin: 8px 0;
+    color: #d0d0d0;
+}
+
+.user-info strong {
+    color: #c4a574;
+}
+
 @media (max-width: 768px) {
     .header {
         flex-direction: column;

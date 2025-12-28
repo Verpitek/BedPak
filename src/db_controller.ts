@@ -285,9 +285,9 @@ export class DB {
       .sqlite`INSERT INTO users (username, email, password_hash, role) VALUES(${username}, ${email}, ${passwordHash}, ${role}) RETURNING *`;
   }
 
-  public async removeUser(username: string) {
-    await this.sqlite`DELETE FROM users WHERE username = ${username}`;
-  }
+   public async removeUser(userId: number) {
+     await this.sqlite`DELETE FROM users WHERE id = ${userId}`;
+   }
 
   public async getUser(username: string) {
     const results = await this
@@ -307,10 +307,37 @@ export class DB {
     return results[0];
   }
 
-  public async updateUserRole(userId: number, newRole: string) {
-    return await this
-      .sqlite`UPDATE users SET role = ${newRole} WHERE id = ${userId} RETURNING *`;
-  }
+   public async updateUserRole(userId: number, newRole: string) {
+     return await this
+       .sqlite`UPDATE users SET role = ${newRole} WHERE id = ${userId} RETURNING *`;
+   }
+
+   public async updateUserProfile(
+     userId: number,
+     username?: string,
+     email?: string,
+     password?: string,
+   ) {
+     // Get current user data to preserve unchanged fields
+     const currentUser = await this.getUserById(userId);
+     if (!currentUser) {
+       return [];
+     }
+
+     // Use provided values or fall back to current values
+     const newUsername = username !== undefined && username !== null ? username : currentUser.username;
+     const newEmail = email !== undefined && email !== null ? email : currentUser.email;
+     let newPasswordHash = currentUser.password_hash;
+
+     // Only hash password if provided
+     if (password !== undefined && password !== null) {
+       const { hashPassword } = await import("./auth");
+       newPasswordHash = await hashPassword(password);
+     }
+
+     return await this
+       .sqlite`UPDATE users SET username = ${newUsername}, email = ${newEmail}, password_hash = ${newPasswordHash} WHERE id = ${userId} RETURNING *`;
+   }
 
   public async getAllUsers() {
     return await this.sqlite`SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC`;

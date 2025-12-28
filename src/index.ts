@@ -189,6 +189,17 @@ function sanitizeFilename(filename: string): string {
   return filename.replace(/["\r\n\\]/g, "_").replace(/[^\x20-\x7E]/g, "_");
 }
 
+// Escape HTML entities to prevent XSS in dynamic meta tags
+function escapeHtml(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // Initialize database and storage on startup
 await database.initDB();
 await initializeStorage();
@@ -244,17 +255,18 @@ const app = new Elysia()
       set.headers[header] = value;
     });
 
-    // Log request
-    const startTime =
-      (request as Request & { startTime?: number }).startTime || Date.now();
-    const duration = Date.now() - startTime;
-    const ip = getClientIP(
-      request.headers as unknown as Record<string, string | undefined>,
-      server,
-      request,
-    );
-    const url = new URL(request.url);
-    logRequest(request.method, url.pathname, set.status || 200, duration, ip);
+     // Log request
+     const startTime =
+       (request as Request & { startTime?: number }).startTime || Date.now();
+     const duration = Date.now() - startTime;
+     const ip = getClientIP(
+       request.headers as unknown as Record<string, string | undefined>,
+       server,
+       request,
+     );
+     const url = new URL(request.url);
+     const status = typeof set.status === "number" ? set.status : 200;
+     logRequest(request.method, url.pathname, status, duration, ip);
   })
   // Global rate limiting middleware
   .onBeforeHandle(({ request, set, server }) => {
@@ -306,9 +318,99 @@ const app = new Elysia()
       devMode: DEV_MODE,
     };
   })
-  .get("/", () => Bun.file("./public/packages.html"))
-  .get("/admin", () => Bun.file("./public/admin.html"))
-  .get("/package/:name", () => Bun.file("./public/package.html"))
+   .get("/", () => Bun.file("./public/packages.html"))
+   .get("/admin", () => Bun.file("./public/admin.html"))
+   .get("/package/:name", async ({ params: { name }, set }) => {
+     try {
+       if (!name || name.length === 0) {
+         return Bun.file("./public/package.html");
+       }
+
+       // Fetch package data to generate dynamic meta tags
+       const pkg = await database.getFullPackageData(name);
+
+       if (!pkg) {
+         // Return default page if package not found
+         return Bun.file("./public/package.html");
+       }
+
+       // Read the base HTML
+       const baseHtml = await Bun.file("./public/package.html").text();
+
+       // Prepare metadata
+       const title = `${pkg.name} - BedPak`;
+       const description = pkg.description || "Minecraft Bedrock addon";
+       const imageUrl = pkg.icon_url || "/logos/bedpak.svg";
+       const currentUrl = `https://bedpak.com/package/${encodeURIComponent(name)}`;
+
+       // Create new HTML with updated meta tags
+       let updatedHtml = baseHtml.replace(
+         /<title>Package - BedPak<\/title>/,
+         `<title>${escapeHtml(title)}</title>`,
+       );
+
+       // Replace description meta tag (handle multi-line)
+       updatedHtml = updatedHtml.replace(
+         /(<meta[\s\n]*name="description"[\s\n]*content=")Download this Minecraft Bedrock addon from BedPak(")/s,
+         `$1${escapeHtml(description)}$2`,
+       );
+
+       // Replace og:title (handle multi-line)
+       updatedHtml = updatedHtml.replace(
+         /(<meta[\s\n]*property="og:title"[\s\n]*content=")Package - BedPak(")/s,
+         `$1${escapeHtml(title)}$2`,
+       );
+
+       // Replace og:description (handle multi-line)
+       updatedHtml = updatedHtml.replace(
+         /(<meta[\s\n]*property="og:description"[\s\n]*content=")Download this Minecraft Bedrock addon from BedPak\.(")/s,
+         `$1${escapeHtml(description)}$2`,
+       );
+
+       // Replace og:image (handle multi-line)
+       updatedHtml = updatedHtml.replace(
+         /(<meta[\s\n]*property="og:image"[\s\n]*content=")\/logos\/bedpak\.svg(")/s,
+         `$1${escapeHtml(imageUrl)}$2`,
+       );
+
+       // Replace og:url
+       updatedHtml = updatedHtml.replace(
+         /(<meta\s+property="og:url"\s+content=")(")/,
+         `$1${escapeHtml(currentUrl)}$2`,
+       );
+
+       // Replace twitter:title
+       updatedHtml = updatedHtml.replace(
+         /(<meta\s+name="twitter:title"\s+content=")Package - BedPak(")/,
+         `$1${escapeHtml(title)}$2`,
+       );
+
+       // Replace twitter:description (handle multi-line)
+       updatedHtml = updatedHtml.replace(
+         /(<meta[\s\n]*name="twitter:description"[\s\n]*content=")Download this Minecraft Bedrock addon from BedPak\.(")/s,
+         `$1${escapeHtml(description)}$2`,
+       );
+
+       // Replace twitter:image
+       updatedHtml = updatedHtml.replace(
+         /(<meta\s+name="twitter:image"\s+content=")\/logos\/bedpak\.svg(")/,
+         `$1${escapeHtml(imageUrl)}$2`,
+       );
+
+       set.headers["Cache-Control"] = "public, max-age=3600";
+       set.headers["Content-Type"] = "text/html; charset=utf-8";
+
+       return new Response(updatedHtml, {
+         headers: {
+           "Content-Type": "text/html; charset=utf-8",
+           "Cache-Control": "public, max-age=3600",
+         },
+       });
+     } catch (err) {
+       console.error("Error serving package page:", err);
+       return Bun.file("./public/package.html");
+     }
+   })
   .get("/fonts/:filename", ({ params: { filename } }) => {
     // Prevent path traversal by using only the base filename
     const safeFilename = basename(filename);
@@ -632,98 +734,282 @@ const app = new Elysia()
       return { error: "Failed to fetch users" };
     }
   })
-  .put(
-    "/admin/users/:userId/role",
-    async ({ params: { userId }, headers, body, set }) => {
-      try {
-        // Extract and verify token
-        const authHeader = headers["authorization"];
-        const token = extractToken(authHeader);
+   .put(
+     "/admin/users/:userId/role",
+     async ({ params: { userId }, headers, body, set }) => {
+       try {
+         // Extract and verify token
+         const authHeader = headers["authorization"];
+         const token = extractToken(authHeader);
 
-        if (!token) {
-          set.status = 401;
-          return { error: "Unauthorized: Missing or invalid token" };
-        }
+         if (!token) {
+           set.status = 401;
+           return { error: "Unauthorized: Missing or invalid token" };
+         }
 
-        const payload = verifyToken(token);
-        if (!payload) {
-          set.status = 401;
-          return { error: "Unauthorized: Invalid or expired token" };
-        }
+         const payload = verifyToken(token);
+         if (!payload) {
+           set.status = 401;
+           return { error: "Unauthorized: Invalid or expired token" };
+         }
 
-        // Re-verify admin role from database (in case role was changed)
-        const currentUser = await database.getUserById(payload.id);
-        if (!currentUser || currentUser.role !== "admin") {
-          set.status = 403;
-          return { error: "Forbidden: Only admins can change user roles" };
-        }
+         // Re-verify admin role from database (in case role was changed)
+         const currentUser = await database.getUserById(payload.id);
+         if (!currentUser || currentUser.role !== "admin") {
+           set.status = 403;
+           return { error: "Forbidden: Only admins can change user roles" };
+         }
 
-        // Get target user
-        const targetUserId = parseInt(userId);
-        if (isNaN(targetUserId)) {
-          set.status = 400;
-          return { error: "Invalid user ID" };
-        }
+         // Get target user
+         const targetUserId = parseInt(userId);
+         if (isNaN(targetUserId)) {
+           set.status = 400;
+           return { error: "Invalid user ID" };
+         }
 
-        const targetUser = await database.getUserById(targetUserId);
+         const targetUser = await database.getUserById(targetUserId);
 
-        if (!targetUser) {
-          set.status = 404;
-          return { error: "User not found" };
-        }
+         if (!targetUser) {
+           set.status = 404;
+           return { error: "User not found" };
+         }
 
-        // Validate new role
-        const newRole = body.role;
-        if (!newRole) {
-          set.status = 400;
-          return { error: "Role is required" };
-        }
+         // Validate new role
+         const bodyObj = body as Record<string, unknown>;
+         const newRole = bodyObj.role as string | undefined;
+         if (!newRole) {
+           set.status = 400;
+           return { error: "Role is required" };
+         }
 
-        const validRoles = ["user", "developer", "admin"];
-        if (!validRoles.includes(newRole)) {
-          set.status = 400;
-          return {
-            error: `Invalid role. Must be one of: ${validRoles.join(", ")}`,
-          };
-        }
+         const validRoles = ["user", "developer", "admin"];
+         if (!validRoles.includes(newRole)) {
+           set.status = 400;
+           return {
+             error: `Invalid role. Must be one of: ${validRoles.join(", ")}`,
+           };
+         }
 
-        // Prevent demoting the last admin
-        if (targetUser.role === "admin" && newRole !== "admin") {
-          const adminCount = await database.getAdminCount();
-          if (adminCount <= 1) {
-            set.status = 400;
-            return {
-              error:
-                "Cannot demote the last admin. Promote another user to admin first.",
-            };
-          }
-        }
+         // Prevent demoting the last admin
+         if (targetUser.role === "admin" && newRole !== "admin") {
+           const adminCount = await database.getAdminCount();
+           if (adminCount <= 1) {
+             set.status = 400;
+             return {
+               error:
+                 "Cannot demote the last admin. Promote another user to admin first.",
+             };
+           }
+         }
 
-        // Update user role
-        const updatedUser = await database.updateUserRole(
-          targetUserId,
-          newRole,
-        );
-        const userData = (
-          updatedUser as unknown as Record<string, unknown>[]
-        )[0];
+         // Update user role
+         const updatedUser = await database.updateUserRole(
+           targetUserId,
+           newRole as string,
+         );
+         const userData = (
+           updatedUser as unknown as Record<string, unknown>[]
+         )[0];
 
-        return {
-          success: true,
-          message: "User role updated successfully",
-          user: {
-            id: userData.id,
-            username: userData.username,
-            role: userData.role,
-          },
-        };
-      } catch (err) {
-        console.error("Update user role error:", err);
-        set.status = 500;
-        return { error: "Failed to update user role" };
-      }
-    },
-  )
+         return {
+           success: true,
+           message: "User role updated successfully",
+           user: {
+             id: userData.id,
+             username: userData.username,
+             role: userData.role,
+           },
+         };
+       } catch (err) {
+         console.error("Update user role error:", err);
+         set.status = 500;
+         return { error: "Failed to update user role" };
+       }
+     },
+   )
+   .put(
+     "/admin/users/:userId",
+     async ({ params: { userId }, headers, body, set }) => {
+       try {
+         // Extract and verify token
+         const authHeader = headers["authorization"];
+         const token = extractToken(authHeader);
+
+         if (!token) {
+           set.status = 401;
+           return { error: "Unauthorized: Missing or invalid token" };
+         }
+
+         const payload = verifyToken(token);
+         if (!payload) {
+           set.status = 401;
+           return { error: "Unauthorized: Invalid or expired token" };
+         }
+
+         // Re-verify admin role from database
+         const currentUser = await database.getUserById(payload.id);
+         if (!currentUser || currentUser.role !== "admin") {
+           set.status = 403;
+           return { error: "Forbidden: Only admins can edit users" };
+         }
+
+         // Get target user
+         const targetUserId = parseInt(userId);
+         if (isNaN(targetUserId)) {
+           set.status = 400;
+           return { error: "Invalid user ID" };
+         }
+
+         const targetUser = await database.getUserById(targetUserId);
+         if (!targetUser) {
+           set.status = 404;
+           return { error: "User not found" };
+         }
+
+         const bodyObj = body as Record<string, unknown>;
+         const username = bodyObj.username as string | undefined;
+         const email = bodyObj.email as string | undefined;
+         const password = bodyObj.password as string | undefined;
+
+         // Validate if provided
+         if (username !== undefined && username !== null) {
+           const usernameValidation = validateUsername(username);
+           if (!usernameValidation.valid) {
+             set.status = 400;
+             return { error: usernameValidation.error };
+           }
+
+           // Check for duplicate username (excluding current user)
+           if (username !== targetUser.username) {
+             const existingUser = await database.getUser(username);
+             if (existingUser) {
+               set.status = 409;
+               return { error: "Username already exists" };
+             }
+           }
+         }
+
+         if (email !== undefined && email !== null) {
+           const emailValidation = validateEmail(email);
+           if (!emailValidation.valid) {
+             set.status = 400;
+             return { error: emailValidation.error };
+           }
+
+           // Check for duplicate email (excluding current user)
+           if (email !== targetUser.email) {
+             const existingEmail = await database.getUserByEmail(email);
+             if (existingEmail) {
+               set.status = 409;
+               return { error: "Email already exists" };
+             }
+           }
+         }
+
+         if (password !== undefined && password !== null) {
+           const passwordValidation = validatePassword(password);
+           if (!passwordValidation.valid) {
+             set.status = 400;
+             return {
+               error: "Password does not meet requirements",
+               details: passwordValidation.errors,
+             };
+           }
+         }
+
+         // Perform updates
+         const updatedUser = await database.updateUserProfile(
+           targetUserId,
+           username,
+           email,
+           password,
+         );
+         const userData = (
+           updatedUser as unknown as Record<string, unknown>[]
+         )[0];
+
+         return {
+           success: true,
+           message: "User updated successfully",
+           user: {
+             id: userData.id,
+             username: userData.username,
+             email: userData.email,
+             role: userData.role,
+           },
+         };
+       } catch (err) {
+         console.error("Update user error:", err);
+         set.status = 500;
+         return { error: "Failed to update user" };
+       }
+     },
+   )
+   .delete(
+     "/admin/users/:userId",
+     async ({ params: { userId }, headers, set }) => {
+       try {
+         // Extract and verify token
+         const authHeader = headers["authorization"];
+         const token = extractToken(authHeader);
+
+         if (!token) {
+           set.status = 401;
+           return { error: "Unauthorized: Missing or invalid token" };
+         }
+
+         const payload = verifyToken(token);
+         if (!payload) {
+           set.status = 401;
+           return { error: "Unauthorized: Invalid or expired token" };
+         }
+
+         // Re-verify admin role from database
+         const currentUser = await database.getUserById(payload.id);
+         if (!currentUser || currentUser.role !== "admin") {
+           set.status = 403;
+           return { error: "Forbidden: Only admins can delete users" };
+         }
+
+         // Get target user
+         const targetUserId = parseInt(userId);
+         if (isNaN(targetUserId)) {
+           set.status = 400;
+           return { error: "Invalid user ID" };
+         }
+
+         const targetUser = await database.getUserById(targetUserId);
+         if (!targetUser) {
+           set.status = 404;
+           return { error: "User not found" };
+         }
+
+         // Prevent deleting the last admin
+         if (targetUser.role === "admin") {
+           const adminCount = await database.getAdminCount();
+           if (adminCount <= 1) {
+             set.status = 400;
+             return {
+               error:
+                 "Cannot delete the last admin. Promote another user to admin first.",
+             };
+           }
+         }
+
+         // Delete the user
+         await database.removeUser(targetUserId);
+
+         return {
+           success: true,
+           message: "User deleted successfully",
+         };
+       } catch (err) {
+         console.error("Delete user error:", err);
+         set.status = 500;
+         return { error: "Failed to delete user" };
+       }
+     },
+   )
   .post("/admin/tags", async ({ headers, body, set }) => {
     try {
       // Extract and verify token

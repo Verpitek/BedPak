@@ -67,6 +67,27 @@ function formatDate(dateStr) {
   });
 }
 
+// Calculate days ago
+function formatDaysAgo(dateStr) {
+  if (!dateStr) return "Unknown";
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "1 day ago";
+  if (diffDays < 30) return `${diffDays} days ago`;
+  
+  const months = Math.floor(diffDays / 30);
+  if (months === 1) return "1 month ago";
+  if (months < 12) return `${months} months ago`;
+  
+  const years = Math.floor(diffDays / 365);
+  if (years === 1) return "1 year ago";
+  return `${years} years ago`;
+}
+
 // Format download count
 function formatDownloads(count) {
   if (!count) return "0";
@@ -375,9 +396,9 @@ function renderPackage(pkg) {
                             <span class="value">${escapeHtml(pkg.version || "1.0.0")}</span>
                         </div>
                         <div class="sidebar-info-item">
-                            <span class="label">Updated</span>
-                            <span class="value">${formatDate(pkg.updated_at)}</span>
-                        </div>
+                             <span class="label">Updated</span>
+                             <span class="value">${formatDaysAgo(pkg.updated_at)}</span>
+                         </div>
                         <div class="sidebar-info-item">
                             <span class="label">Created</span>
                             <span class="value">${formatDate(pkg.created_at)}</span>

@@ -355,23 +355,26 @@ const app = new Elysia()
          `$1${escapeHtml(description)}$2`,
        );
 
-       // Replace og:title (handle multi-line)
-       updatedHtml = updatedHtml.replace(
-         /(<meta[\s\n]*property="og:title"[\s\n]*content=")Package - BedPak(")/s,
-         `$1${escapeHtml(title)}$2`,
-       );
+        // Replace og:title (handle multi-line) - use just package name for Discord
+        updatedHtml = updatedHtml.replace(
+          /(<meta[\s\n]*property="og:title"[\s\n]*content=")Package - BedPak(")/s,
+          `$1${escapeHtml(pkg.name)}$2`,
+        );
 
-       // Replace og:description (handle multi-line)
-       updatedHtml = updatedHtml.replace(
-         /(<meta[\s\n]*property="og:description"[\s\n]*content=")Download this Minecraft Bedrock addon from BedPak\.(")/s,
-         `$1${escapeHtml(description)}$2`,
-       );
+        // Replace og:description (handle multi-line) - use short description
+        updatedHtml = updatedHtml.replace(
+          /(<meta[\s\n]*property="og:description"[\s\n]*content=")Download this Minecraft Bedrock addon from BedPak\.(")/s,
+          `$1${escapeHtml(description)}$2`,
+        );
 
-       // Replace og:image (handle multi-line)
-       updatedHtml = updatedHtml.replace(
-         /(<meta[\s\n]*property="og:image"[\s\n]*content=")\/logos\/bedpak\.svg(")/s,
-         `$1${escapeHtml(imageUrl)}$2`,
-       );
+        // Replace og:image (handle multi-line) - use package icon with full URL for Discord
+        const fullImageUrl = imageUrl.startsWith("http") 
+          ? imageUrl 
+          : `https://bedpak.com${imageUrl}`;
+        updatedHtml = updatedHtml.replace(
+          /(<meta[\s\n]*property="og:image"[\s\n]*content=")\/logos\/bedpak\.svg(")/s,
+          `$1${escapeHtml(fullImageUrl)}$2`,
+        );
 
        // Replace og:url
        updatedHtml = updatedHtml.replace(
@@ -379,23 +382,23 @@ const app = new Elysia()
          `$1${escapeHtml(currentUrl)}$2`,
        );
 
-       // Replace twitter:title
-       updatedHtml = updatedHtml.replace(
-         /(<meta\s+name="twitter:title"\s+content=")Package - BedPak(")/,
-         `$1${escapeHtml(title)}$2`,
-       );
+        // Replace twitter:title - use just package name
+        updatedHtml = updatedHtml.replace(
+          /(<meta\s+name="twitter:title"\s+content=")Package - BedPak(")/,
+          `$1${escapeHtml(pkg.name)}$2`,
+        );
 
-       // Replace twitter:description (handle multi-line)
-       updatedHtml = updatedHtml.replace(
-         /(<meta[\s\n]*name="twitter:description"[\s\n]*content=")Download this Minecraft Bedrock addon from BedPak\.(")/s,
-         `$1${escapeHtml(description)}$2`,
-       );
+        // Replace twitter:description (handle multi-line)
+        updatedHtml = updatedHtml.replace(
+          /(<meta[\s\n]*name="twitter:description"[\s\n]*content=")Download this Minecraft Bedrock addon from BedPak\.(")/s,
+          `$1${escapeHtml(description)}$2`,
+        );
 
-       // Replace twitter:image
-       updatedHtml = updatedHtml.replace(
-         /(<meta\s+name="twitter:image"\s+content=")\/logos\/bedpak\.svg(")/,
-         `$1${escapeHtml(imageUrl)}$2`,
-       );
+        // Replace twitter:image - use full URL
+        updatedHtml = updatedHtml.replace(
+          /(<meta\s+name="twitter:image"\s+content=")\/logos\/bedpak\.svg(")/,
+          `$1${escapeHtml(fullImageUrl)}$2`,
+        );
 
        set.headers["Cache-Control"] = "public, max-age=3600";
        set.headers["Content-Type"] = "text/html; charset=utf-8";

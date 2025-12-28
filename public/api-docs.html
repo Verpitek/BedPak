@@ -107,8 +107,9 @@
                 <p>
                     The BedPak API allows you to programmatically interact with
                     the Minecraft Bedrock add-on repository. You can list
-                    packages, upload new add-ons, download files, and manage
-                    your packages.
+                    packages, upload new add-ons, download files, manage
+                    your packages, and access categories. Administrators can
+                    manage users and tags.
                 </p>
 
                 <div class="note">
@@ -122,7 +123,10 @@
                     <h3>Table of Contents</h3>
                     <ul>
                         <li><a href="#authentication">Authentication</a></li>
+                        <li><a href="#system">System Endpoints</a></li>
                         <li><a href="#users">User Endpoints</a></li>
+                        <li><a href="#admin">Admin Endpoints</a></li>
+                        <li><a href="#categories">Categories & Tags</a></li>
                         <li><a href="#packages">Package Endpoints</a></li>
                         <li><a href="#errors">Error Responses</a></li>
                         <li>
@@ -162,7 +166,7 @@
                             </td>
                             <td>string</td>
                             <td>
-                                Unique username (alphanumeric, underscores, 3-32
+                                Unique username (alphanumeric, underscores, hyphens, 3-32
                                 chars)
                             </td>
                         </tr>
@@ -182,6 +186,14 @@
                             <td>string</td>
                             <td>Min 8 chars, 1 number, 1 special character</td>
                         </tr>
+                        <tr>
+                            <td>
+                                turnstileToken
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>Cloudflare Turnstile CAPTCHA token</td>
+                        </tr>
                     </table>
 
                     <div class="code-block">
@@ -190,7 +202,8 @@
   -d '{
     "username": "myuser",
     "email": "user@example.com",
-    "password": "SecurePass123!"
+    "password": "SecurePass123!",
+    "turnstileToken": "token_from_captcha"
   }'</code></pre>
                     </div>
 
@@ -198,10 +211,12 @@
                         <div class="response-label">Success Response</div>
                         <pre><code>{
   "success": true,
-  "message": "User registered successfully",
+  "message": "User created successfully",
   "user": {
     "id": 1,
-    "username": "myuser"
+    "username": "myuser",
+    "email": "user@example.com",
+    "role": "user"
   }
 }</code></pre>
                     </div>
@@ -239,6 +254,14 @@
                             <td>string</td>
                             <td>Your password</td>
                         </tr>
+                        <tr>
+                            <td>
+                                turnstileToken
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>Cloudflare Turnstile CAPTCHA token</td>
+                        </tr>
                     </table>
 
                     <div class="code-block">
@@ -246,7 +269,8 @@
   -H "Content-Type: application/json" \
   -d '{
     "username": "myuser",
-    "password": "SecurePass123!"
+    "password": "SecurePass123!",
+    "turnstileToken": "token_from_captcha"
   }'</code></pre>
                     </div>
 
@@ -255,16 +279,19 @@
                         <pre><code>{
   "success": true,
   "token": "eyJhbGciOiJIUzI1NiIs...",
+  "expiresIn": 604800,
   "user": {
     "id": 1,
-    "username": "myuser"
+    "username": "myuser",
+    "email": "user@example.com",
+    "role": "user"
   }
 }</code></pre>
                     </div>
 
                     <div class="note">
                         <div class="note-title">Token Expiration</div>
-                        JWT tokens expire after 7 days. Store the token securely
+                        JWT tokens expire after 7 days (604800 seconds). Store the token securely
                         and include it in the Authorization header for
                         authenticated requests.
                     </div>
@@ -279,13 +306,61 @@
                     <pre><code>Authorization: Bearer YOUR_JWT_TOKEN</code></pre>
                 </div>
 
+                <h2 id="system">System Endpoints</h2>
+
+                <h3>Health Check</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/health</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Check if the API is running.
+                    </p>
+
+                    <div class="code-block">
+                        <pre><code>curl /health</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "status": "ok",
+  "timestamp": "2025-12-28T12:00:00.000Z",
+  "uptime": 3600.5
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Get API Configuration</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/api/config</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Get API configuration for frontend integration.
+                    </p>
+
+                    <div class="code-block">
+                        <pre><code>curl /api/config</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "devMode": false
+}</code></pre>
+                    </div>
+                </div>
+
                 <h2 id="users">User Endpoints</h2>
 
                 <h3>Get User by Username</h3>
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method-badge method-get">GET</span>
-                        <span class="endpoint-path">/user/{username}</span>
+                        <span class="endpoint-path">/user/:username</span>
                     </div>
                     <p class="endpoint-description">
                         Retrieve public user information by username.
@@ -299,7 +374,9 @@
                         <div class="response-label">Success Response</div>
                         <pre><code>{
   "id": 1,
-  "username": "myuser"
+  "username": "myuser",
+  "role": "user",
+  "created_at": "2025-12-24T12:00:00.000Z"
 }</code></pre>
                     </div>
                 </div>
@@ -308,7 +385,7 @@
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method-badge method-get">GET</span>
-                        <span class="endpoint-path">/user/id/{id}</span>
+                        <span class="endpoint-path">/user/id/:userId</span>
                     </div>
                     <p class="endpoint-description">
                         Retrieve public user information by user ID.
@@ -322,7 +399,396 @@
                         <div class="response-label">Success Response</div>
                         <pre><code>{
   "id": 1,
-  "username": "myuser"
+  "username": "myuser",
+  "role": "user",
+  "created_at": "2025-12-24T12:00:00.000Z"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h2 id="admin">Admin Endpoints</h2>
+                <p>
+                    All admin endpoints require authentication with an admin account.
+                    Include your JWT token in the Authorization header.
+                </p>
+
+                <h3>List All Users</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/admin/users</span>
+                        <span class="auth-badge">Auth Required (Admin)</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Get a list of all users in the system. Admin only.
+                    </p>
+
+                    <div class="code-block">
+                        <pre><code>curl /admin/users \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "users": [
+    {
+      "id": 1,
+      "username": "admin_user",
+      "email": "admin@example.com",
+      "role": "admin",
+      "created_at": "2025-12-20T12:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "username": "dev_user",
+      "email": "dev@example.com",
+      "role": "developer",
+      "created_at": "2025-12-21T12:00:00.000Z"
+    }
+  ]
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Update User Role</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-put">PUT</span>
+                        <span class="endpoint-path">/admin/users/:userId/role</span>
+                        <span class="auth-badge">Auth Required (Admin)</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Change a user's role. Admin only. Cannot demote the last admin.
+                    </p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                role
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>One of: "user", "developer", "admin"</td>
+                        </tr>
+                    </table>
+
+                    <div class="code-block">
+                        <pre><code>curl -X PUT /admin/users/2/role \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"role": "developer"}'</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "message": "User role updated successfully",
+  "user": {
+    "id": 2,
+    "username": "dev_user",
+    "role": "developer"
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Edit User</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-put">PUT</span>
+                        <span class="endpoint-path">/admin/users/:userId</span>
+                        <span class="auth-badge">Auth Required (Admin)</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Edit a user's profile (username, email, password). Admin only.
+                    </p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                username
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string</td>
+                            <td>New username (must be unique)</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                email
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string</td>
+                            <td>New email (must be unique)</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                password
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string</td>
+                            <td>New password (must meet security requirements)</td>
+                        </tr>
+                    </table>
+
+                    <div class="code-block">
+                        <pre><code>curl -X PUT /admin/users/2 \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "new_username",
+    "email": "newemail@example.com"
+  }'</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "message": "User updated successfully",
+  "user": {
+    "id": 2,
+    "username": "new_username",
+    "email": "newemail@example.com",
+    "role": "developer"
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Delete User</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-delete">DELETE</span>
+                        <span class="endpoint-path">/admin/users/:userId</span>
+                        <span class="auth-badge">Auth Required (Admin)</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Delete a user from the system. Admin only. Cannot delete the last admin.
+                    </p>
+
+                    <div class="code-block">
+                        <pre><code>curl -X DELETE /admin/users/2 \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "message": "User deleted successfully"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Create Category/Tag</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-post">POST</span>
+                        <span class="endpoint-path">/admin/tags</span>
+                        <span class="auth-badge">Auth Required (Admin)</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Create a new category/tag. Admin only.
+                    </p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                name
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>Tag name (1-32 characters)</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                slug
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>URL-friendly slug (lowercase, alphanumeric with hyphens, 1-32 chars, must be unique)</td>
+                        </tr>
+                    </table>
+
+                    <div class="code-block">
+                        <pre><code>curl -X POST /admin/tags \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Building Tools",
+    "slug": "building-tools"
+  }'</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "message": "Tag created successfully",
+  "data": {
+    "id": 1,
+    "name": "Building Tools",
+    "slug": "building-tools"
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Delete Category/Tag</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-delete">DELETE</span>
+                        <span class="endpoint-path">/admin/tags/:id</span>
+                        <span class="auth-badge">Auth Required (Admin)</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Delete a category/tag. Admin only.
+                    </p>
+
+                    <div class="code-block">
+                        <pre><code>curl -X DELETE /admin/tags/1 \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "message": "Tag deleted successfully"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h2 id="categories">Categories & Tags</h2>
+
+                <h3>List All Categories</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/categories</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Get all available categories/tags.
+                    </p>
+
+                    <div class="code-block">
+                        <pre><code>curl /categories</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Building Tools",
+      "slug": "building-tools"
+    },
+    {
+      "id": 2,
+      "name": "Magic Mods",
+      "slug": "magic-mods"
+    }
+  ]
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Get All Tags (Legacy)</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/tags</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Get all tags. Supports optional popular filter.
+                    </p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Query Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                popular
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>boolean</td>
+                            <td>If "true", return only popular tags</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                limit
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>number</td>
+                            <td>When popular=true, max results to return (default: 10, max: 50)</td>
+                        </tr>
+                    </table>
+
+                    <div class="code-block">
+                        <pre><code>curl "/tags?popular=true&limit=10"</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Building Tools",
+      "slug": "building-tools"
+    }
+  ]
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Get Tag by Slug</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/tags/:slug</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Get a specific tag by its slug.
+                    </p>
+
+                    <div class="code-block">
+                        <pre><code>curl /tags/building-tools</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Building Tools",
+    "slug": "building-tools"
+  }
 }</code></pre>
                     </div>
                 </div>
@@ -336,7 +802,7 @@
                         <span class="endpoint-path">/packages</span>
                     </div>
                     <p class="endpoint-description">
-                        Retrieve a paginated list of all packages.
+                        Retrieve a paginated list of all packages with optional category filtering.
                     </p>
 
                     <table class="param-table">
@@ -351,7 +817,7 @@
                                 <span class="param-optional">optional</span>
                             </td>
                             <td>number</td>
-                            <td>Number of results per page (default: 20)</td>
+                            <td>Number of results per page (default: 20, max: 100)</td>
                         </tr>
                         <tr>
                             <td>
@@ -361,16 +827,24 @@
                             <td>number</td>
                             <td>Number of results to skip (default: 0)</td>
                         </tr>
+                        <tr>
+                            <td>
+                                category
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string</td>
+                            <td>Filter by category slug</td>
+                        </tr>
                     </table>
 
                     <div class="code-block">
-                        <pre><code>curl "/packages?limit=50&offset=0"</code></pre>
+                        <pre><code>curl "/packages?limit=50&offset=0"
+curl "/packages?category=building-tools"</code></pre>
                     </div>
 
                     <div class="response-example">
                         <div class="response-label">Success Response</div>
                         <pre><code>{
-  "success": true,
   "data": [
     {
       "id": 1,
@@ -380,15 +854,13 @@
       "author_id": 1,
       "downloads": 42,
       "icon_url": "/icons/1.png",
-      "kofi_url": "https://ko-fi.com/myuser",
       "created_at": "2025-12-24T12:00:00.000Z"
     }
   ],
-  "pagination": {
-    "limit": 50,
-    "offset": 0,
-    "total": 1
-  }
+  "limit": 50,
+  "offset": 0,
+  "total": 1,
+  "filters": { "category": "building-tools" }
 }</code></pre>
                     </div>
                 </div>
@@ -397,14 +869,45 @@
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method-badge method-get">GET</span>
-                        <span class="endpoint-path">/packages/{name}</span>
+                        <span class="endpoint-path">/packages/:name</span>
                     </div>
                     <p class="endpoint-description">
-                        Retrieve details of a specific package by name.
+                        Retrieve basic details of a specific package by name.
                     </p>
 
                     <div class="code-block">
                         <pre><code>curl /packages/MyAddon</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "data": {
+    "id": 1,
+    "name": "MyAddon",
+    "description": "An awesome addon",
+    "version": "1.0.0",
+    "author_id": 1,
+    "downloads": 42,
+    "icon_url": "/icons/1.png",
+    "created_at": "2025-12-24T12:00:00.000Z"
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Get Full Package Data</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/packages/:name/full</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Retrieve complete package details including category, metadata, and extended info.
+                    </p>
+
+                    <div class="code-block">
+                        <pre><code>curl /packages/MyAddon/full</code></pre>
                     </div>
 
                     <div class="response-example">
@@ -419,7 +922,15 @@
     "author_id": 1,
     "downloads": 42,
     "icon_url": "/icons/1.png",
-    "kofi_url": "https://ko-fi.com/myuser",
+    "long_description": "Detailed description of the addon...",
+    "youtube_url": "https://youtube.com/watch?v=...",
+    "discord_url": "https://discord.gg/...",
+    "kofi_url": "https://ko-fi.com/...",
+    "category": {
+      "id": 1,
+      "name": "Building Tools",
+      "slug": "building-tools"
+    },
     "created_at": "2025-12-24T12:00:00.000Z"
   }
 }</code></pre>
@@ -430,9 +941,7 @@
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method-badge method-get">GET</span>
-                        <span class="endpoint-path"
-                            >/packages/author/{username}</span
-                        >
+                        <span class="endpoint-path">/packages/author/:username</span>
                     </div>
                     <p class="endpoint-description">
                         Retrieve all packages uploaded by a specific user.
@@ -445,7 +954,7 @@
                     <div class="response-example">
                         <div class="response-label">Success Response</div>
                         <pre><code>{
-  "success": true,
+  "author": "myuser",
   "data": [
     {
       "id": 1,
@@ -453,6 +962,59 @@
       "description": "An awesome addon",
       "version": "1.0.0",
       "downloads": 42
+    }
+  ],
+  "total": 1
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Get Related Packages</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/packages/:name/related</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Get packages in the same category as a given package.
+                    </p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Query Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                limit
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>number</td>
+                            <td>Max results (default: 6, max: 10)</td>
+                        </tr>
+                    </table>
+
+                    <div class="code-block">
+                        <pre><code>curl "/packages/MyAddon/related?limit=6"</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 2,
+      "name": "AnotherAddon",
+      "description": "Another awesome addon",
+      "version": "1.0.0",
+      "downloads": 35,
+      "category": {
+        "id": 1,
+        "name": "Building Tools",
+        "slug": "building-tools"
+      }
     }
   ]
 }</code></pre>
@@ -463,9 +1025,7 @@
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method-badge method-get">GET</span>
-                        <span class="endpoint-path"
-                            >/packages/{name}/download</span
-                        >
+                        <span class="endpoint-path">/packages/:name/download</span>
                     </div>
                     <p class="endpoint-description">
                         Download the .mcaddon file for a package. This
@@ -488,10 +1048,11 @@
                     <div class="endpoint-header">
                         <span class="method-badge method-post">POST</span>
                         <span class="endpoint-path">/packages</span>
-                        <span class="auth-badge">Auth Required</span>
+                        <span class="auth-badge">Auth Required (Developer/Admin)</span>
                     </div>
                     <p class="endpoint-description">
-                        Upload a new add-on package.
+                        Upload a new add-on package. Requires developer or admin role.
+                        Supports both FormData (multipart) and JSON (base64) uploads.
                     </p>
 
                     <table class="param-table">
@@ -513,11 +1074,11 @@
                         </tr>
                         <tr>
                             <td>
-                                fileBase64
+                                file/fileBase64
                                 <span class="param-required">required</span>
                             </td>
-                            <td>string</td>
-                            <td>Base64-encoded .mcaddon file (max 200MB)</td>
+                            <td>File/string</td>
+                            <td>.mcaddon file or base64-encoded content (max 200MB)</td>
                         </tr>
                         <tr>
                             <td>
@@ -525,7 +1086,15 @@
                                 <span class="param-optional">optional</span>
                             </td>
                             <td>string</td>
-                            <td>Package description</td>
+                            <td>Short package description</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                longDescription
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string</td>
+                            <td>Detailed package description</td>
                         </tr>
                         <tr>
                             <td>
@@ -533,17 +1102,16 @@
                                 <span class="param-optional">optional</span>
                             </td>
                             <td>string</td>
-                            <td>Version string (e.g., "1.0.0")</td>
+                            <td>Version string in X.Y.Z format (e.g., "1.0.0")</td>
                         </tr>
                         <tr>
                             <td>
-                                iconBase64
+                                icon/iconBase64
                                 <span class="param-optional">optional</span>
                             </td>
-                            <td>string</td>
+                            <td>File/string</td>
                             <td>
-                                Base64-encoded icon image (PNG, JPG, WebP, GIF,
-                                SVG, max 2MB)
+                                Icon image (PNG, JPG, WebP, GIF, SVG, max 2MB)
                             </td>
                         </tr>
                         <tr>
@@ -557,24 +1125,65 @@
                                 "https://ko-fi.com/username")
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                youtubeUrl
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string</td>
+                            <td>YouTube video URL for demonstration</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                discordUrl
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string</td>
+                            <td>Discord community invite link</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                category
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string</td>
+                            <td>Category slug (must be an existing category)</td>
+                        </tr>
                     </table>
 
                     <div class="code-block">
-                        <pre><code># Encode your files to base64
+                        <pre><code># FormData Upload (Recommended)
+curl -X POST /packages \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -F "name=MyAddon" \
+  -F "description=My awesome addon" \
+  -F "longDescription=Detailed description..." \
+  -F "version=1.0.0" \
+  -F "category=building-tools" \
+  -F "file=@my_addon.mcaddon" \
+  -F "icon=@icon.png" \
+  -F "kofiUrl=https://ko-fi.com/myuser" \
+  -F "youtubeUrl=https://youtube.com/watch?v=..." \
+  -F "discordUrl=https://discord.gg/..."
+
+# JSON Base64 Upload
 FILE_B64=$(base64 &lt; my_addon.mcaddon | tr -d '\n')
 ICON_B64=$(base64 &lt; icon.png | tr -d '\n')
 
-# Upload the package
 curl -X POST /packages \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d "{
     \"name\": \"MyAddon\",
     \"description\": \"My awesome addon\",
+    \"longDescription\": \"Detailed description...\",
     \"version\": \"1.0.0\",
-    \"iconBase64\": \"$ICON_B64\",
+    \"category\": \"building-tools\",
     \"fileBase64\": \"$FILE_B64\",
-    \"kofiUrl\": \"https://ko-fi.com/myuser\"
+    \"iconBase64\": \"$ICON_B64\",
+    \"kofiUrl\": \"https://ko-fi.com/myuser\",
+    \"youtubeUrl\": \"https://youtube.com/watch?v=...\",
+    \"discordUrl\": \"https://discord.gg/...\"
   }"</code></pre>
                     </div>
 
@@ -582,11 +1191,16 @@ curl -X POST /packages \
                         <div class="response-label">Success Response</div>
                         <pre><code>{
   "success": true,
-  "message": "Package uploaded successfully",
-  "package": {
+  "message": "Package created successfully",
+  "data": {
     "id": 1,
     "name": "MyAddon",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "category": {
+      "id": 1,
+      "name": "Building Tools",
+      "slug": "building-tools"
+    }
   }
 }</code></pre>
                     </div>
@@ -604,12 +1218,12 @@ curl -X POST /packages \
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method-badge method-put">PUT</span>
-                        <span class="endpoint-path">/packages/{id}</span>
-                        <span class="auth-badge">Auth Required</span>
+                        <span class="endpoint-path">/packages/:id</span>
+                        <span class="auth-badge">Auth Required (Owner/Admin)</span>
                     </div>
                     <p class="endpoint-description">
                         Update an existing package. Only the package owner or
-                        admin can update.
+                        admin can update. Supports partial updates.
                     </p>
 
                     <table class="param-table">
@@ -632,7 +1246,15 @@ curl -X POST /packages \
                                 <span class="param-optional">optional</span>
                             </td>
                             <td>string</td>
-                            <td>New description</td>
+                            <td>New short description</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                longDescription
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string|null</td>
+                            <td>New long description (set to null to remove)</td>
                         </tr>
                         <tr>
                             <td>
@@ -640,7 +1262,7 @@ curl -X POST /packages \
                                 <span class="param-optional">optional</span>
                             </td>
                             <td>string</td>
-                            <td>New version string</td>
+                            <td>New version string (X.Y.Z format)</td>
                         </tr>
                         <tr>
                             <td>
@@ -666,6 +1288,30 @@ curl -X POST /packages \
                             <td>string|null</td>
                             <td>Ko-fi URL (set to null to remove)</td>
                         </tr>
+                        <tr>
+                            <td>
+                                youtubeUrl
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string|null</td>
+                            <td>YouTube URL (set to null to remove)</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                discordUrl
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string|null</td>
+                            <td>Discord URL (set to null to remove)</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                category
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string|null</td>
+                            <td>Category slug (set to null to clear category)</td>
+                        </tr>
                     </table>
 
                     <div class="code-block">
@@ -674,7 +1320,10 @@ curl -X POST /packages \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
     "version": "1.1.0",
-    "description": "Updated description"
+    "description": "Updated description",
+    "longDescription": "More details...",
+    "category": "magic-mods",
+    "youtubeUrl": "https://youtube.com/watch?v=..."
   }'</code></pre>
                     </div>
 
@@ -683,10 +1332,15 @@ curl -X POST /packages \
                         <pre><code>{
   "success": true,
   "message": "Package updated successfully",
-  "package": {
+  "data": {
     "id": 1,
     "name": "MyAddon",
-    "version": "1.1.0"
+    "version": "1.1.0",
+    "category": {
+      "id": 2,
+      "name": "Magic Mods",
+      "slug": "magic-mods"
+    }
   }
 }</code></pre>
                     </div>
@@ -696,8 +1350,8 @@ curl -X POST /packages \
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method-badge method-delete">DELETE</span>
-                        <span class="endpoint-path">/packages/{id}</span>
-                        <span class="auth-badge">Auth Required</span>
+                        <span class="endpoint-path">/packages/:id</span>
+                        <span class="auth-badge">Auth Required (Owner/Admin)</span>
                     </div>
                     <p class="endpoint-description">
                         Delete a package and its associated files. Only the
@@ -731,37 +1385,44 @@ curl -X POST /packages \
                 </p>
 
                 <div class="response-example">
-                    <div class="response-label">Invalid File Format</div>
+                    <div class="response-label">Bad Request (400)</div>
                     <pre><code>{
   "error": "Invalid file format. Only .mcaddon files (ZIP format) are supported"
 }</code></pre>
                 </div>
 
                 <div class="response-example">
-                    <div class="response-label">Unauthorized</div>
+                    <div class="response-label">Unauthorized (401)</div>
                     <pre><code>{
   "error": "Unauthorized: Missing or invalid token"
 }</code></pre>
                 </div>
 
                 <div class="response-example">
-                    <div class="response-label">Duplicate Package Name</div>
+                    <div class="response-label">Forbidden (403)</div>
+                    <pre><code>{
+  "error": "Forbidden: You do not own this package"
+}</code></pre>
+                </div>
+
+                <div class="response-example">
+                    <div class="response-label">Conflict (409)</div>
                     <pre><code>{
   "error": "Package name already exists"
 }</code></pre>
                 </div>
 
                 <div class="response-example">
-                    <div class="response-label">Not Found</div>
+                    <div class="response-label">Not Found (404)</div>
                     <pre><code>{
   "error": "Package not found"
 }</code></pre>
                 </div>
 
                 <div class="response-example">
-                    <div class="response-label">Forbidden</div>
+                    <div class="response-label">Rate Limited (429)</div>
                     <pre><code>{
-  "error": "Forbidden: You do not own this package"
+  "error": "Too many requests. Please try again later."
 }</code></pre>
                 </div>
 
@@ -805,6 +1466,14 @@ curl -X POST /packages \
                     <li><strong>Icon files:</strong> Maximum 2MB</li>
                 </ul>
 
+                <h2>Rate Limiting</h2>
+                <p>API endpoints are rate limited to prevent abuse:</p>
+                <ul>
+                    <li><strong>General endpoints:</strong> 600 requests per minute per IP</li>
+                    <li><strong>Login endpoint:</strong> 5 attempts per 15 minutes per IP</li>
+                    <li><strong>Rate limit headers:</strong> X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset</li>
+                </ul>
+
                 <h2>Storage</h2>
                 <p>Uploaded files are stored in the following structure:</p>
                 <div class="code-block">
@@ -816,16 +1485,32 @@ curl -X POST /packages \
     └── {packageId}.{extension}</code></pre>
                 </div>
 
+                <h2>User Roles</h2>
+                <p>The system supports three user roles with different permissions:</p>
+                <ul>
+                    <li>
+                        <strong>user:</strong> Can register and view packages, cannot upload
+                    </li>
+                    <li>
+                        <strong>developer:</strong> Can upload, update, and delete their own packages
+                    </li>
+                    <li>
+                        <strong>admin:</strong> Can manage users, tags, and all packages
+                    </li>
+                </ul>
+
                 <h2>Tips</h2>
                 <ul>
                     <li>Keep your JWT token secure (7-day expiration)</li>
-                    <li>Use base64 encoding for file uploads</li>
+                    <li>FormData uploads are preferred for files over base64 encoding</li>
                     <li>Package names must be unique across the repository</li>
                     <li>Only you (or admin) can update/delete your packages</li>
                     <li>
                         Download counter tracks popularity and is incremented on
                         each download
                     </li>
+                    <li>Categories help organize and discover addons</li>
+                    <li>Extended metadata (YouTube, Discord, Ko-fi links) enhance discoverability</li>
                 </ul>
             </div>
 

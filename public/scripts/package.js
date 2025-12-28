@@ -310,9 +310,6 @@ function renderPackage(pkg) {
 
   // Build edit button (only for owner)
   let editBtnHtml = "";
-  if (isOwner) {
-    editBtnHtml = `<a href="/packages.html#edit-${encodeURIComponent(pkg.name)}" class="edit-btn">Edit Package</a>`;
-  }
 
   // Build markdown content
   let descriptionHtml = "";

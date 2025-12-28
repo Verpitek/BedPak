@@ -50,3 +50,4 @@ package-lock.json
 /storage/*
 !/storage/.gitkeep
 dist/index.js
+bunfig.toml

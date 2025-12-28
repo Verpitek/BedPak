@@ -355,11 +355,11 @@ const app = new Elysia()
          `$1${escapeHtml(description)}$2`,
        );
 
-        // Replace og:title (handle multi-line) - use just package name for Discord
-        updatedHtml = updatedHtml.replace(
-          /(<meta[\s\n]*property="og:title"[\s\n]*content=")Package - BedPak(")/s,
-          `$1${escapeHtml(pkg.name)}$2`,
-        );
+         // Replace og:title - use just package name for Discord
+         updatedHtml = updatedHtml.replace(
+           /(<meta\s+property="og:title"\s+content=")Package - BedPak(")/,
+           `$1${escapeHtml(pkg.name)}$2`,
+         );
 
         // Replace og:description (handle multi-line) - use short description
         updatedHtml = updatedHtml.replace(
@@ -367,14 +367,14 @@ const app = new Elysia()
           `$1${escapeHtml(description)}$2`,
         );
 
-        // Replace og:image (handle multi-line) - use package icon with full URL for Discord
-        const fullImageUrl = imageUrl.startsWith("http") 
-          ? imageUrl 
-          : `https://bedpak.com${imageUrl}`;
-        updatedHtml = updatedHtml.replace(
-          /(<meta[\s\n]*property="og:image"[\s\n]*content=")\/logos\/bedpak\.svg(")/s,
-          `$1${escapeHtml(fullImageUrl)}$2`,
-        );
+         // Replace og:image - use package icon with full URL for Discord
+         const fullImageUrl = imageUrl.startsWith("http") 
+           ? imageUrl 
+           : `https://bedpak.com${imageUrl}`;
+         updatedHtml = updatedHtml.replace(
+           /(<meta\s+property="og:image"\s+content=")\/logos\/bedpak\.svg(")/,
+           `$1${escapeHtml(fullImageUrl)}$2`,
+         );
 
        // Replace og:url
        updatedHtml = updatedHtml.replace(

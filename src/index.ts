@@ -340,7 +340,7 @@ const app = new Elysia()
        // Prepare metadata
        const title = `${pkg.name} - BedPak`;
        const description = pkg.description || "Minecraft Bedrock addon";
-       const imageUrl = pkg.icon_url || "/logos/bedpak.svg";
+        const imageUrl = pkg.icon_url || "/logos/bedpak_mascot.webp";
        const currentUrl = `https://bedpak.com/package/${encodeURIComponent(name)}`;
 
        // Create new HTML with updated meta tags
@@ -371,10 +371,10 @@ const app = new Elysia()
          const fullImageUrl = imageUrl.startsWith("http") 
            ? imageUrl 
            : `https://bedpak.com${imageUrl}`;
-         updatedHtml = updatedHtml.replace(
-           /(<meta\s+property="og:image"\s+content=")\/logos\/bedpak\.svg(")/,
-           `$1${escapeHtml(fullImageUrl)}$2`,
-         );
+          updatedHtml = updatedHtml.replace(
+            /(<meta\s+property="og:image"\s+content=")\/logos\/bedpak_mascot\.webp(")/,
+            `$1${escapeHtml(fullImageUrl)}$2`,
+          );
 
        // Replace og:url
        updatedHtml = updatedHtml.replace(
@@ -394,10 +394,10 @@ const app = new Elysia()
           `$1${escapeHtml(description)}$2`,
         );
 
-        // Replace twitter:image - use full URL
-        updatedHtml = updatedHtml.replace(
-          /(<meta\s+name="twitter:image"\s+content=")\/logos\/bedpak\.svg(")/,
-          `$1${escapeHtml(fullImageUrl)}$2`,
+         // Replace twitter:image - use full URL
+         updatedHtml = updatedHtml.replace(
+           /(<meta\s+name="twitter:image"\s+content=")\/logos\/bedpak_mascot\.webp(")/,
+           `$1${escapeHtml(fullImageUrl)}$2`,
         );
 
        set.headers["Cache-Control"] = "public, max-age=3600";

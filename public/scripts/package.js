@@ -118,8 +118,8 @@ function updateMetaTags(pkg) {
     if (el) el.content = content;
   };
 
-  const desc = pkg.description || "Minecraft Bedrock addon";
-  const imgUrl = pkg.icon_url || "/logos/bedpak.svg";
+   const desc = pkg.description || "Minecraft Bedrock addon";
+   const imgUrl = pkg.icon_url || "/logos/bedpak_mascot.webp";
 
   setMeta('meta[name="description"]', desc);
   setMeta('meta[property="og:title"]', `${pkg.name} - Minecraft Bedrock Addon`);

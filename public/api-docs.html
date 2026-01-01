@@ -13,11 +13,11 @@
         <!-- SEO Meta Tags -->
         <meta
             name="description"
-            content="BedPak REST API documentation. Learn how to programmatically upload, download, and manage Minecraft Bedrock content (.mcaddon files). Complete API reference with examples."
+            content="BedPak REST API documentation. Learn how to programmatically upload, download, and manage Minecraft Bedrock content. Complete API reference with examples."
         />
         <meta
             name="keywords"
-            content="BedPak API, Minecraft Bedrock API, mcaddon API, REST API, content repository API, developer documentation"
+            content="BedPak API, Minecraft Bedrock API, REST API, content repository API, developer documentation"
         />
         <meta name="author" content="BedPak" />
         <meta name="robots" content="index, follow" />
@@ -59,7 +59,7 @@
                 "@context": "https://schema.org",
                 "@type": "TechArticle",
                 "headline": "BedPak API Documentation",
-                "description": "Complete REST API documentation for BedPak - upload, download, and manage Minecraft Bedrock content (.mcaddon files) programmatically.",
+                "description": "Complete REST API documentation for BedPak - upload, download, and manage Minecraft Bedrock content programmatically.",
                 "author": {
                     "@type": "Organization",
                     "name": "BedPak"
@@ -80,7 +80,7 @@
                 "keywords": [
                      "REST API",
                      "Minecraft Bedrock",
-                     "mcaddon",
+                      "content",
                      "content repository"
                  ]
             }
@@ -1278,8 +1278,8 @@ curl "/packages?category=building-tools"</code></pre>
                         <span class="endpoint-path">/packages/:name/download</span>
                     </div>
                     <p class="endpoint-description">
-                        Download the .mcaddon file for a package. This
-                        increments the download counter.
+                         Download the content file for a package. This
+                         increments the download counter.
                     </p>
 
                     <div class="code-block">
@@ -1288,8 +1288,8 @@ curl "/packages?category=building-tools"</code></pre>
 
                     <div class="note">
                         <div class="note-title">Response</div>
-                        Returns the binary .mcaddon file with appropriate
-                        Content-Disposition headers.
+                         Returns the binary content file with appropriate
+                         Content-Disposition headers.
                     </div>
                 </div>
 
@@ -1328,7 +1328,7 @@ curl "/packages?category=building-tools"</code></pre>
                                 <span class="param-required">required</span>
                             </td>
                             <td>File/string</td>
-                            <td>.mcaddon file or base64-encoded content (max 200MB)</td>
+                            <td>Content file or base64-encoded content (max 200MB)</td>
                         </tr>
                         <tr>
                             <td>
@@ -1457,7 +1457,7 @@ curl -X POST /packages \
 
                     <div class="warning">
                         <div class="warning-title">File Requirements</div>
-                        Only valid .mcaddon files (ZIP format) are accepted. The
+                         Only valid content files are accepted. The
                         file is verified by checking for ZIP magic bytes. SVG
                         icons are automatically sanitized to prevent XSS
                         attacks.
@@ -1637,7 +1637,7 @@ curl -X POST /packages \
                 <div class="response-example">
                     <div class="response-label">Bad Request (400)</div>
                     <pre><code>{
-  "error": "Invalid file format. Only .mcaddon files (ZIP format) are supported"
+   "error": "Invalid file format. Only content files are supported"
 }</code></pre>
                 </div>
 
@@ -1678,15 +1678,15 @@ curl -X POST /packages \
 
                 <h2 id="file-format">File Format Requirements</h2>
 
-                <h3>.mcaddon Files</h3>
+                <h3>Content Files</h3>
                 <p>
-                    Only <code>.mcaddon</code> files are accepted for upload.
+                    Only content files are accepted for upload.
                     These files must be valid ZIP archives (verified by checking
                     for ZIP magic bytes: <code>PK\x03\x04</code>).
                 </p>
 
                 <div class="note">
-                    <div class="note-title">Valid .mcaddon Structure</div>
+                    <div class="note-title">Valid Content Structure</div>
                     <pre><code>addon.mcaddon (ZIP)
 ├── behavior_packs/
 │   └── my_pack/

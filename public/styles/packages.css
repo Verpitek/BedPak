@@ -7,19 +7,28 @@
 .packages-tabs .tab-buttons {
     display: flex;
     gap: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 5px;
+}
+
+.packages-tabs .tab-buttons::-webkit-scrollbar {
+    display: none;
 }
 
 .packages-tabs .tab-btn {
     flex: 0 0 auto;
-    padding: 16px 24px;
+    padding: 12px 20px;
     background: none;
     border: none;
     color: #888;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     border-bottom: 3px solid transparent;
     transition: all 0.3s;
+    white-space: nowrap;
 }
 
 .packages-tabs .tab-btn:hover {
@@ -152,6 +161,8 @@
     color: #d0d0d0;
     font-size: 14px;
     transition: border-color 0.3s;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .control-group input:focus,
@@ -526,10 +537,21 @@
 }
 
 @media (max-width: 768px) {
+    .packages-tabs .tab-buttons {
+        gap: 5px;
+        padding: 0 5px 10px 5px;
+    }
+
+    .packages-tabs .tab-btn {
+        padding: 10px 15px;
+        font-size: 13px;
+    }
+
     .controls {
         grid-template-columns: 1fr;
         gap: 12px;
         padding: 15px;
+        overflow: hidden;
     }
 
     .control-group label {
@@ -540,6 +562,13 @@
     .control-group select {
         padding: 8px 10px;
         font-size: 13px;
+        width: 100%;
+    }
+
+    .control-group select {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .packages-info {

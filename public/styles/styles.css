@@ -781,10 +781,13 @@ body::before {
 @media (max-width: 768px) {
     body {
         padding: 10px;
+        overflow-x: hidden;
     }
 
     .container {
         margin: 0;
+        max-width: 100%;
+        overflow-x: hidden;
     }
 
     .header {
@@ -810,10 +813,12 @@ body::before {
         flex: 1;
         padding: 8px 12px;
         font-size: 12px;
+        white-space: nowrap;
     }
 
     .content {
         padding: 20px;
+        overflow-x: hidden;
     }
 
     .content h2 {
@@ -860,6 +865,7 @@ body::before {
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
         max-height: 85vh;
+        overflow-y: auto;
     }
 
     .modal-header h2 {
@@ -870,6 +876,8 @@ body::before {
     .form-group textarea {
         font-size: 14px;
         padding: 10px;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .form-btn {

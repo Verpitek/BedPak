@@ -665,15 +665,34 @@
         font-size: 12px;
     }
 
+    .header-right {
+        width: 100%;
+    }
+
+    .header-right .profile-btn {
+        width: 100%;
+        text-align: center;
+    }
+
     .hero-header {
         flex-direction: column;
         align-items: center;
         text-align: center;
     }
 
+    .hero-icon {
+        width: 80px;
+        height: 80px;
+    }
+
+    .hero-info h1 {
+        font-size: 22px;
+    }
+
     .hero-stats {
         justify-content: center;
         flex-wrap: wrap;
+        gap: 15px;
     }
 
     .hero-tags {
@@ -682,9 +701,47 @@
 
     .breadcrumb {
         font-size: 12px;
+        flex-wrap: wrap;
     }
 
     .related-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-card {
+        padding: 15px;
+    }
+
+    .download-btn,
+    .kofi-btn,
+    .discord-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .markdown-content {
+        font-size: 13px;
+        overflow-wrap: break-word;
+    }
+
+    .markdown-content h1 {
+        font-size: 20px;
+    }
+
+    .markdown-content h2 {
+        font-size: 18px;
+    }
+
+    .markdown-content h3 {
+        font-size: 16px;
+    }
+
+    .markdown-content pre {
+        padding: 12px;
+        font-size: 12px;
+    }
+
+    .sidebar-info-item {
+        font-size: 12px;
     }
 }

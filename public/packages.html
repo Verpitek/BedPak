@@ -147,10 +147,46 @@
             </header>
 
             <main role="main" aria-label="Package browser">
-                <section
-                    class="controls"
-                    aria-label="Search and filter controls"
-                >
+                <!-- Package Type Tabs -->
+                <div class="packages-tabs">
+                    <div class="tab-buttons">
+                        <button
+                            class="tab-btn active"
+                            data-tab="addons-tab"
+                            onclick="switchPackageTab('addons-tab')"
+                        >
+                            Add-ons
+                        </button>
+                        <button
+                            class="tab-btn"
+                            data-tab="servers-tab"
+                            onclick="switchPackageTab('servers-tab')"
+                        >
+                            Servers
+                        </button>
+                        <button
+                            class="tab-btn"
+                            data-tab="maps-structures-tab"
+                            onclick="switchPackageTab('maps-structures-tab')"
+                        >
+                            Maps & Structures
+                        </button>
+                        <button
+                            class="tab-btn"
+                            data-tab="skins-tab"
+                            onclick="switchPackageTab('skins-tab')"
+                        >
+                            Skins
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add-ons Tab Content -->
+                <div id="addons-tab" class="package-tab-content active">
+                    <section
+                        class="controls"
+                        aria-label="Search and filter controls"
+                    >
                     <div class="control-group">
                         <label for="search">Search Packages</label>
                         <input
@@ -223,74 +259,100 @@
                             <option value="name">Name (A-Z)</option>
                         </select>
                     </div>
-                </section>
+                    </section>
 
-                <div
-                    id="messageContainer"
-                    role="alert"
-                    aria-live="polite"
-                ></div>
-
-                <div
-                    class="packages-info"
-                    aria-label="Package count and pagination options"
-                >
-                    <span class="packages-count" aria-live="polite">
-                        Showing <strong id="displayCount">0</strong> of
-                        <strong id="totalCount">0</strong> packages
-                    </span>
                     <div
-                        class="sort-options"
-                        role="group"
-                        aria-label="Items per page"
+                        id="messageContainer"
+                        role="alert"
+                        aria-live="polite"
+                    ></div>
+
+                    <div
+                        class="packages-info"
+                        aria-label="Package count and pagination options"
                     >
-                        <button
-                            class="sort-btn"
-                            data-pagesize="12"
-                            onclick="changePageSize(12)"
-                            aria-label="Show 12 packages per page"
+                        <span class="packages-count" aria-live="polite">
+                            Showing <strong id="displayCount">0</strong> of
+                            <strong id="totalCount">0</strong> packages
+                        </span>
+                        <div
+                            class="sort-options"
+                            role="group"
+                            aria-label="Items per page"
                         >
-                            12 Per Page
-                        </button>
-                        <button
-                            class="sort-btn active"
-                            data-pagesize="20"
-                            onclick="changePageSize(20)"
-                            aria-pressed="true"
-                            aria-label="Show 20 packages per page"
-                        >
-                            20 Per Page
-                        </button>
-                        <button
-                            class="sort-btn"
-                            data-pagesize="50"
-                            onclick="changePageSize(50)"
-                            aria-label="Show 50 packages per page"
-                        >
-                            50 Per Page
-                        </button>
+                            <button
+                                class="sort-btn"
+                                data-pagesize="12"
+                                onclick="changePageSize(12)"
+                                aria-label="Show 12 packages per page"
+                            >
+                                12 Per Page
+                            </button>
+                            <button
+                                class="sort-btn active"
+                                data-pagesize="20"
+                                onclick="changePageSize(20)"
+                                aria-pressed="true"
+                                aria-label="Show 20 packages per page"
+                            >
+                                20 Per Page
+                            </button>
+                            <button
+                                class="sort-btn"
+                                data-pagesize="50"
+                                onclick="changePageSize(50)"
+                                aria-label="Show 50 packages per page"
+                            >
+                                50 Per Page
+                            </button>
+                        </div>
+                    </div>
+
+                    <section
+                        id="packagesContainer"
+                        class="packages-list"
+                        aria-label="Minecraft Bedrock addons list"
+                    >
+                        <div class="loading" aria-busy="true">
+                            <div
+                                class="spinner"
+                                role="status"
+                                aria-label="Loading packages"
+                            ></div>
+                        </div>
+                    </section>
+                </div>
+
+                    <nav
+                        class="pagination"
+                        id="pagination"
+                        aria-label="Package list pagination"
+                    ></nav>
+                </div>
+
+                <!-- Servers Tab Content -->
+                <div id="servers-tab" class="package-tab-content">
+                    <div style="text-align: center; padding: 60px 20px; color: #888;">
+                        <p style="font-size: 16px; margin-bottom: 10px;">Coming Soon</p>
+                        <p style="font-size: 14px; color: #555;">Servers content will be available soon. Stay tuned for updates!</p>
                     </div>
                 </div>
 
-                <section
-                    id="packagesContainer"
-                    class="packages-list"
-                    aria-label="Minecraft Bedrock addons list"
-                >
-                    <div class="loading" aria-busy="true">
-                        <div
-                            class="spinner"
-                            role="status"
-                            aria-label="Loading packages"
-                        ></div>
+                <!-- Maps & Structures Tab Content -->
+                <div id="maps-structures-tab" class="package-tab-content">
+                    <div style="text-align: center; padding: 60px 20px; color: #888;">
+                        <p style="font-size: 16px; margin-bottom: 10px;">Coming Soon</p>
+                        <p style="font-size: 14px; color: #555;">Maps and structures content will be available soon. Stay tuned for updates!</p>
                     </div>
-                </section>
+                </div>
 
-                <nav
-                    class="pagination"
-                    id="pagination"
-                    aria-label="Package list pagination"
-                ></nav>
+                <!-- Skins Tab Content -->
+                <div id="skins-tab" class="package-tab-content">
+                    <div style="text-align: center; padding: 60px 20px; color: #888;">
+                        <p style="font-size: 16px; margin-bottom: 10px;">Coming Soon</p>
+                        <p style="font-size: 14px; color: #555;">Skins content will be available soon. Stay tuned for updates!</p>
+                    </div>
+                </div>
             </main>
 
             <footer class="footer" role="contentinfo">

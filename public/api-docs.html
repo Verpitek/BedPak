@@ -262,6 +262,14 @@
                             <td>string</td>
                             <td>Cloudflare Turnstile CAPTCHA token</td>
                         </tr>
+                        <tr>
+                            <td>
+                                totpCode
+                                <span class="param-optional">optional</span>
+                            </td>
+                            <td>string</td>
+                            <td>6-digit 2FA code (required if 2FA is enabled on account)</td>
+                        </tr>
                     </table>
 
                     <div class="code-block">
@@ -275,7 +283,7 @@
                     </div>
 
                     <div class="response-example">
-                        <div class="response-label">Success Response</div>
+                        <div class="response-label">Success Response (without 2FA)</div>
                         <pre><code>{
   "success": true,
   "token": "eyJhbGciOiJIUzI1NiIs...",
@@ -289,11 +297,253 @@
 }</code></pre>
                     </div>
 
+                    <div class="response-example">
+                        <div class="response-label">2FA Required Response</div>
+                        <pre><code>{
+  "error": "2FA required",
+  "requiresTwoFactor": true
+}</code></pre>
+                        <p>If the account has 2FA enabled, retry the request with the <code>totpCode</code> parameter.</p>
+                    </div>
+
                     <div class="note">
                         <div class="note-title">Token Expiration</div>
                         JWT tokens expire after 7 days (604800 seconds). Store the token securely
                         and include it in the Authorization header for
                         authenticated requests.
+                    </div>
+
+                    <div class="note">
+                        <div class="note-title">Two-Factor Authentication</div>
+                        If a user has 2FA enabled on their account, the login endpoint will return a 403 status with <code>requiresTwoFactor: true</code>. 
+                        Retry the login request with the <code>totpCode</code> parameter containing a valid 6-digit code from the user's authenticator app.
+                    </div>
+                </div>
+
+                <h3>Two-Factor Authentication Setup</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-post">POST</span>
+                        <span class="endpoint-path">/auth/2fa/setup</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Initiate 2FA setup. Returns a QR code and backup codes.
+                    </p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Header</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                Authorization
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>Bearer token (JWT)</td>
+                        </tr>
+                    </table>
+
+                    <div class="code-block">
+                        <pre><code>curl -X POST /auth/2fa/setup \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "secret": "JBSWY3DPEBLW64TMMQ...",
+  "qrCodeUrl": "data:image/png;base64,...",
+  "backupCodes": ["ABC12DEF", "GHI34JKL", ...]
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Enable Two-Factor Authentication</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-post">POST</span>
+                        <span class="endpoint-path">/auth/2fa/enable</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Verify and enable 2FA with a TOTP code.
+                    </p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                secret
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>Secret from /auth/2fa/setup</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                token
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>6-digit TOTP code from authenticator</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                backupCodes
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>array</td>
+                            <td>Backup codes from /auth/2fa/setup</td>
+                        </tr>
+                    </table>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Header</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                Authorization
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>Bearer token (JWT)</td>
+                        </tr>
+                    </table>
+
+                    <div class="code-block">
+                        <pre><code>curl -X POST /auth/2fa/enable \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "secret": "JBSWY3DPEBLW64TMMQ...",
+    "token": "123456",
+    "backupCodes": ["ABC12DEF", "GHI34JKL", ...]
+  }'</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "message": "2FA enabled successfully"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Disable Two-Factor Authentication</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-post">POST</span>
+                        <span class="endpoint-path">/auth/2fa/disable</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Disable 2FA with password and TOTP verification.
+                    </p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                password
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>Your account password</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                totpCode
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>6-digit TOTP code from authenticator</td>
+                        </tr>
+                    </table>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Header</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                Authorization
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>Bearer token (JWT)</td>
+                        </tr>
+                    </table>
+
+                    <div class="code-block">
+                        <pre><code>curl -X POST /auth/2fa/disable \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "password": "SecurePass123!",
+    "totpCode": "123456"
+  }'</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "success": true,
+  "message": "2FA disabled successfully"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Get 2FA Status</h3>
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/auth/2fa/status</span>
+                    </div>
+                    <p class="endpoint-description">
+                        Check if 2FA is enabled for the current user.
+                    </p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Header</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                Authorization
+                                <span class="param-required">required</span>
+                            </td>
+                            <td>string</td>
+                            <td>Bearer token (JWT)</td>
+                        </tr>
+                    </table>
+
+                    <div class="code-block">
+                        <pre><code>curl /auth/2fa/status \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"</code></pre>
+                    </div>
+
+                    <div class="response-example">
+                        <div class="response-label">Success Response</div>
+                        <pre><code>{
+  "twoFactorEnabled": true
+}</code></pre>
                     </div>
                 </div>
 

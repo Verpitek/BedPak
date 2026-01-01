@@ -124,7 +124,7 @@ function updateProfileUI() {
     headerRight.innerHTML = `
 <div class="profile-user-info">
   <span>Logged in as: <strong>${escapeHtml(currentUsername)}</strong></span>
-  <button class="upload-btn" onclick="openUploadModal()">Upload Addon</button>
+  <button class="upload-btn" onclick="openUploadModal()">Upload Content</button>
   <button class="profile-btn" onclick="openProfileModal()">Profile</button>
 </div>
 `;
@@ -426,7 +426,7 @@ function openUploadModal() {
     document.getElementById("uploadSuccess").style.display = "none";
     document.getElementById("uploadProgress").style.display = "none";
     document.getElementById("uploadBtn").disabled = false;
-    document.getElementById("uploadBtn").textContent = "Upload Addon";
+    document.getElementById("uploadBtn").textContent = "Upload Content";
     // File inputs can't be restored for security reasons, so reset their display
     document.getElementById("selectedFileName").textContent =
       "No file selected";
@@ -627,7 +627,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Edit modal: handle addon file selection
+  // Edit modal: handle content file selection
   const editFileInput = document.getElementById("editFile");
   if (editFileInput) {
     editFileInput.addEventListener("change", function () {
@@ -841,7 +841,7 @@ async function handleUpload(event) {
 
   try {
     // Read file as base64
-    progressText.textContent = "Encoding addon file...";
+    progressText.textContent = "Encoding content file...";
     progressFill.style.width = "15%";
 
     const fileBase64 = await readFileAsBase64(file);
@@ -915,7 +915,7 @@ async function handleUpload(event) {
     progressFill.style.width = "100%";
     progressText.textContent = "Complete!";
 
-    showUploadSuccess("Addon uploaded successfully! Refreshing packages...");
+    showUploadSuccess("Content uploaded successfully! Refreshing packages...");
 
     // Clear saved form data on successful upload
     clearUploadFormData();
@@ -930,7 +930,7 @@ async function handleUpload(event) {
   } catch (error) {
     console.error("Upload error:", error);
     showUploadError(
-      error.message || "Failed to upload addon. Please try again.",
+      error.message || "Failed to upload content. Please try again.",
     );
     progressDiv.style.display = "none";
   } finally {
@@ -1293,7 +1293,7 @@ async function handleUpdatePackage(event) {
 
     // Encode file if updating
     if (updateFile && fileInput.files && fileInput.files.length > 0) {
-      progressText.textContent = "Encoding addon file...";
+      progressText.textContent = "Encoding content file...";
       requestBody.fileBase64 = await readFileAsBase64(fileInput.files[0]);
     }
 

@@ -118,18 +118,18 @@ function updateMetaTags(pkg) {
     if (el) el.content = content;
   };
 
-   const desc = pkg.description || "Minecraft Bedrock addon";
+   const desc = pkg.description || "Minecraft Bedrock content";
    const imgUrl = pkg.icon_url || "/logos/bedpak_mascot.webp";
 
   setMeta('meta[name="description"]', desc);
-  setMeta('meta[property="og:title"]', `${pkg.name} - Minecraft Bedrock Addon`);
+   setMeta('meta[property="og:title"]', `${pkg.name} - Minecraft Bedrock Content`);
   setMeta('meta[property="og:description"]', desc);
   setMeta('meta[property="og:image"]', imgUrl);
   setMeta('meta[property="og:url"]', window.location.href);
-  setMeta(
-    'meta[name="twitter:title"]',
-    `${pkg.name} - Minecraft Bedrock Addon`,
-  );
+   setMeta(
+     'meta[name="twitter:title"]',
+     `${pkg.name} - Minecraft Bedrock Content`,
+   );
   setMeta('meta[name="twitter:description"]', desc);
   setMeta('meta[name="twitter:image"]', imgUrl);
 }
@@ -140,7 +140,7 @@ function updateStructuredData(pkg) {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: pkg.name,
-    description: pkg.description || "Minecraft Bedrock addon",
+    description: pkg.description || "Minecraft Bedrock content",
     applicationCategory: "GameApplication",
     operatingSystem: "Android, iOS, Windows, Xbox",
     downloadUrl: `${window.location.origin}/packages/${encodeURIComponent(pkg.name)}/download`,
@@ -436,7 +436,7 @@ function showError(message) {
         <div class="error-state">
             <h2>Package Not Found</h2>
             <p>${escapeHtml(message)}</p>
-            <p><a href="/packages.html">Browse all addons</a></p>
+            <p><a href="/packages.html">Browse all content</a></p>
         </div>
     `;
   document.getElementById("breadcrumbName").textContent = "Not Found";
@@ -537,7 +537,7 @@ function renderRelatedPackages(packages) {
 
   const relatedHtml = `
         <section class="related-section">
-            <h2>Similar Addons</h2>
+            <h2>Similar Content</h2>
             <div class="related-grid">
                  ${packages
                    .map((pkg) => {

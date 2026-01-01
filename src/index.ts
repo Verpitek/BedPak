@@ -339,7 +339,7 @@ const app = new Elysia()
 
        // Prepare metadata
        const title = `${pkg.name} - BedPak`;
-       const description = pkg.description || "Minecraft Bedrock addon";
+        const description = pkg.description || "Minecraft Bedrock content";
         const imageUrl = pkg.icon_url || "/logos/bedpak_mascot.webp";
        const currentUrl = `https://bedpak.com/package/${encodeURIComponent(name)}`;
 
@@ -350,10 +350,10 @@ const app = new Elysia()
        );
 
        // Replace description meta tag (handle multi-line)
-       updatedHtml = updatedHtml.replace(
-         /(<meta[\s\n]*name="description"[\s\n]*content=")Download this Minecraft Bedrock addon from BedPak(")/s,
-         `$1${escapeHtml(description)}$2`,
-       );
+        updatedHtml = updatedHtml.replace(
+          /(<meta[\s\n]*name="description"[\s\n]*content=")Download this Minecraft Bedrock content from BedPak(")/s,
+          `$1${escapeHtml(description)}$2`,
+        );
 
          // Replace og:title - use just package name for Discord
          updatedHtml = updatedHtml.replace(
@@ -362,10 +362,10 @@ const app = new Elysia()
          );
 
         // Replace og:description (handle multi-line) - use short description
-        updatedHtml = updatedHtml.replace(
-          /(<meta[\s\n]*property="og:description"[\s\n]*content=")Download this Minecraft Bedrock addon from BedPak\.(")/s,
-          `$1${escapeHtml(description)}$2`,
-        );
+         updatedHtml = updatedHtml.replace(
+           /(<meta[\s\n]*property="og:description"[\s\n]*content=")Download this Minecraft Bedrock content from BedPak\.(")/s,
+           `$1${escapeHtml(description)}$2`,
+         );
 
          // Replace og:image - use package icon with full URL for Discord
          const fullImageUrl = imageUrl.startsWith("http") 
@@ -389,10 +389,10 @@ const app = new Elysia()
         );
 
         // Replace twitter:description (handle multi-line)
-        updatedHtml = updatedHtml.replace(
-          /(<meta[\s\n]*name="twitter:description"[\s\n]*content=")Download this Minecraft Bedrock addon from BedPak\.(")/s,
-          `$1${escapeHtml(description)}$2`,
-        );
+         updatedHtml = updatedHtml.replace(
+           /(<meta[\s\n]*name="twitter:description"[\s\n]*content=")Download this Minecraft Bedrock content from BedPak\.(")/s,
+           `$1${escapeHtml(description)}$2`,
+         );
 
          // Replace twitter:image - use full URL
          updatedHtml = updatedHtml.replace(

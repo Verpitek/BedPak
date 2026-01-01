@@ -87,7 +87,7 @@ BedPak supports optional two-factor authentication (2FA) for enhanced account se
 
 ## API Reference
 
-BedPak provides a comprehensive RESTful API for programmatic access. For detailed API documentation, see the interactive [API Documentation](http://localhost:3000/api-docs.html) or [API_GUIDE.md](API_GUIDE.md).
+BedPak provides a comprehensive RESTful API for programmatic access. For detailed API documentation, see the interactive [API Documentation](http://localhost:3000/api-docs.html).
 
 ### Quick API Examples
 
@@ -180,7 +180,7 @@ BedPak/
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome!
 
 1. Fork the repository
 2. Create a feature branch
@@ -190,7 +190,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ## License
 
-BedPak is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
+BedPak is licensed under the Apache License 2.0.
 
 ## Disclaimer
 

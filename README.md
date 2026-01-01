@@ -87,7 +87,7 @@ BedPak supports optional two-factor authentication (2FA) for enhanced account se
 
 ## API Reference
 
-BedPak provides a comprehensive RESTful API for programmatic access. For detailed API documentation, see the interactive [API Documentation](http://localhost:3000/api-docs.html).
+BedPak provides a comprehensive RESTful API for programmatic access. For detailed API documentation, see the interactive [API Documentation](https://bedpak.com/api-docs.html).
 
 ### Quick API Examples
 

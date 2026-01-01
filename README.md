@@ -2,17 +2,18 @@
 
 ![Apache 2.0 License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 
-A backend API for hosting, sharing, and uploading Minecraft Bedrock Edition add-ons. Built with Elysia and SQLite, providing a full-featured repository for `.mcaddon` files with user authentication, package management, and a web frontend.
+A comprehensive backend API for hosting, sharing, and uploading Minecraft Bedrock Edition content. Built with Elysia and SQLite, providing a full-featured repository for Bedrock add-ons, behavior packs, resource packs, and other content with user authentication, package management, and a web frontend.
 
 ## Features
 
-- **User Authentication**: JWT-based registration/login with password hashing
-- **Addon Management**: Upload, download, update, and delete `.mcaddon` files
-- **Category System**: Modrinth-style categories (Adventure, Decoration, Utility, etc.)
-- **Web Frontend**: Responsive HTML/CSS/JS interface for browsing packages
-- **Admin Dashboard**: User and package management for administrators
-- **Security**: Cloudflare Turnstile CAPTCHA, rate limiting, security headers
-- **File Validation**: Magic byte validation for addons and icons
+- **User Authentication**: JWT-based registration/login with password hashing and optional two-factor authentication (2FA)
+- **Two-Factor Authentication (2FA)**: TOTP-based 2FA with QR code setup, backup codes, and secure disable process
+- **Content Management**: Upload, download, update, and delete `.mcaddon` files and other Bedrock content
+- **Category System**: Modrinth-style categories (Adventure, Decoration, Utility, Survival, etc.)
+- **Web Frontend**: Responsive HTML/CSS/JS interface for browsing and managing content
+- **Admin Dashboard**: User and content management for administrators
+- **Security**: Cloudflare Turnstile CAPTCHA, rate limiting, security headers, and 2FA support
+- **File Validation**: Magic byte validation for content files and icons
 - **SVG Sanitization**: Automatic removal of dangerous SVG content
 - **Rate Limiting**: Configurable rate limits with proper headers
 - **CORS Support**: Configurable CORS origins for API access
@@ -70,12 +71,23 @@ bun run dev --dev
 
 ### File Limits
 
-- **Addon files**: Maximum 200MB, must be valid `.mcaddon` (ZIP format)
+- **Content files**: Maximum 200MB, must be valid `.mcaddon` (ZIP format)
 - **Icons**: Maximum 2MB, supported formats: PNG, JPEG, WebP, GIF, SVG
+
+### Security
+
+**Two-Factor Authentication (2FA)**
+BedPak supports optional two-factor authentication (2FA) for enhanced account security:
+- Users can enable 2FA from their profile modal
+- Uses time-based one-time passwords (TOTP) compatible with Google Authenticator, Authy, Microsoft Authenticator, etc.
+- QR code display for easy setup with authenticator apps
+- 10 backup codes for account recovery if access to authenticator is lost
+- Disabling 2FA requires both password and valid 2FA code
+- Login automatically prompts for 2FA code if enabled on the account
 
 ## API Reference
 
-BedPak provides a RESTful API for programmatic access. For detailed API documentation, see [API_GUIDE.md](API_GUIDE.md) or the full [DOCUMENTATION.md](DOCUMENTATION.md).
+BedPak provides a comprehensive RESTful API for programmatic access. For detailed API documentation, see the interactive [API Documentation](http://localhost:3000/api-docs.html) or [API_GUIDE.md](API_GUIDE.md).
 
 ### Quick API Examples
 
@@ -86,18 +98,35 @@ curl -X POST http://localhost:3000/auth/register \
   -d '{"username":"myuser","email":"user@example.com","password":"SecurePass123!"}'
 ```
 
-**Upload an addon:**
+**Enable 2FA:**
+```bash
+# 1. Get setup QR code and backup codes
+curl -X POST http://localhost:3000/auth/2fa/setup \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# 2. Verify with authenticator code
+curl -X POST http://localhost:3000/auth/2fa/enable \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "secret": "JBSWY3DPEBLW64TMMQ...",
+    "token": "123456",
+    "backupCodes": ["ABC12DEF", ...]
+  }'
+```
+
+**Upload content:**
 ```bash
 curl -X POST http://localhost:3000/packages \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: multipart/form-data" \
-  -F "name=MyAddon" \
-  -F "file=@./myaddon.mcaddon"
+  -F "name=MyContent" \
+  -F "file=@./content.mcaddon"
 ```
 
-**Download an addon:**
+**Download content:**
 ```bash
-curl http://localhost:3000/packages/MyAddon/download -o myaddon.mcaddon
+curl http://localhost:3000/packages/MyContent/download -o content.mcaddon
 ```
 
 **List packages:**

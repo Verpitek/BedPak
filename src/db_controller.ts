@@ -17,6 +17,9 @@ export class DB {
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
             role TEXT DEFAULT 'user',
+            two_factor_enabled INTEGER DEFAULT 0,
+            two_factor_secret TEXT,
+            backup_codes TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`;
 
@@ -185,34 +188,65 @@ export class DB {
           console.log("✓ Migration: Added discord_url column to packages table");
         }
 
-       // Check if category_id column exists in packages table (for single-category system)
-       const packagesTableInfoForCategory = await this.sqlite`PRAGMA table_info(packages)`;
-       const hasCategoryIdColumn = packagesTableInfoForCategory.some(
-         (col: Record<string, unknown>) => col.name === "category_id"
-       );
+        // Check if category_id column exists in packages table (for single-category system)
+        const packagesTableInfoForCategory = await this.sqlite`PRAGMA table_info(packages)`;
+        const hasCategoryIdColumn = packagesTableInfoForCategory.some(
+          (col: Record<string, unknown>) => col.name === "category_id"
+        );
 
-       if (!hasCategoryIdColumn) {
-         await this.sqlite`ALTER TABLE packages ADD COLUMN category_id INTEGER REFERENCES tags(id)`;
-         console.log("✓ Migration: Added category_id column to packages table");
-         
-         // Migrate existing package_tags to category_id (use first tag as category)
-         const packagesWithTags = await this.sqlite`
-           SELECT DISTINCT pt.package_id, pt.tag_id 
-           FROM package_tags pt 
-           WHERE pt.tag_id = (
-             SELECT MIN(pt2.tag_id) FROM package_tags pt2 WHERE pt2.package_id = pt.package_id
-           )
-         `;
-         
-         for (const row of packagesWithTags) {
-           await this.sqlite`UPDATE packages SET category_id = ${row.tag_id} WHERE id = ${row.package_id}`;
-         }
-         
-         console.log("✓ Migration: Migrated existing tags to category_id");
-       }
+        if (!hasCategoryIdColumn) {
+          await this.sqlite`ALTER TABLE packages ADD COLUMN category_id INTEGER REFERENCES tags(id)`;
+          console.log("✓ Migration: Added category_id column to packages table");
+          
+          // Migrate existing package_tags to category_id (use first tag as category)
+          const packagesWithTags = await this.sqlite`
+            SELECT DISTINCT pt.package_id, pt.tag_id 
+            FROM package_tags pt 
+            WHERE pt.tag_id = (
+              SELECT MIN(pt2.tag_id) FROM package_tags pt2 WHERE pt2.package_id = pt.package_id
+            )
+          `;
+          
+          for (const row of packagesWithTags) {
+            await this.sqlite`UPDATE packages SET category_id = ${row.tag_id} WHERE id = ${row.package_id}`;
+          }
+          
+          console.log("✓ Migration: Migrated existing tags to category_id");
+        }
 
-       // Clean up old tags and add new categories
-       await this.migrateToNewCategories();
+        // Check if two_factor_enabled column exists in users table
+        const userTableInfoFor2FA = await this.sqlite`PRAGMA table_info(users)`;
+        const hasTwoFactorEnabled = userTableInfoFor2FA.some(
+          (col: Record<string, unknown>) => col.name === "two_factor_enabled"
+        );
+
+        if (!hasTwoFactorEnabled) {
+          await this.sqlite`ALTER TABLE users ADD COLUMN two_factor_enabled INTEGER DEFAULT 0`;
+          console.log("✓ Migration: Added two_factor_enabled column to users table");
+        }
+
+        // Check if two_factor_secret column exists in users table
+        const hasTwoFactorSecret = userTableInfoFor2FA.some(
+          (col: Record<string, unknown>) => col.name === "two_factor_secret"
+        );
+
+        if (!hasTwoFactorSecret) {
+          await this.sqlite`ALTER TABLE users ADD COLUMN two_factor_secret TEXT`;
+          console.log("✓ Migration: Added two_factor_secret column to users table");
+        }
+
+        // Check if backup_codes column exists in users table
+        const hasBackupCodes = userTableInfoFor2FA.some(
+          (col: Record<string, unknown>) => col.name === "backup_codes"
+        );
+
+        if (!hasBackupCodes) {
+          await this.sqlite`ALTER TABLE users ADD COLUMN backup_codes TEXT`;
+          console.log("✓ Migration: Added backup_codes column to users table");
+        }
+
+        // Clean up old tags and add new categories
+        await this.migrateToNewCategories();
      } catch (err) {
        console.error("Migration error:", err);
      }

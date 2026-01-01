@@ -795,6 +795,31 @@
                             ></p>
                         </div>
                     </div>
+
+                    <!-- 2FA Settings Section -->
+                    <div id="twoFactorSection" style="margin-bottom: 20px; padding: 15px; background: #2a2a2a; border: 1px solid #333;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px">
+                            <p style="margin: 0; font-weight: 600; color: #d0d0d0">Two-Factor Authentication</p>
+                            <span id="twoFactorStatus" style="font-size: 12px; color: #888">Loading...</span>
+                        </div>
+                        <button
+                            id="enable2faBtn"
+                            class="form-btn"
+                            onclick="startTwoFactorSetup()"
+                            style="width: 100%; margin-bottom: 10px; display: none"
+                        >
+                            Enable 2FA
+                        </button>
+                        <button
+                            id="disable2faBtn"
+                            class="form-btn"
+                            onclick="startTwoFactorDisable()"
+                            style="width: 100%; margin-bottom: 10px; display: none"
+                        >
+                            Disable 2FA
+                        </button>
+                    </div>
+
                     <button
                         class="form-btn logout-btn"
                         onclick="handleLogout()"
@@ -851,9 +876,151 @@
                     </button>
                 </div>
             </div>
-        </div>
+         </div>
 
-        <!-- Edit Package Modal -->
+         <!-- 2FA Login Modal -->
+         <div id="twoFactorLoginModal" class="modal">
+             <div class="modal-content">
+                 <div class="modal-header">
+                     <h2>Two-Factor Authentication</h2>
+                     <button class="close-btn" onclick="closeLoginTwoFactorModal()">
+                         &times;
+                     </button>
+                 </div>
+
+                 <div id="loginTwoFactorError" class="error"></div>
+
+                 <p style="color: #d0d0d0; margin-bottom: 15px">Enter the 6-digit code from your authenticator app:</p>
+                 <input
+                     type="text"
+                     id="loginTwoFactorCode"
+                     placeholder="000000"
+                     maxlength="6"
+                     pattern="[0-9]{6}"
+                     style="width: 100%; padding: 12px; border: 1px solid #333; margin-bottom: 15px; font-size: 20px; text-align: center; background: #1a1a1a; color: #d0d0d0; letter-spacing: 5px"
+                 />
+                 <button
+                     type="button"
+                     onclick="verifyLoginTwoFactor()"
+                     class="form-btn"
+                     id="verifyLoginTwoFactorBtn"
+                     style="width: 100%"
+                 >
+                     Verify
+                 </button>
+             </div>
+         </div>
+
+         <!-- 2FA Setup Modal -->
+         <div id="twoFactorSetupModal" class="modal">
+             <div class="modal-content">
+                 <div class="modal-header">
+                     <h2>Enable Two-Factor Authentication</h2>
+                     <button class="close-btn" onclick="closeTwoFactorSetupModal()">
+                         &times;
+                     </button>
+                 </div>
+
+                 <div id="twoFactorError" class="error"></div>
+
+                 <!-- Step 1: QR Code -->
+                 <div id="twoFactorStep1" style="display: block">
+                     <p style="margin-top: 0; color: #d0d0d0">Scan this QR code with your authenticator app (Google Authenticator, Authy, Microsoft Authenticator, etc.):</p>
+                     <div style="text-align: center; margin: 20px 0; padding: 20px; background: #222; border: 1px solid #333;">
+                         <img id="twoFactorQRCode" src="" alt="QR Code" style="width: 250px; height: 250px; image-rendering: pixelated;">
+                     </div>
+                     <p style="font-size: 12px; color: #888; margin: 15px 0 10px 0">Can't scan? Enter this code manually:</p>
+                     <code id="twoFactorSecret" style="display: block; padding: 12px; background: #1a1a1a; border: 1px solid #333; word-break: break-all; margin-bottom: 15px; color: #c4a574; font-size: 12px; line-height: 1.6"></code>
+                     <button
+                         type="button"
+                         onclick="nextTwoFactorStep()"
+                         class="form-btn"
+                         style="width: 100%"
+                     >
+                         Next: Verify Code
+                     </button>
+                 </div>
+
+                 <!-- Step 2: Verify Code -->
+                 <div id="twoFactorStep2" style="display: none">
+                     <p style="color: #d0d0d0">Enter the 6-digit code from your authenticator app:</p>
+                     <input
+                         type="text"
+                         id="twoFactorVerifyCode"
+                         placeholder="000000"
+                         maxlength="6"
+                         pattern="[0-9]{6}"
+                         style="width: 100%; padding: 12px; border: 1px solid #333; margin-bottom: 15px; font-size: 20px; text-align: center; background: #1a1a1a; color: #d0d0d0; letter-spacing: 5px"
+                     />
+                     <p style="color: #d0d0d0; margin-bottom: 10px">Save these backup codes in a safe place. You can use them to access your account if you lose access to your authenticator:</p>
+                     <div id="backupCodesList" style="background: #1a1a1a; padding: 15px; border: 1px solid #333; margin-bottom: 15px; font-family: monospace; font-size: 12px; max-height: 150px; overflow-y: auto; color: #88ff88"></div>
+                     <button
+                         type="button"
+                         onclick="confirmTwoFactorSetup()"
+                         class="form-btn"
+                         style="width: 100%; margin-bottom: 10px"
+                     >
+                         Enable 2FA
+                     </button>
+                     <button
+                         type="button"
+                         onclick="backTwoFactorStep()"
+                         class="form-btn"
+                         style="width: 100%; background: #555"
+                     >
+                         Back
+                     </button>
+                 </div>
+             </div>
+         </div>
+
+         <!-- 2FA Disable Modal -->
+         <div id="twoFactorDisableModal" class="modal">
+             <div class="modal-content">
+                 <div class="modal-header">
+                     <h2>Disable Two-Factor Authentication</h2>
+                     <button class="close-btn" onclick="closeTwoFactorDisableModal()">
+                         &times;
+                     </button>
+                 </div>
+
+                 <div id="twoFactorDisableError" class="error"></div>
+
+                 <p style="color: #d0d0d0; margin-bottom: 15px">To disable 2FA, enter your password and the 6-digit code from your authenticator:</p>
+                 <input
+                     type="password"
+                     id="disableTwoFactorPassword"
+                     placeholder="Password"
+                     style="width: 100%; padding: 12px; border: 1px solid #333; margin-bottom: 15px; background: #1a1a1a; color: #d0d0d0"
+                 />
+                 <input
+                     type="text"
+                     id="disableTwoFactorCode"
+                     placeholder="000000"
+                     maxlength="6"
+                     pattern="[0-9]{6}"
+                     style="width: 100%; padding: 12px; border: 1px solid #333; margin-bottom: 15px; font-size: 20px; text-align: center; background: #1a1a1a; color: #d0d0d0; letter-spacing: 5px"
+                 />
+                 <button
+                     type="button"
+                     onclick="confirmTwoFactorDisable()"
+                     class="form-btn"
+                     style="width: 100%; margin-bottom: 10px; background: #8b5555"
+                 >
+                     Disable 2FA
+                 </button>
+                 <button
+                     type="button"
+                     onclick="closeTwoFactorDisableModal()"
+                     class="form-btn"
+                     style="width: 100%; background: #555"
+                 >
+                     Cancel
+                 </button>
+             </div>
+         </div>
+
+         <!-- Edit Package Modal -->
         <div id="editModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">

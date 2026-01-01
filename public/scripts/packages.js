@@ -141,6 +141,7 @@ function openProfileModal() {
     document.getElementById("authContainer").style.display = "none";
     document.getElementById("profileContainer").style.display = "block";
     document.getElementById("loggedUsername").textContent = currentUsername;
+    loadTwoFactorStatus();
   } else {
     document.getElementById("authContainer").style.display = "block";
     document.getElementById("profileContainer").style.display = "none";
@@ -221,6 +222,16 @@ async function handleLogin(event) {
 
     const data = await response.json();
     console.log("Login response:", data);
+
+    // Check if 2FA is required
+    if (data.requiresTwoFactor) {
+      // Store temporary login data for 2FA verification
+      window.pendingLogin = { username, password, turnstileToken: loginTurnstileToken };
+      showLoginTwoFactorModal();
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Login";
+      return;
+    }
 
     if (!response.ok || !data.success) {
       throw new Error(data.error || "Login failed");
@@ -1843,3 +1854,283 @@ document
       closeSupportPopup();
     }, 500);
   });
+
+// ==================== 2FA Login Functions ====================
+
+function showLoginTwoFactorModal() {
+  document.getElementById("twoFactorLoginModal").style.display = "block";
+  document.getElementById("loginTwoFactorCode").value = "";
+  document.getElementById("loginTwoFactorError").style.display = "none";
+  document.getElementById("loginTwoFactorCode").focus();
+}
+
+function closeLoginTwoFactorModal() {
+  document.getElementById("twoFactorLoginModal").style.display = "none";
+  document.getElementById("loginTwoFactorCode").value = "";
+  document.getElementById("loginTwoFactorError").style.display = "none";
+}
+
+async function verifyLoginTwoFactor() {
+  try {
+    const totpCode = document.getElementById("loginTwoFactorCode").value;
+    const errorEl = document.getElementById("loginTwoFactorError");
+    const btn = document.getElementById("verifyLoginTwoFactorBtn");
+
+    errorEl.style.display = "none";
+
+    if (!totpCode || totpCode.length !== 6) {
+      errorEl.textContent = "Please enter a valid 6-digit code";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    if (!window.pendingLogin) {
+      errorEl.textContent = "Login session expired. Please try again.";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Verifying...";
+
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: window.pendingLogin.username,
+        password: window.pendingLogin.password,
+        turnstileToken: window.pendingLogin.turnstileToken,
+        totpCode,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "2FA verification failed");
+    }
+
+    authToken = data.token;
+    currentUsername = data.user.username;
+    currentUserId = data.user.id;
+
+    localStorage.setItem("authToken", authToken);
+    localStorage.setItem("username", currentUsername);
+    localStorage.setItem("userId", currentUserId);
+
+    window.pendingLogin = null;
+    updateProfileUI();
+    closeLoginTwoFactorModal();
+    closeProfileModal();
+
+    // Clear login form
+    document.getElementById("loginUsername").value = "";
+    document.getElementById("loginPassword").value = "";
+  } catch (error) {
+    console.error("2FA verification error:", error);
+    document.getElementById("loginTwoFactorError").textContent = error.message;
+    document.getElementById("loginTwoFactorError").style.display = "block";
+  } finally {
+    const btn = document.getElementById("verifyLoginTwoFactorBtn");
+    btn.disabled = false;
+    btn.textContent = "Verify";
+  }
+}
+
+// ==================== 2FA Profile Functions ====================
+
+async function loadTwoFactorStatus() {
+  try {
+    const response = await fetch("/auth/2fa/status", {
+      headers: {
+        "Authorization": `Bearer ${authToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to load 2FA status");
+    }
+
+    const data = await response.json();
+    const statusEl = document.getElementById("twoFactorStatus");
+    const enableBtn = document.getElementById("enable2faBtn");
+    const disableBtn = document.getElementById("disable2faBtn");
+
+    if (data.twoFactorEnabled) {
+      statusEl.textContent = "Enabled ✓";
+      statusEl.style.color = "#4caf50";
+      enableBtn.style.display = "none";
+      disableBtn.style.display = "block";
+    } else {
+      statusEl.textContent = "Disabled";
+      statusEl.style.color = "#f44336";
+      enableBtn.style.display = "block";
+      disableBtn.style.display = "none";
+    }
+  } catch (err) {
+    console.error("Error loading 2FA status:", err);
+    document.getElementById("twoFactorStatus").textContent = "Error loading status";
+  }
+}
+
+async function startTwoFactorSetup() {
+  try {
+    const response = await fetch("/auth/2fa/setup", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to setup 2FA");
+    }
+
+    const data = await response.json();
+    window.twoFactorSetupData = data;
+
+    // Show modal
+    document.getElementById("twoFactorSetupModal").style.display = "block";
+    document.getElementById("twoFactorStep1").style.display = "block";
+    document.getElementById("twoFactorStep2").style.display = "none";
+    document.getElementById("twoFactorError").style.display = "none";
+
+    // Display QR code and secret
+    document.getElementById("twoFactorQRCode").src = data.qrCodeUrl;
+    document.getElementById("twoFactorSecret").textContent = data.secret;
+  } catch (err) {
+    console.error("Error starting 2FA setup:", err);
+    alert("Failed to start 2FA setup. Please try again.");
+  }
+}
+
+function nextTwoFactorStep() {
+  document.getElementById("twoFactorStep1").style.display = "none";
+  document.getElementById("twoFactorStep2").style.display = "block";
+
+  // Display backup codes
+  const backupCodesList = document.getElementById("backupCodesList");
+  if (window.twoFactorSetupData && window.twoFactorSetupData.backupCodes) {
+    backupCodesList.innerHTML = window.twoFactorSetupData.backupCodes
+      .map((code) => `<div style="padding: 5px 0">${code}</div>`)
+      .join("");
+  }
+}
+
+function backTwoFactorStep() {
+  document.getElementById("twoFactorStep1").style.display = "block";
+  document.getElementById("twoFactorStep2").style.display = "none";
+}
+
+async function confirmTwoFactorSetup() {
+  try {
+    const token = document.getElementById("twoFactorVerifyCode").value;
+    const errorEl = document.getElementById("twoFactorError");
+
+    if (!token || token.length !== 6) {
+      errorEl.textContent = "Please enter a valid 6-digit code";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    if (!window.twoFactorSetupData) {
+      throw new Error("Setup data not found");
+    }
+
+    const response = await fetch("/auth/2fa/enable", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        secret: window.twoFactorSetupData.secret,
+        backupCodes: window.twoFactorSetupData.backupCodes,
+        token: token,
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      errorEl.textContent = data.error || "Failed to enable 2FA";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    // Success!
+    alert("2FA enabled successfully! Make sure to save your backup codes.");
+    closeTwoFactorSetupModal();
+    loadTwoFactorStatus();
+  } catch (err) {
+    console.error("Error confirming 2FA setup:", err);
+    document.getElementById("twoFactorError").textContent = "An error occurred. Please try again.";
+    document.getElementById("twoFactorError").style.display = "block";
+  }
+}
+
+function closeTwoFactorSetupModal() {
+  document.getElementById("twoFactorSetupModal").style.display = "none";
+  document.getElementById("twoFactorVerifyCode").value = "";
+  window.twoFactorSetupData = null;
+}
+
+function startTwoFactorDisable() {
+  document.getElementById("twoFactorDisableModal").style.display = "block";
+  document.getElementById("twoFactorDisableError").style.display = "none";
+  document.getElementById("disableTwoFactorPassword").value = "";
+}
+
+async function confirmTwoFactorDisable() {
+  try {
+    const password = document.getElementById("disableTwoFactorPassword").value;
+    const totpCode = document.getElementById("disableTwoFactorCode").value;
+    const errorEl = document.getElementById("twoFactorDisableError");
+
+    if (!password) {
+      errorEl.textContent = "Please enter your password";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    if (!totpCode || totpCode.length !== 6) {
+      errorEl.textContent = "Please enter a valid 6-digit code";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    const response = await fetch("/auth/2fa/disable", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password, totpCode }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      errorEl.textContent = data.error || "Failed to disable 2FA";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    // Success!
+    alert("2FA disabled successfully");
+    closeTwoFactorDisableModal();
+    loadTwoFactorStatus();
+  } catch (err) {
+    console.error("Error disabling 2FA:", err);
+    document.getElementById("twoFactorDisableError").textContent = "An error occurred. Please try again.";
+    document.getElementById("twoFactorDisableError").style.display = "block";
+  }
+}
+
+function closeTwoFactorDisableModal() {
+  document.getElementById("twoFactorDisableModal").style.display = "none";
+  document.getElementById("disableTwoFactorPassword").value = "";
+  document.getElementById("disableTwoFactorCode").value = "";
+  document.getElementById("twoFactorDisableError").style.display = "none";
+}

@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import speakeasy from "speakeasy";
+import QRCode from "qrcode";
 
 let JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -166,5 +168,114 @@ export async function verifyTurnstile(
   } catch (err) {
     console.error("Turnstile verification error:", err);
     return { success: false, error: "CAPTCHA verification service error" };
+  }
+}
+
+/**
+ * Generates a 2FA secret for TOTP setup
+ * @param username - User's username for labeling
+ * @returns Object containing secret and QR code data URL
+ */
+export async function generate2FASecret(username: string): Promise<{
+  secret: string;
+  qrCodeUrl: string;
+}> {
+  const secret = speakeasy.generateSecret({
+    name: `BedPak (${username})`,
+    issuer: "BedPak",
+    length: 32,
+  });
+
+  // Generate QR code as data URL with dark theme colors
+  // Dark mode: #0f0f0f (dark), #d0d0d0 (light)
+  let qrCodeUrl = "";
+  if (secret.otpauth_url) {
+    qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url, {
+      color: {
+        dark: "#c4a574", // Gold accent color (modules)
+        light: "#0f0f0f", // Dark background
+      },
+    });
+  }
+
+  return {
+    secret: secret.base32,
+    qrCodeUrl,
+  };
+}
+
+/**
+ * Verifies a TOTP token against a secret
+ * @param token - 6-digit TOTP code from authenticator app
+ * @param secret - Base32 encoded secret
+ * @returns True if token is valid
+ */
+export function verify2FAToken(token: string, secret: string): boolean {
+  return speakeasy.totp.verify({
+    secret: secret,
+    encoding: "base32",
+    token: token,
+    window: 2, // Allow 2 steps of variance
+  });
+}
+
+/**
+ * Generates backup codes for account recovery
+ * @returns Array of 10 backup codes
+ */
+export function generateBackupCodes(): string[] {
+  const codes: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    // Generate 8-character codes like: ABC12DEF
+    const code = Math.random()
+      .toString(36)
+      .substring(2, 10)
+      .toUpperCase();
+    codes.push(code);
+  }
+  return codes;
+}
+
+/**
+ * Hashes backup codes for storage (one-way)
+ * @param codes - Array of backup codes
+ * @returns JSON string of hashed codes
+ */
+export async function hashBackupCodes(codes: string[]): Promise<string> {
+  const hashedCodes = await Promise.all(
+    codes.map(code => bcrypt.hash(code, 5))
+  );
+  return JSON.stringify(hashedCodes);
+}
+
+/**
+ * Verifies a backup code against hashed codes
+ * @param code - Backup code to verify
+ * @param hashedCodesJson - JSON string of hashed codes
+ * @returns Object with isValid and remainingCodes
+ */
+export async function verifyBackupCode(
+  code: string,
+  hashedCodesJson: string
+): Promise<{ isValid: boolean; remainingCodes?: string[] }> {
+  try {
+    const hashedCodes = JSON.parse(hashedCodesJson) as string[];
+    for (let i = 0; i < hashedCodes.length; i++) {
+      const match = await bcrypt.compare(code, hashedCodes[i]);
+      if (match) {
+        // Remove the used code and rehash
+        hashedCodes.splice(i, 1);
+        const newHashedCodes = await Promise.all(
+          hashedCodes.map(c => bcrypt.hash(c, 5))
+        );
+        return {
+          isValid: true,
+          remainingCodes: newHashedCodes,
+        };
+      }
+    }
+    return { isValid: false };
+  } catch {
+    return { isValid: false };
   }
 }

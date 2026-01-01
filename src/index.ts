@@ -11,6 +11,11 @@ import {
   verifyToken,
   extractToken,
   verifyTurnstile,
+  generate2FASecret,
+  verify2FAToken,
+  generateBackupCodes,
+  hashBackupCodes,
+  verifyBackupCode,
   DEV_MODE,
 } from "./auth";
 import {
@@ -579,10 +584,11 @@ const app = new Elysia()
         return { error: "Too many login attempts. Please try again later." };
       }
 
-      const { username, password, turnstileToken } = body as {
+      const { username, password, turnstileToken, totpCode } = body as {
         username?: string;
         password?: string;
         turnstileToken?: string;
+        totpCode?: string;
       };
 
       // Verify Turnstile CAPTCHA
@@ -612,6 +618,21 @@ const app = new Elysia()
         return { error: "Invalid username or password" };
       }
 
+      // Check if 2FA is enabled for this user
+      if (user.two_factor_enabled) {
+        // If 2FA is enabled, require TOTP code
+        if (!totpCode) {
+          set.status = 403;
+          return { error: "2FA required", requiresTwoFactor: true };
+        }
+
+        // Verify TOTP code
+        if (!user.two_factor_secret || !verify2FAToken(totpCode, user.two_factor_secret)) {
+          set.status = 401;
+          return { error: "Invalid 2FA code" };
+        }
+      }
+
       // Generate JWT token
       const token = generateToken({
         id: user.id,
@@ -635,6 +656,190 @@ const app = new Elysia()
       console.error("Login error:", err);
       set.status = 500;
       return { error: "Failed to login" };
+    }
+  })
+  .post("/auth/2fa/setup", async ({ headers, set }) => {
+    try {
+      // Extract and verify token
+      const authHeader = headers["authorization"];
+      const token = extractToken(authHeader);
+
+      if (!token) {
+        set.status = 401;
+        return { error: "Unauthorized: Missing or invalid token" };
+      }
+
+      const payload = verifyToken(token);
+      if (!payload) {
+        set.status = 401;
+        return { error: "Unauthorized: Invalid token" };
+      }
+
+      const user = await database.getUserById(payload.id);
+      if (!user) {
+        set.status = 404;
+        return { error: "User not found" };
+      }
+
+      // Generate 2FA secret and backup codes
+      const { secret, qrCodeUrl } = await generate2FASecret(user.username);
+      const backupCodes = generateBackupCodes();
+
+      return {
+        secret,
+        qrCodeUrl,
+        backupCodes,
+      };
+    } catch (err) {
+      console.error("2FA setup error:", err);
+      set.status = 500;
+      return { error: "Failed to setup 2FA" };
+    }
+  })
+  .post("/auth/2fa/enable", async ({ headers, body, set }) => {
+    try {
+      // Extract and verify token
+      const authHeader = headers["authorization"];
+      const token = extractToken(authHeader);
+
+      if (!token) {
+        set.status = 401;
+        return { error: "Unauthorized: Missing or invalid token" };
+      }
+
+      const payload = verifyToken(token);
+      if (!payload) {
+        set.status = 401;
+        return { error: "Unauthorized: Invalid token" };
+      }
+
+      const user = await database.getUserById(payload.id);
+      if (!user) {
+        set.status = 404;
+        return { error: "User not found" };
+      }
+
+      const { secret, backupCodes, token: totpToken } = body as {
+        secret: string;
+        backupCodes: string[];
+        token: string;
+      };
+
+      // Verify the TOTP token
+      if (!verify2FAToken(totpToken, secret)) {
+        set.status = 400;
+        return { error: "Invalid 2FA token" };
+      }
+
+      // Hash backup codes
+      const hashedBackupCodes = await hashBackupCodes(backupCodes);
+
+      // Update user in database
+      await database.sqlite`
+        UPDATE users 
+        SET two_factor_enabled = 1, 
+            two_factor_secret = ${secret},
+            backup_codes = ${hashedBackupCodes}
+        WHERE id = ${user.id}
+      `;
+
+      return { success: true, message: "2FA enabled successfully" };
+    } catch (err) {
+      console.error("2FA enable error:", err);
+      set.status = 500;
+      return { error: "Failed to enable 2FA" };
+    }
+  })
+  .post("/auth/2fa/disable", async ({ headers, body, set }) => {
+    try {
+      // Extract and verify token
+      const authHeader = headers["authorization"];
+      const token = extractToken(authHeader);
+
+      if (!token) {
+        set.status = 401;
+        return { error: "Unauthorized: Missing or invalid token" };
+      }
+
+      const payload = verifyToken(token);
+      if (!payload) {
+        set.status = 401;
+        return { error: "Unauthorized: Invalid token" };
+      }
+
+      const user = await database.getUserById(payload.id);
+      if (!user) {
+        set.status = 404;
+        return { error: "User not found" };
+      }
+
+      // Check if 2FA is enabled
+      if (!user.two_factor_enabled) {
+        set.status = 400;
+        return { error: "2FA is not enabled" };
+      }
+
+      const { password, totpCode } = body as { password: string; totpCode: string };
+
+      // Verify password
+      const passwordValid = await comparePassword(password, user.password_hash);
+      if (!passwordValid) {
+        set.status = 401;
+        return { error: "Invalid password" };
+      }
+
+      // Verify TOTP code
+      if (!user.two_factor_secret || !verify2FAToken(totpCode, user.two_factor_secret)) {
+        set.status = 401;
+        return { error: "Invalid 2FA code" };
+      }
+
+      // Disable 2FA
+      await database.sqlite`
+        UPDATE users 
+        SET two_factor_enabled = 0, 
+            two_factor_secret = NULL,
+            backup_codes = NULL
+        WHERE id = ${user.id}
+      `;
+
+      return { success: true, message: "2FA disabled successfully" };
+    } catch (err) {
+      console.error("2FA disable error:", err);
+      set.status = 500;
+      return { error: "Failed to disable 2FA" };
+    }
+  })
+  .get("/auth/2fa/status", async ({ headers, set }) => {
+    try {
+      // Extract and verify token
+      const authHeader = headers["authorization"];
+      const token = extractToken(authHeader);
+
+      if (!token) {
+        set.status = 401;
+        return { error: "Unauthorized: Missing or invalid token" };
+      }
+
+      const payload = verifyToken(token);
+      if (!payload) {
+        set.status = 401;
+        return { error: "Unauthorized: Invalid token" };
+      }
+
+      const user = await database.getUserById(payload.id);
+      if (!user) {
+        set.status = 404;
+        return { error: "User not found" };
+      }
+
+      return {
+        twoFactorEnabled: user.two_factor_enabled === 1,
+      };
+    } catch (err) {
+      console.error("2FA status error:", err);
+      set.status = 500;
+      return { error: "Failed to get 2FA status" };
     }
   })
   .get("/user/:username", async ({ params: { username }, set }) => {

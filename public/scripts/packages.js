@@ -61,18 +61,18 @@ function switchPackageTab(tabName) {
   document.querySelectorAll(".package-tab-content").forEach((content) => {
     content.classList.remove("active");
   });
-  
+
   // Remove active class from all tab buttons
   document.querySelectorAll(".packages-tabs .tab-btn").forEach((btn) => {
     btn.classList.remove("active");
   });
-  
+
   // Show selected tab
   const selectedTab = document.getElementById(tabName);
   if (selectedTab) {
     selectedTab.classList.add("active");
   }
-  
+
   // Mark button as active
   const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
   if (selectedBtn) {
@@ -226,7 +226,11 @@ async function handleLogin(event) {
     // Check if 2FA is required
     if (data.requiresTwoFactor) {
       // Store temporary login data for 2FA verification
-      window.pendingLogin = { username, password, turnstileToken: loginTurnstileToken };
+      window.pendingLogin = {
+        username,
+        password,
+        turnstileToken: loginTurnstileToken,
+      };
       showLoginTwoFactorModal();
       loginBtn.disabled = false;
       loginBtn.textContent = "Login";
@@ -1403,8 +1407,10 @@ function handleIconError(imgElement) {
   imgElement.style.display = "none";
   const parent = imgElement.parentElement;
   if (!parent.querySelector("span")) {
-    const fallback = document.createElement("img");
-    fallback.src = "/logos/Box.gif";
+    const fallback = document.createElement("span");
+    fallback.style.fontSize = "48px";
+    fallback.style.color = "#555";
+    fallback.textContent = "📦";
     parent.appendChild(fallback);
   }
 }
@@ -1531,11 +1537,14 @@ async function fetchAndRenderPage(page) {
 
     // Update counts
     document.getElementById("totalCount").textContent = filteredPackages.length;
-    document.getElementById("displayCount").textContent = filteredPackages.length;
+    document.getElementById("displayCount").textContent =
+      filteredPackages.length;
 
     // Render packages
     const packagesHtml = await renderPackagesHtml(filteredPackages);
-    container.innerHTML = packagesHtml || `
+    container.innerHTML =
+      packagesHtml ||
+      `
       <div class="empty-state">
         <p>No packages found</p>
         <p style="font-size: 12px; color: #555;">Try adjusting your filters</p>
@@ -1554,12 +1563,12 @@ async function renderPackagesHtml(packages) {
     return null;
   }
 
-   let html = "";
-   for (const pkg of packages) {
-     const authorName = await getAuthorName(pkg.author_id);
-     const iconHtml = pkg.icon_url
-       ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)} icon" loading="lazy" onerror="handleIconError(this)">`
-       : `<span style="font-size: 48px; color: #555;">📦</span>`;
+  let html = "";
+  for (const pkg of packages) {
+    const authorName = await getAuthorName(pkg.author_id);
+    const iconHtml = pkg.icon_url
+      ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)} icon" loading="lazy" onerror="handleIconError(this)">`
+      : `<span style="font-size: 48px; color: #555;">📦</span>`;
 
     // Check if current user owns this package
     const isOwner =
@@ -1575,50 +1584,51 @@ async function renderPackagesHtml(packages) {
                     Download
                    </a>`;
 
-     // View Details button - link to dedicated package page
-     const viewDetailsBtn = `<a href="/package/${encodeURIComponent(pkg.name)}" class="view-details-btn">View Details</a>`;
+    const viewDetailsBtn = `<a href="/package/${encodeURIComponent(pkg.name)}" class="view-details-btn">View Details</a>`;
 
-     const actionsHtml = isOwner
-       ? `<div class="package-actions">
-                    ${viewDetailsBtn}
-                    ${downloadButtonHtml}
-                    <button class="edit-btn" data-action="edit-package" data-package-id="${pkg.id}" data-package-name="${escapeHtml(pkg.name)}">
-                      Edit
-                    </button>
-                  </div>`
-       : `<div class="package-actions">
-                  ${viewDetailsBtn}
-                  ${downloadButtonHtml}
-                </div>`;
+    const actionsHtml = isOwner
+      ? `<div class="package-actions">
+                        ${viewDetailsBtn}
+                        ${downloadButtonHtml}
+                        <button class="edit-btn" data-action="edit-package" data-package-id="${pkg.id}" data-package-name="${escapeHtml(pkg.name)}">
+                          Edit
+                        </button>
+                      </div>`
+      : `<div class="package-actions">
+                      ${viewDetailsBtn}
+                      ${downloadButtonHtml}
+                    </div>`;
 
-     // Generate category HTML (single category instead of multiple tags)
-     const categorySlug = pkg.tag_slug || (pkg.category && pkg.category.slug);
-     const categoryName = pkg.tag_name || (pkg.category && pkg.category.name);
-     const categoryHtml = categorySlug
-       ? `<div class="package-category">
+    // Generate category HTML (single category instead of multiple tags)
+    const categorySlug = pkg.tag_slug || (pkg.category && pkg.category.slug);
+    const categoryName = pkg.tag_name || (pkg.category && pkg.category.name);
+    const categoryHtml = categorySlug
+      ? `<div class="package-category">
                     <a href="/packages.html?category=${encodeURIComponent(categorySlug)}" class="category-badge">${escapeHtml(categoryName)}</a>
                 </div>`
-       : "";
+      : "";
 
-     // Add loading="lazy" to icon images
-     const iconWithLazy = iconHtml.replace(/<img\s/g, '<img loading="lazy" ');
+    // Add loading="lazy" to icon images
+    const iconWithLazy = iconHtml.replace(/<img\s/g, '<img loading="lazy" ');
 
-     html += `
- <div class="package-card">
-  <div class="package-icon">
-    ${iconWithLazy}
-  </div>
-  <h3>${escapeHtml(pkg.name)}</h3>
-  <div class="package-meta">
-    <span>Downloads: ${pkg.downloads || 0}</span>
-    <span>Date: ${formatDate(pkg.created_at)}</span>
-  </div>
-  ${categoryHtml}
-  <p class="package-description">${escapeHtml(pkg.description || "No description provided")}</p>
-  <span class="package-version">Version ${pkg.version || "1.0.0"}</span>
-  <p class="package-author">By: ${escapeHtml(authorName)}</p>
-  ${actionsHtml}
- </div>
+    html += `
+    <div class="package-card">
+    <h3>${escapeHtml(pkg.name)}</h3>
+    <div class="package-meta">
+      <span>Downloads: ${pkg.downloads || 0}</span>
+      <span>Date: ${formatDate(pkg.created_at)}</span>
+    </div>
+    <a href="/package/${encodeURIComponent(pkg.name)}" style="text-decoration: none">
+      <div class="package-icon">
+        ${iconWithLazy}
+      </div>
+      </a>
+      ${categoryHtml}
+      <p class="package-description">${escapeHtml(pkg.description || "No description provided")}</p>
+      <span class="package-version">Version ${pkg.version || "1.0.0"}</span>
+      <p class="package-author">By: ${escapeHtml(authorName)}</p>
+      ${actionsHtml}
+     </div>
  `;
   }
   return html;
@@ -1943,7 +1953,7 @@ async function loadTwoFactorStatus() {
   try {
     const response = await fetch("/auth/2fa/status", {
       headers: {
-        "Authorization": `Bearer ${authToken}`,
+        Authorization: `Bearer ${authToken}`,
       },
     });
 
@@ -1969,7 +1979,8 @@ async function loadTwoFactorStatus() {
     }
   } catch (err) {
     console.error("Error loading 2FA status:", err);
-    document.getElementById("twoFactorStatus").textContent = "Error loading status";
+    document.getElementById("twoFactorStatus").textContent =
+      "Error loading status";
   }
 }
 
@@ -1978,7 +1989,7 @@ async function startTwoFactorSetup() {
     const response = await fetch("/auth/2fa/setup", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${authToken}`,
+        Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",
       },
     });
@@ -2041,7 +2052,7 @@ async function confirmTwoFactorSetup() {
     const response = await fetch("/auth/2fa/enable", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${authToken}`,
+        Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -2064,7 +2075,8 @@ async function confirmTwoFactorSetup() {
     loadTwoFactorStatus();
   } catch (err) {
     console.error("Error confirming 2FA setup:", err);
-    document.getElementById("twoFactorError").textContent = "An error occurred. Please try again.";
+    document.getElementById("twoFactorError").textContent =
+      "An error occurred. Please try again.";
     document.getElementById("twoFactorError").style.display = "block";
   }
 }
@@ -2102,7 +2114,7 @@ async function confirmTwoFactorDisable() {
     const response = await fetch("/auth/2fa/disable", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${authToken}`,
+        Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ password, totpCode }),
@@ -2121,7 +2133,8 @@ async function confirmTwoFactorDisable() {
     loadTwoFactorStatus();
   } catch (err) {
     console.error("Error disabling 2FA:", err);
-    document.getElementById("twoFactorDisableError").textContent = "An error occurred. Please try again.";
+    document.getElementById("twoFactorDisableError").textContent =
+      "An error occurred. Please try again.";
     document.getElementById("twoFactorDisableError").style.display = "block";
   }
 }

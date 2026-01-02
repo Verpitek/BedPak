@@ -1403,10 +1403,8 @@ function handleIconError(imgElement) {
   imgElement.style.display = "none";
   const parent = imgElement.parentElement;
   if (!parent.querySelector("span")) {
-    const fallback = document.createElement("span");
-    fallback.style.fontSize = "48px";
-    fallback.style.color = "#555";
-    fallback.textContent = "📦";
+    const fallback = document.createElement("img");
+    fallback.src = "/logos/Box.gif";
     parent.appendChild(fallback);
   }
 }

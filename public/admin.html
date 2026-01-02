@@ -10,12 +10,7 @@
         <link rel="stylesheet" href="/styles/styles.css" />
         <link rel="stylesheet" href="/styles/admin.css" />
 
-        <!-- Cloudflare Turnstile -->
-        <script
-            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-            async
-            defer
-        ></script>
+
 
         <!-- SEO Meta Tags - Admin page should not be indexed -->
         <meta name="robots" content="noindex, nofollow" />
@@ -49,15 +44,7 @@
                             required
                         />
                     </div>
-                    <div class="form-group">
-                        <div
-                            class="cf-turnstile"
-                            data-sitekey="0x4AAAAAACI85z04hVdplopt"
-                            data-theme="dark"
-                            data-callback="onTurnstileSuccess"
-                            data-expired-callback="onTurnstileExpired"
-                        ></div>
-                    </div>
+
                     <button type="submit" class="btn" id="loginBtn">
                         Login
                     </button>

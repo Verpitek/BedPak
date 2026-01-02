@@ -12,7 +12,7 @@ A comprehensive backend API for hosting, sharing, and uploading Minecraft Bedroc
 - **Category System**: Modrinth-style categories (Adventure, Decoration, Utility, Survival, etc.)
 - **Web Frontend**: Responsive HTML/CSS/JS interface for browsing and managing content
 - **Admin Dashboard**: User and content management for administrators
-- **Security**: Cloudflare Turnstile CAPTCHA, rate limiting, security headers, and 2FA support
+- **Security**: Rate limiting, security headers, and 2FA support
 - **File Validation**: Magic byte validation for content files and icons
 - **SVG Sanitization**: Automatic removal of dangerous SVG content
 - **Rate Limiting**: Configurable rate limits with proper headers
@@ -40,7 +40,7 @@ A comprehensive backend API for hosting, sharing, and uploading Minecraft Bedroc
 3. Set up environment variables:
    ```bash
    cp .env.example .env
-   # Edit .env with your JWT_SECRET and TURNSTILE_SECRET_KEY
+    # Edit .env with your JWT_SECRET
    ```
 
 4. Start the development server:
@@ -64,7 +64,7 @@ bun run dev --dev
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `JWT_SECRET` | Yes | - | Secret for signing JWT tokens |
-| `TURNSTILE_SECRET_KEY` | Yes* | - | Cloudflare Turnstile secret key for CAPTCHA verification. Required unless running with `--dev` flag. |
+
 | `CORS_ORIGINS` | No | (allow all) | Comma-separated list of allowed origins |
 | `DATABASE_PATH` | No | `bedpak.db` | Path to SQLite database file |
 | `PORT` | No | `3000` | Port to run server on |

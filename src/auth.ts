@@ -17,12 +17,7 @@ if (!JWT_SECRET) {
 // Check for dev mode flag or test environment
 export const DEV_MODE = process.argv.includes("--dev") || process.env.NODE_ENV === "test";
 
-// Cloudflare Turnstile configuration
-const envKey = process.env.TURNSTILE_SECRET_KEY;
-if (!DEV_MODE && !envKey) {
-  throw new Error("FATAL: TURNSTILE_SECRET_KEY environment variable is required when not in dev mode.");
-}
-const TURNSTILE_SECRET_KEY = DEV_MODE ? "dev-mode-dummy-secret" : envKey!;
+
 const JWT_EXPIRATION = 7 * 24 * 60 * 60; // 7 days in seconds
 
 export interface JWTPayload {
@@ -113,63 +108,7 @@ export function extractToken(authHeader: string | undefined): string | null {
   return parts[1];
 }
 
-/**
- * Verifies Cloudflare Turnstile token
- * @param token - The Turnstile response token from the client
- * @param remoteIp - Optional client IP address for additional validation
- * @returns Object with success status and optional error message
- */
-export async function verifyTurnstile(
-  token: string | undefined,
-  remoteIp?: string
-): Promise<{ success: boolean; error?: string }> {
-  // Skip CAPTCHA verification in dev mode
-  if (DEV_MODE) {
-    return { success: true };
-  }
 
-  // If no token provided, skip verification (for clients without Turnstile widget)
-  if (!token) {
-    return { success: true };
-  }
-
-  try {
-    const formData = new URLSearchParams({
-      secret: TURNSTILE_SECRET_KEY,
-      response: token,
-    });
-
-    if (remoteIp) {
-      formData.append("remoteip", remoteIp);
-    }
-
-    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: formData.toString(),
-    });
-
-    const data = await response.json() as {
-      success: boolean;
-      "error-codes"?: string[];
-      challenge_ts?: string;
-      hostname?: string;
-    };
-
-    if (!data.success) {
-      const errorCodes = data["error-codes"] || [];
-      console.error("Turnstile verification failed:", errorCodes);
-      return { success: false, error: "CAPTCHA verification failed" };
-    }
-
-    return { success: true };
-  } catch (err) {
-    console.error("Turnstile verification error:", err);
-    return { success: false, error: "CAPTCHA verification service error" };
-  }
-}
 
 /**
  * Generates a 2FA secret for TOTP setup

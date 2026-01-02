@@ -1,7 +1,6 @@
 const API_URL = '';
 let authToken = null;
 let currentUsername = null;
-let turnstileToken = null;
 let devMode = false;
 
 // Fetch config from server to check dev mode
@@ -12,11 +11,7 @@ async function fetchConfig() {
       const config = await response.json();
       devMode = config.devMode || false;
       if (devMode) {
-        console.log("Dev mode enabled - CAPTCHA bypassed");
-        // Hide turnstile widgets in dev mode
-        document.querySelectorAll('.cf-turnstile').forEach(el => {
-          el.style.display = 'none';
-        });
+        console.log("Dev mode enabled");
       }
     }
   } catch (e) {
@@ -24,14 +19,7 @@ async function fetchConfig() {
   }
 }
 
-// Turnstile callbacks
-function onTurnstileSuccess(token) {
-  turnstileToken = token;
-}
 
-function onTurnstileExpired() {
-  turnstileToken = null;
-}
 
 // Pagination and filter state
 const paginationState = {
@@ -100,13 +88,6 @@ async function handleLogin(event) {
   
   errorDiv.style.display = 'none';
 
-  // Check if Turnstile token is available (skip in dev mode)
-  if (!devMode && !turnstileToken) {
-    errorDiv.textContent = 'Please complete the CAPTCHA verification';
-    errorDiv.style.display = 'block';
-    return;
-  }
-
   loginBtn.disabled = true;
   loginBtn.textContent = 'Logging in...';
   
@@ -116,7 +97,7 @@ async function handleLogin(event) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, password, turnstileToken: devMode ? "dev-mode" : turnstileToken }),
+      body: JSON.stringify({ username, password }),
     });
     
     const data = await response.json();
@@ -136,11 +117,6 @@ async function handleLogin(event) {
   } catch (error) {
     errorDiv.textContent = error.message;
     errorDiv.style.display = 'block';
-    // Reset Turnstile widget on error
-    turnstileToken = null;
-    if (typeof turnstile !== 'undefined') {
-      turnstile.reset();
-    }
   } finally {
     loginBtn.disabled = false;
     loginBtn.textContent = 'Login';

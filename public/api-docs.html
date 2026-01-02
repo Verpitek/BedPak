@@ -170,30 +170,10 @@
                                 chars)
                             </td>
                         </tr>
+
+
                         <tr>
                             <td>
-                                email
-                                <span class="param-required">required</span>
-                            </td>
-                            <td>string</td>
-                            <td>Valid email address</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                password
-                                <span class="param-required">required</span>
-                            </td>
-                            <td>string</td>
-                            <td>Min 8 chars, 1 number, 1 special character</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                turnstileToken
-                                <span class="param-required">required</span>
-                            </td>
-                            <td>string</td>
-                            <td>Cloudflare Turnstile CAPTCHA token</td>
-                        </tr>
                     </table>
 
                     <div class="code-block">
@@ -202,8 +182,7 @@
   -d '{
     "username": "myuser",
     "email": "user@example.com",
-    "password": "SecurePass123!",
-    "turnstileToken": "token_from_captcha"
+    "password": "SecurePass123!"
   }'</code></pre>
                     </div>
 
@@ -238,38 +217,11 @@
                             <th>Type</th>
                             <th>Description</th>
                         </tr>
+
+
                         <tr>
                             <td>
-                                username
-                                <span class="param-required">required</span>
-                            </td>
-                            <td>string</td>
-                            <td>Your username</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                password
-                                <span class="param-required">required</span>
-                            </td>
-                            <td>string</td>
-                            <td>Your password</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                turnstileToken
-                                <span class="param-required">required</span>
-                            </td>
-                            <td>string</td>
-                            <td>Cloudflare Turnstile CAPTCHA token</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                totpCode
-                                <span class="param-optional">optional</span>
-                            </td>
-                            <td>string</td>
-                            <td>6-digit 2FA code (required if 2FA is enabled on account)</td>
-                        </tr>
+
                     </table>
 
                     <div class="code-block">
@@ -277,8 +229,7 @@
   -H "Content-Type: application/json" \
   -d '{
     "username": "myuser",
-    "password": "SecurePass123!",
-    "turnstileToken": "token_from_captcha"
+    "password": "SecurePass123!"
   }'</code></pre>
                     </div>
 
@@ -377,14 +328,7 @@
                             <th>Type</th>
                             <th>Description</th>
                         </tr>
-                        <tr>
-                            <td>
-                                secret
-                                <span class="param-required">required</span>
-                            </td>
-                            <td>string</td>
-                            <td>Secret from /auth/2fa/setup</td>
-                        </tr>
+
                         <tr>
                             <td>
                                 token

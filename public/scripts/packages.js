@@ -11,9 +11,7 @@ let currentUserId = null;
 let totalPages = 0;
 let totalPackages = 0;
 
-// Turnstile tokens
-let loginTurnstileToken = null;
-let registerTurnstileToken = null;
+
 
 // Dev mode flag (fetched from server)
 let devMode = false;
@@ -26,11 +24,7 @@ async function fetchConfig() {
       const config = await response.json();
       devMode = config.devMode || false;
       if (devMode) {
-        console.log("Dev mode enabled - CAPTCHA bypassed");
-        // Hide turnstile widgets in dev mode
-        document.querySelectorAll(".cf-turnstile").forEach((el) => {
-          el.style.display = "none";
-        });
+        console.log("Dev mode enabled");
       }
     }
   } catch (e) {
@@ -38,22 +32,7 @@ async function fetchConfig() {
   }
 }
 
-// Turnstile callbacks
-function onLoginTurnstileSuccess(token) {
-  loginTurnstileToken = token;
-}
 
-function onLoginTurnstileExpired() {
-  loginTurnstileToken = null;
-}
-
-function onRegisterTurnstileSuccess(token) {
-  registerTurnstileToken = token;
-}
-
-function onRegisterTurnstileExpired() {
-  registerTurnstileToken = null;
-}
 
 // Package Tab Switching
 function switchPackageTab(tabName) {
@@ -197,13 +176,6 @@ async function handleLogin(event) {
 
   errorDiv.style.display = "none";
 
-  // Check Turnstile token (skip in dev mode)
-  if (!devMode && !loginTurnstileToken) {
-    errorDiv.textContent = "Please complete the CAPTCHA verification";
-    errorDiv.style.display = "block";
-    return;
-  }
-
   loginBtn.disabled = true;
   loginBtn.textContent = "Logging in...";
 
@@ -216,7 +188,6 @@ async function handleLogin(event) {
       body: JSON.stringify({
         username,
         password,
-        turnstileToken: devMode ? "dev-mode" : loginTurnstileToken,
       }),
     });
 
@@ -229,7 +200,7 @@ async function handleLogin(event) {
       window.pendingLogin = {
         username,
         password,
-        turnstileToken: loginTurnstileToken,
+
       };
       showLoginTwoFactorModal();
       loginBtn.disabled = false;
@@ -269,11 +240,6 @@ async function handleLogin(event) {
     console.error("Login error:", error);
     errorDiv.textContent = error.message;
     errorDiv.style.display = "block";
-    // Reset Turnstile on error
-    loginTurnstileToken = null;
-    if (typeof turnstile !== "undefined") {
-      turnstile.reset(document.querySelector("#loginTurnstile"));
-    }
   } finally {
     loginBtn.disabled = false;
     loginBtn.textContent = "Login";
@@ -293,13 +259,6 @@ async function handleRegister(event) {
   errorDiv.style.display = "none";
   successDiv.style.display = "none";
 
-  // Check Turnstile token (skip in dev mode)
-  if (!devMode && !registerTurnstileToken) {
-    errorDiv.textContent = "Please complete the CAPTCHA verification";
-    errorDiv.style.display = "block";
-    return;
-  }
-
   registerBtn.disabled = true;
   registerBtn.textContent = "Registering...";
 
@@ -313,7 +272,6 @@ async function handleRegister(event) {
         username,
         email,
         password,
-        turnstileToken: devMode ? "dev-mode" : registerTurnstileToken,
       }),
     });
 
@@ -343,11 +301,6 @@ async function handleRegister(event) {
   } catch (error) {
     errorDiv.textContent = error.message;
     errorDiv.style.display = "block";
-    // Reset Turnstile on error
-    registerTurnstileToken = null;
-    if (typeof turnstile !== "undefined") {
-      turnstile.reset(document.querySelector("#registerTurnstile"));
-    }
   } finally {
     registerBtn.disabled = false;
     registerBtn.textContent = "Register";
@@ -1909,7 +1862,6 @@ async function verifyLoginTwoFactor() {
       body: JSON.stringify({
         username: window.pendingLogin.username,
         password: window.pendingLogin.password,
-        turnstileToken: window.pendingLogin.turnstileToken,
         totpCode,
       }),
     });

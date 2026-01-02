@@ -10,7 +10,6 @@ import {
   generateToken,
   verifyToken,
   extractToken,
-  verifyTurnstile,
   generate2FASecret,
   verify2FAToken,
   generateBackupCodes,
@@ -467,24 +466,11 @@ const app = new Elysia()
   })
   .post("/auth/register", async ({ body, set, request, server }) => {
     try {
-      const { username, email, password, turnstileToken } = body as {
+      const { username, email, password } = body as {
         username?: string;
         email?: string;
         password?: string;
-        turnstileToken?: string;
       };
-
-      // Verify Turnstile CAPTCHA
-      const ip = getClientIP(
-        request.headers as unknown as Record<string, string | undefined>,
-        server,
-        request,
-      );
-      const turnstileResult = await verifyTurnstile(turnstileToken, ip);
-      if (!turnstileResult.success) {
-        set.status = 400;
-        return { error: turnstileResult.error };
-      }
 
       // Validate inputs
       if (!username || !email || !password) {
@@ -584,19 +570,11 @@ const app = new Elysia()
         return { error: "Too many login attempts. Please try again later." };
       }
 
-      const { username, password, turnstileToken, totpCode } = body as {
+      const { username, password, totpCode } = body as {
         username?: string;
         password?: string;
-        turnstileToken?: string;
         totpCode?: string;
       };
-
-      // Verify Turnstile CAPTCHA
-      const turnstileResult = await verifyTurnstile(turnstileToken, ip);
-      if (!turnstileResult.success) {
-        set.status = 400;
-        return { error: turnstileResult.error };
-      }
 
       // Validate inputs
       if (!username || !password) {

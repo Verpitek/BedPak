@@ -31991,21 +31991,6 @@ class DB {
         CREATE INDEX IF NOT EXISTS idx_package_tags_package ON package_tags(package_id)`;
       await this.sqlite`
         CREATE INDEX IF NOT EXISTS idx_package_tags_tag ON package_tags(tag_id)`;
-      await this.sqlite`
-        CREATE TABLE IF NOT EXISTS download_history (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          package_id INTEGER NOT NULL,
-          date TEXT NOT NULL,
-          download_count INTEGER DEFAULT 0,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE,
-          UNIQUE(package_id, date)
-        )`;
-      await this.sqlite`
-        CREATE INDEX IF NOT EXISTS idx_download_history_package_date ON download_history(package_id, date)`;
-      await this.sqlite`
-        CREATE INDEX IF NOT EXISTS idx_download_history_date ON download_history(date)`;
       await this.runMigrations();
       await this.seedDefaultTags();
     } catch (err) {
@@ -32218,15 +32203,25 @@ class DB {
     return await this.sqlite`
       SELECT 
         p.*,
-        t.id as tag_id, t.name as tag_name, t.slug as tag_slug
+        t.id as tag_id, t.name as tag_name, t.slug as tag_slug,
+        u.username as author_username
       FROM packages p
       LEFT JOIN tags t ON p.category_id = t.id
+      LEFT JOIN users u ON p.author_id = u.id
       ORDER BY p.created_at DESC 
       LIMIT ${limit} OFFSET ${offset}
     `;
   }
   async getPackagesByAuthor(authorId) {
-    return await this.sqlite`SELECT * FROM packages WHERE author_id = ${authorId} ORDER BY created_at DESC`;
+    return await this.sqlite`
+      SELECT 
+        p.*,
+        u.username as author_username
+      FROM packages p
+      LEFT JOIN users u ON p.author_id = u.id
+      WHERE p.author_id = ${authorId}
+      ORDER BY p.created_at DESC
+    `;
   }
   async updatePackage(packageId, name, description, version, iconUrl, kofiUrl, longDescription, youtubeUrl, discordUrl, categoryId) {
     const currentPkg = await this.sqlite`SELECT * FROM packages WHERE id = ${packageId}`;
@@ -32249,14 +32244,6 @@ class DB {
     await this.sqlite`DELETE FROM packages WHERE id = ${packageId}`;
   }
   async incrementDownloads(packageId) {
-    const today = new Date().toISOString().split("T")[0];
-    await this.sqlite`
-       INSERT INTO download_history (package_id, date, download_count) 
-       VALUES (${packageId}, ${today}, 1)
-       ON CONFLICT(package_id, date) DO UPDATE SET 
-         download_count = download_count + 1,
-         updated_at = CURRENT_TIMESTAMP
-     `;
     return await this.sqlite`UPDATE packages SET downloads = downloads + 1 WHERE id = ${packageId} RETURNING *`;
   }
   async updatePackageIcon(packageId, iconUrl) {
@@ -32320,9 +32307,12 @@ class DB {
   }
   async getPackagesByTag(tagId, limit = 20, offset = 0) {
     return await this.sqlite`
-      SELECT p.*
+      SELECT 
+        p.*,
+        u.username as author_username
       FROM packages p
       INNER JOIN package_tags pt ON p.id = pt.package_id
+      LEFT JOIN users u ON p.author_id = u.id
       WHERE pt.tag_id = ${tagId}
       ORDER BY p.created_at DESC
       LIMIT ${limit} OFFSET ${offset}
@@ -32334,10 +32324,14 @@ class DB {
       return await this.getAllPackages(limit, offset);
     }
     return await this.sqlite`
-      SELECT p.*, COUNT(DISTINCT t.id) as matched_tags
+      SELECT 
+        p.*, 
+        COUNT(DISTINCT t.id) as matched_tags,
+        u.username as author_username
       FROM packages p
       INNER JOIN package_tags pt ON p.id = pt.package_id
       INNER JOIN tags t ON pt.tag_id = t.id
+      LEFT JOIN users u ON p.author_id = u.id
       WHERE t.slug IN (${tagSlugs})
       GROUP BY p.id
       HAVING matched_tags = ${tagCount}
@@ -32368,10 +32362,14 @@ class DB {
       return await this.getAllPackages(limit, offset);
     }
     const packages = await this.sqlite`
-      SELECT p.*, COUNT(DISTINCT t.id) as matched_tags
+      SELECT 
+        p.*, 
+        COUNT(DISTINCT t.id) as matched_tags,
+        u.username as author_username
       FROM packages p
       INNER JOIN package_tags pt ON p.id = pt.package_id
       INNER JOIN tags t ON pt.tag_id = t.id
+      LEFT JOIN users u ON p.author_id = u.id
       WHERE t.slug IN (${tagSlugs})
       GROUP BY p.id
       ORDER BY matched_tags DESC, p.downloads DESC
@@ -32428,9 +32426,11 @@ class DB {
     return await this.sqlite`
       SELECT 
         p.*,
-        t.id as tag_id, t.name as tag_name, t.slug as tag_slug
+        t.id as tag_id, t.name as tag_name, t.slug as tag_slug,
+        u.username as author_username
       FROM packages p
       LEFT JOIN tags t ON p.category_id = t.id
+      LEFT JOIN users u ON p.author_id = u.id
       WHERE p.category_id = ${category.id}
       ORDER BY p.created_at DESC
       LIMIT ${limit} OFFSET ${offset}
@@ -32448,72 +32448,6 @@ class DB {
   }
   async setPackageCategory(packageId, categoryId) {
     return await this.sqlite`UPDATE packages SET category_id = ${categoryId}, updated_at = CURRENT_TIMESTAMP WHERE id = ${packageId} RETURNING *`;
-  }
-  async getDailyDownloads(packageId, days = 30) {
-    try {
-      const today = new Date().toISOString().split("T")[0];
-      const startDate = new Date(Date.now() - (days - 1) * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-      const results = await this.sqlite`
-         WITH RECURSIVE dates(date) AS (
-           SELECT ${startDate}
-           UNION ALL
-           SELECT date(date, '+1 day')
-           FROM dates
-           WHERE date < ${today}
-         )
-         SELECT 
-           dates.date as date,
-           COALESCE(dh.download_count, 0) as count
-         FROM dates
-         LEFT JOIN download_history dh ON dates.date = dh.date AND dh.package_id = ${packageId}
-         ORDER BY dates.date DESC
-       `;
-      return results.map((row) => ({
-        date: row.date,
-        count: row.count
-      }));
-    } catch (err) {
-      console.error("Error fetching daily downloads:", err);
-      return [];
-    }
-  }
-  async getMonthlyDownloads(packageId, months = 12) {
-    try {
-      const now = new Date;
-      const startDate = new Date(now.getFullYear(), now.getMonth() - months + 1, 1);
-      const startYearMonth = startDate.getFullYear() + "-" + String(startDate.getMonth() + 1).padStart(2, "0");
-      const results = await this.sqlite`
-         SELECT 
-           strftime('%Y-%m', date) as month,
-           SUM(download_count) as total_downloads
-         FROM download_history
-         WHERE package_id = ${packageId}
-           AND date >= ${startYearMonth + "-01"}
-         GROUP BY strftime('%Y-%m', date)
-         ORDER BY month DESC
-         LIMIT ${months}
-       `;
-      return results.map((row) => ({
-        month: row.month,
-        count: row.total_downloads
-      }));
-    } catch (err) {
-      console.error("Error fetching monthly downloads:", err);
-      return [];
-    }
-  }
-  async getTotalDownloadsByDateRange(startDate, endDate) {
-    try {
-      const result = await this.sqlite`
-         SELECT COALESCE(SUM(download_count), 0) as total
-         FROM download_history
-         WHERE date >= ${startDate} AND date <= ${endDate}
-       `;
-      return result[0]?.total ?? 0;
-    } catch (err) {
-      console.error("Error fetching total downloads by date range:", err);
-      return 0;
-    }
   }
 }
 
@@ -33107,7 +33041,7 @@ var app = new Elysia().use(cors({
     return {
       success: true,
       token,
-      expiresIn: 7 * 24 * 60 * 60,
+      expiresIn: 64 * 24 * 60 * 60,
       user: {
         id: user.id,
         username: user.username,

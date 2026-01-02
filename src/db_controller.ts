@@ -410,16 +410,26 @@ export class DB {
     return await this.sqlite`
       SELECT 
         p.*,
-        t.id as tag_id, t.name as tag_name, t.slug as tag_slug
+        t.id as tag_id, t.name as tag_name, t.slug as tag_slug,
+        u.username as author_username
       FROM packages p
       LEFT JOIN tags t ON p.category_id = t.id
+      LEFT JOIN users u ON p.author_id = u.id
       ORDER BY p.created_at DESC 
       LIMIT ${limit} OFFSET ${offset}
     `;
   }
 
   public async getPackagesByAuthor(authorId: number) {
-    return await this.sqlite`SELECT * FROM packages WHERE author_id = ${authorId} ORDER BY created_at DESC`;
+    return await this.sqlite`
+      SELECT 
+        p.*,
+        u.username as author_username
+      FROM packages p
+      LEFT JOIN users u ON p.author_id = u.id
+      WHERE p.author_id = ${authorId}
+      ORDER BY p.created_at DESC
+    `;
   }
 
   public async updatePackage(
@@ -546,9 +556,12 @@ export class DB {
 
   public async getPackagesByTag(tagId: number, limit: number = 20, offset: number = 0) {
     return await this.sqlite`
-      SELECT p.*
+      SELECT 
+        p.*,
+        u.username as author_username
       FROM packages p
       INNER JOIN package_tags pt ON p.id = pt.package_id
+      LEFT JOIN users u ON p.author_id = u.id
       WHERE pt.tag_id = ${tagId}
       ORDER BY p.created_at DESC
       LIMIT ${limit} OFFSET ${offset}
@@ -565,10 +578,14 @@ export class DB {
     // Build a query that finds packages matching all tags
     // Using GROUP BY and HAVING COUNT to ensure all tags are present
     return await this.sqlite`
-      SELECT p.*, COUNT(DISTINCT t.id) as matched_tags
+      SELECT 
+        p.*, 
+        COUNT(DISTINCT t.id) as matched_tags,
+        u.username as author_username
       FROM packages p
       INNER JOIN package_tags pt ON p.id = pt.package_id
       INNER JOIN tags t ON pt.tag_id = t.id
+      LEFT JOIN users u ON p.author_id = u.id
       WHERE t.slug IN (${tagSlugs})
       GROUP BY p.id
       HAVING matched_tags = ${tagCount}
@@ -605,10 +622,14 @@ export class DB {
 
     // Get packages that have ANY of the specified tags, ordered by how many tags match
     const packages = await this.sqlite`
-      SELECT p.*, COUNT(DISTINCT t.id) as matched_tags
+      SELECT 
+        p.*, 
+        COUNT(DISTINCT t.id) as matched_tags,
+        u.username as author_username
       FROM packages p
       INNER JOIN package_tags pt ON p.id = pt.package_id
       INNER JOIN tags t ON pt.tag_id = t.id
+      LEFT JOIN users u ON p.author_id = u.id
       WHERE t.slug IN (${tagSlugs})
       GROUP BY p.id
       ORDER BY matched_tags DESC, p.downloads DESC
@@ -683,9 +704,11 @@ export class DB {
     return await this.sqlite`
       SELECT 
         p.*,
-        t.id as tag_id, t.name as tag_name, t.slug as tag_slug
+        t.id as tag_id, t.name as tag_name, t.slug as tag_slug,
+        u.username as author_username
       FROM packages p
       LEFT JOIN tags t ON p.category_id = t.id
+      LEFT JOIN users u ON p.author_id = u.id
       WHERE p.category_id = ${category.id}
       ORDER BY p.created_at DESC
       LIMIT ${limit} OFFSET ${offset}

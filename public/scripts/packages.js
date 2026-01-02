@@ -1400,7 +1400,13 @@ function debounce(func, delay) {
   };
 }
 
-async function getAuthorName(authorId) {
+async function getAuthorName(pkg) {
+  // Use the new author_username field if available, otherwise fall back to cache
+  if (pkg.author_username) {
+    return pkg.author_username;
+  }
+  
+  const authorId = pkg.author_id;
   if (authorCache[authorId]) {
     return authorCache[authorId];
   }
@@ -1478,7 +1484,8 @@ async function fetchAndRenderPage(page) {
 
       let matchesAuthor = true;
       if (authorTerm) {
-        const authorName = authorCache[pkg.author_id] || "";
+        // Use author_username if available, otherwise fall back to cache
+        const authorName = pkg.author_username || authorCache[pkg.author_id] || "";
         matchesAuthor = authorName.toLowerCase().includes(authorTerm);
       }
 
@@ -1518,7 +1525,7 @@ async function renderPackagesHtml(packages) {
 
   let html = "";
   for (const pkg of packages) {
-    const authorName = await getAuthorName(pkg.author_id);
+    const authorName = await getAuthorName(pkg);
     const iconHtml = pkg.icon_url
       ? `<img src="${escapeHtml(pkg.icon_url)}" alt="${escapeHtml(pkg.name)} icon" loading="lazy" onerror="handleIconError(this)">`
       : `<span style="font-size: 48px; color: #555;">📦</span>`;

@@ -1566,7 +1566,9 @@ async function renderPackagesHtml(packages) {
 
     html += `
     <div class="package-card">
+    <a href="/package/${encodeURIComponent(pkg.name)}" style="text-decoration: none">
     <h3>${escapeHtml(pkg.name)}</h3>
+    </a>
     <div class="package-meta">
       <span>Downloads: ${pkg.downloads || 0}</span>
       <span>Date: ${formatDate(pkg.created_at)}</span>

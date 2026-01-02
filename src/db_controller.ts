@@ -68,25 +68,6 @@ export class DB {
       await this.sqlite`
         CREATE INDEX IF NOT EXISTS idx_package_tags_tag ON package_tags(tag_id)`;
 
-      // Run migrations
-      // Create download_history table
-      await this.sqlite`
-        CREATE TABLE IF NOT EXISTS download_history (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          package_id INTEGER NOT NULL,
-          date TEXT NOT NULL,
-          download_count INTEGER DEFAULT 0,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE,
-          UNIQUE(package_id, date)
-        )`;
-
-      // Create index for faster queries
-      await this.sqlite`
-        CREATE INDEX IF NOT EXISTS idx_download_history_package_date ON download_history(package_id, date)`;
-      await this.sqlite`
-        CREATE INDEX IF NOT EXISTS idx_download_history_date ON download_history(date)`;
 
       await this.runMigrations();
 
@@ -479,19 +460,10 @@ export class DB {
     await this.sqlite`DELETE FROM packages WHERE id = ${packageId}`;
   }
 
-   public async incrementDownloads(packageId: number) {
-     const today = new Date().toISOString().split('T')[0];
-     // Update download_history with UPSERT
-     await this.sqlite`
-       INSERT INTO download_history (package_id, date, download_count) 
-       VALUES (${packageId}, ${today}, 1)
-       ON CONFLICT(package_id, date) DO UPDATE SET 
-         download_count = download_count + 1,
-         updated_at = CURRENT_TIMESTAMP
-     `;
-     // Increment total downloads in packages table
-     return await this.sqlite`UPDATE packages SET downloads = downloads + 1 WHERE id = ${packageId} RETURNING *`;
-   }
+    public async incrementDownloads(packageId: number) {
+      // Increment total downloads in packages table
+      return await this.sqlite`UPDATE packages SET downloads = downloads + 1 WHERE id = ${packageId} RETURNING *`;
+    }
 
    public async updatePackageIcon(packageId: number, iconUrl: string) {
      return await this.sqlite`UPDATE packages SET icon_url = ${iconUrl} WHERE id = ${packageId} RETURNING *`;
@@ -735,7 +707,4 @@ export class DB {
   public async setPackageCategory(packageId: number, categoryId: number | null) {
     return await this.sqlite`UPDATE packages SET category_id = ${categoryId}, updated_at = CURRENT_TIMESTAMP WHERE id = ${packageId} RETURNING *`;
   }
-
-    // ==================== DOWNLOAD HISTORY METHODS ====================
-
 }

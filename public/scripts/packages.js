@@ -34,30 +34,7 @@ async function fetchConfig() {
 
 
 
-// Package Tab Switching
-function switchPackageTab(tabName) {
-  // Hide all tab content
-  document.querySelectorAll(".package-tab-content").forEach((content) => {
-    content.classList.remove("active");
-  });
 
-  // Remove active class from all tab buttons
-  document.querySelectorAll(".packages-tabs .tab-btn").forEach((btn) => {
-    btn.classList.remove("active");
-  });
-
-  // Show selected tab
-  const selectedTab = document.getElementById(tabName);
-  if (selectedTab) {
-    selectedTab.classList.add("active");
-  }
-
-  // Mark button as active
-  const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
-  if (selectedBtn) {
-    selectedBtn.classList.add("active");
-  }
-}
 
 window.addEventListener("DOMContentLoaded", async () => {
   await fetchConfig();

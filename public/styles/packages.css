@@ -1,50 +1,5 @@
 /* Package Tab Styles */
-.packages-tabs {
-    margin-bottom: 30px;
-    border-bottom: 1px solid #333;
-}
-
-.packages-tabs .tab-buttons {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding-bottom: 5px;
-}
-
-.packages-tabs .tab-buttons::-webkit-scrollbar {
-    display: none;
-}
-
-.packages-tabs .tab-btn {
-    flex: 0 0 auto;
-    padding: 12px 20px;
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s;
-    white-space: nowrap;
-}
-
-.packages-tabs .tab-btn:hover {
-    color: #c4a574;
-}
-
-.packages-tabs .tab-btn.active {
-    color: #c4a574;
-    border-bottom-color: #c4a574;
-}
-
 .package-tab-content {
-    display: none;
-}
-
-.package-tab-content.active {
     display: block;
 }
 
@@ -537,15 +492,6 @@
 }
 
 @media (max-width: 768px) {
-    .packages-tabs .tab-buttons {
-        gap: 5px;
-        padding: 0 5px 10px 5px;
-    }
-
-    .packages-tabs .tab-btn {
-        padding: 10px 15px;
-        font-size: 13px;
-    }
 
     .controls {
         grid-template-columns: 1fr;

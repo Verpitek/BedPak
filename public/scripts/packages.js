@@ -11,8 +11,6 @@ let currentUserId = null;
 let totalPages = 0;
 let totalPackages = 0;
 
-
-
 // Dev mode flag (fetched from server)
 let devMode = false;
 
@@ -31,10 +29,6 @@ async function fetchConfig() {
     console.error("Failed to fetch config:", e);
   }
 }
-
-
-
-
 
 window.addEventListener("DOMContentLoaded", async () => {
   await fetchConfig();
@@ -169,7 +163,6 @@ async function handleLogin(event) {
     });
 
     const data = await response.json();
-    console.log("Login response:", data);
 
     // Check if 2FA is required
     if (data.requiresTwoFactor) {
@@ -177,7 +170,6 @@ async function handleLogin(event) {
       window.pendingLogin = {
         username,
         password,
-
       };
       showLoginTwoFactorModal();
       loginBtn.disabled = false;
@@ -193,19 +185,9 @@ async function handleLogin(event) {
     currentUsername = data.user.username;
     currentUserId = data.user.id;
 
-    console.log("Setting auth:", {
-      authToken,
-      currentUsername,
-      currentUserId,
-    });
     localStorage.setItem("authToken", authToken);
     localStorage.setItem("username", currentUsername);
     localStorage.setItem("userId", currentUserId);
-    console.log("Stored in localStorage:", {
-      authToken: localStorage.getItem("authToken"),
-      username: localStorage.getItem("username"),
-      userId: localStorage.getItem("userId"),
-    });
 
     updateProfileUI();
     closeProfileModal();
@@ -1382,7 +1364,7 @@ async function getAuthorName(pkg) {
   if (pkg.author_username) {
     return pkg.author_username;
   }
-  
+
   const authorId = pkg.author_id;
   if (authorCache[authorId]) {
     return authorCache[authorId];
@@ -1462,7 +1444,8 @@ async function fetchAndRenderPage(page) {
       let matchesAuthor = true;
       if (authorTerm) {
         // Use author_username if available, otherwise fall back to cache
-        const authorName = pkg.author_username || authorCache[pkg.author_id] || "";
+        const authorName =
+          pkg.author_username || authorCache[pkg.author_id] || "";
         matchesAuthor = authorName.toLowerCase().includes(authorTerm);
       }
 

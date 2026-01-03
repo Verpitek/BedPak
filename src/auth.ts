@@ -18,7 +18,7 @@ if (!JWT_SECRET) {
 export const DEV_MODE = process.argv.includes("--dev") || process.env.NODE_ENV === "test";
 
 
-const JWT_EXPIRATION = 7 * 24 * 60 * 60; // 7 days in seconds
+const JWT_EXPIRATION = 64 * 24 * 60 * 60; // 64 days in seconds
 
 export interface JWTPayload {
   id: number;

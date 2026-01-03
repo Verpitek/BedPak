@@ -622,7 +622,7 @@ const app = new Elysia()
       return {
         success: true,
         token,
-        expiresIn: 64 * 24 * 60 * 60, // 28 days in seconds
+        expiresIn: 64 * 24 * 60 * 60, // 64 days in seconds
         user: {
           id: user.id,
           username: user.username,

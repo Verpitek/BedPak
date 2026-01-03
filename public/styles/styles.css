@@ -43,15 +43,8 @@ body::before {
     position: fixed;
     inset: -100px;
     z-index: -1;
-    background: repeating-linear-gradient(
-        -45deg,
-        #1a1a1a,
-        #1a1a1a 30px,
-        #0f0f0f 30px,
-        #0f0f0f 60px
-    );
-    background-size: 84.85px 84.85px;
-    animation: stripe-move 20s linear infinite;
+    filter: brightness(0.5);
+    background-image: url("../images/opus_lunatic_sc.jpeg");
 }
 
 @keyframes stripe-move {
@@ -64,7 +57,7 @@ body::before {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 80vw;
     margin: 0 auto;
     position: relative;
     z-index: 1;
@@ -207,7 +200,7 @@ body::before {
 }
 
 .footer-content {
-    max-width: 1200px;
+    max-width: 80vw;
     margin: 0 auto;
 }
 

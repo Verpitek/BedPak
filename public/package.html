@@ -1,137 +1,189 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Package - BedPak</title>
-    <link rel="icon" type="image/webp" href="/logos/bedpak_mascot.webp" />
-    <link rel="stylesheet" href="/styles/styles.css" />
-    <link rel="stylesheet" href="/styles/package.css" />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Package - BedPak</title>
+        <link rel="icon" type="image/webp" href="/logos/bedpak_mascot.webp" />
+        <link rel="stylesheet" href="/styles/styles.css" />
+        <link rel="stylesheet" href="/styles/package.css" />
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <!-- Markdown rendering -->
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/json.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/bash.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/xml.min.js"></script>
+        <!-- Syntax highlighting -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/json.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/bash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/xml.min.js"></script>
 
-    <meta name="description" content="Download this Minecraft Bedrock content from BedPak" />
-    <meta name="keywords" content="Minecraft Bedrock content, MCPE content, Bedrock Edition content, free Minecraft content" />
-    <meta name="author" content="BedPak" />
-    <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#C4A574" />
+        <!-- SEO Meta Tags (updated dynamically) -->
+        <meta
+            name="description"
+            content="Download this Minecraft Bedrock content from BedPak"
+        />
+        <meta
+            name="keywords"
+            content="Minecraft Bedrock content, MCPE content, Bedrock Edition content, free Minecraft content"
+        />
+        <meta name="author" content="BedPak" />
+        <meta name="robots" content="index, follow" />
+        <meta name="theme-color" content="#C4A574" />
 
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Package - BedPak" />
-    <meta property="og:description" content="Download this Minecraft Bedrock content from BedPak." />
-    <meta property="og:image" content="https://bedpak.com/logos/bedpak_mascot.webp" />
-    <meta property="og:site_name" content="BedPak" />
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="" />
+        <meta property="og:title" content="Package - BedPak" />
+        <meta
+            property="og:description"
+            content="Download this Minecraft Bedrock content from BedPak."
+        />
+        <meta property="og:image" content="/logos/bedpak_mascot.webp" />
+        <meta property="og:site_name" content="BedPak" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Package - BedPak" />
-    <meta name="twitter:description" content="Download this Minecraft Bedrock content from BedPak." />
-    <meta name="twitter:image" content="https://bedpak.com/logos/bedpak_mascot.webp" />
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Package - BedPak" />
+        <meta
+            name="twitter:description"
+            content="Download this Minecraft Bedrock content from BedPak."
+        />
+        <meta name="twitter:image" content="/logos/bedpak_mascot.webp" />
 
-    <script type="application/ld+json" id="packageSchema">
-        {
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            "name": "Package",
-            "description": "Minecraft Bedrock content",
-            "applicationCategory": "GameApplication",
-            "operatingSystem": "Android, iOS, Windows, Xbox",
-            "offers": {
-                "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "USD"
+        <!-- Structured Data (updated dynamically) -->
+        <script type="application/ld+json" id="packageSchema">
+            {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "Package",
+                "description": "Minecraft Bedrock content",
+                "applicationCategory": "GameApplication",
+                "operatingSystem": "Android, iOS, Windows, Xbox",
+                "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                }
             }
-        }
-    </script>
-</head>
-<body>
-    <div class="container">
-        <header class="header" role="banner">
-            <div class="header-left">
-                <a href="/" class="header-logo">
-                    <img src="/logos/bedpak_mascot.webp" alt="BedPak Logo" width="100" height="100" loading="lazy" />
-                </a>
-                <div style="text-align: left">
-                    <h1>BedPak Repository</h1>
-                    <p>Discover and download Minecraft Bedrock content</p>
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <header class="header" role="banner">
+                <div class="header-left">
+                    <a href="/" class="header-logo">
+                        <img
+                            src="/logos/bedpak_mascot.webp"
+                            alt="BedPak Logo"
+                            width="100"
+                            height="100"
+                            loading="lazy"
+                        />
+                    </a>
+                    <div style="text-align: left">
+                        <h1>BedPak Repository</h1>
+                        <p>Discover and download Minecraft Bedrock content</p>
+                    </div>
+                </div>
+                <nav
+                    class="header-right"
+                    id="headerRight"
+                    aria-label="Navigation"
+                >
+                    <a href="/" class="profile-btn">Browse Addons</a>
+                </nav>
+            </header>
+
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="/">Home</a>
+                <span>></span>
+                <span class="current" id="breadcrumbName">Loading...</span>
+            </nav>
+
+            <main id="mainContent" role="main">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading package...</p>
+                </div>
+            </main>
+
+            <footer class="footer" role="contentinfo">
+                <div class="footer-content">
+                    <nav class="footer-links" aria-label="Footer navigation">
+                        <a href="/">Browse Addons</a>
+                        <a href="/api-docs.html">API Documentation</a>
+                        <a href="/terms-of-service.html">Terms of Service</a>
+                        <a href="/privacy-policy.html">Privacy Policy</a>
+                        <a
+                            href="https://discord.gg/fyNQNrr7dC"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >Discord Community</a
+                        >
+                    </nav>
+                    <div class="footer-divider"></div>
+                    <p>&copy; 2026 BedPak. All rights reserved.</p>
+                    <p>
+                        BedPak is an independent service and is not affiliated
+                        with Microsoft or Mojang Studios.
+                    </p>
+                    <p>Minecraft is a trademark of Mojang Studios.</p>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Support Popup Modal -->
+        <div id="supportPopup" class="support-popup">
+            <div class="support-popup-content">
+                <div class="support-popup-header">
+                    <h3>Support the Creator?</h3>
+                    <p>
+                        <span
+                            class="support-popup-author"
+                            id="supportAuthorName"
+                        ></span>
+                        made this addon. Consider supporting them if you enjoy
+                        their work!
+                    </p>
+                </div>
+                <div class="support-popup-buttons">
+                    <a
+                        id="supportKofiBtn"
+                        href="#"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="support-popup-kofi"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311z"
+                            />
+                        </svg>
+                        Support on Ko-fi
+                    </a>
+                    <button
+                        id="supportSkipBtn"
+                        class="support-popup-skip"
+                        disabled
+                    >
+                        No thanks, just download (<span
+                            class="support-popup-timer"
+                            id="supportTimer"
+                            >3</span
+                        >)
+                    </button>
                 </div>
             </div>
-            <nav class="header-right" id="headerRight" aria-label="Navigation">
-                <a href="/" class="profile-btn">Browse Addons</a>
-            </nav>
-        </header>
-
-        <nav class="breadcrumb" aria-label="Breadcrumb">
-            <ol style="list-style: none; display: flex; padding: 0; margin: 0;">
-                <li><a href="/">Home</a></li>
-                <li style="margin: 0 10px;" aria-hidden="true">&gt;</li>
-                <li><span class="current" id="breadcrumbName" aria-current="page">Loading...</span></li>
-            </ol>
-        </nav>
-
-        <main id="mainContent" role="main">
-            <div class="loading">
-                <div class="spinner"></div>
-                <p>Loading package...</p>
-            </div>
-        </main>
-
-        <footer class="footer" role="contentinfo">
-            <div class="footer-content">
-                <nav class="footer-links" aria-label="Footer navigation">
-                    <a href="/">Browse Addons</a>
-                    <a href="/api-docs.html">API Documentation</a>
-                    <a href="/terms-of-service.html">Terms of Service</a>
-                    <a href="/privacy-policy.html">Privacy Policy</a>
-                    <a href="https://discord.gg/fyNQNrr7dC" target="_blank" rel="noopener noreferrer">Discord Community</a>
-                </nav>
-                <div class="footer-divider"></div>
-                <p>&copy; 2026 BedPak. All rights reserved.</p>
-                <p>BedPak is an independent service and is not affiliated with Microsoft or Mojang Studios.</p>
-                <p>Minecraft is a trademark of Mojang Studios.</p>
-            </div>
-        </footer>
-    </div>
-
-    <div id="supportPopup" class="support-popup">
-        <div class="support-popup-content">
-            <div class="support-popup-header">
-                <h3>Support the Creator?</h3>
-                <p>
-                    <span class="support-popup-author" id="supportAuthorName"></span>
-                    made this addon. Consider supporting them if you enjoy their work!
-                </p>
-            </div>
-            <div class="support-popup-buttons">
-                <a id="supportKofiBtn" href="#" target="_blank" rel="noopener noreferrer" class="support-popup-kofi">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px; vertical-align:middle; margin-right:8px;">
-                        <path fill="currentColor" d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311z" />
-                    </svg>
-                    Support on Ko-fi
-                </a>
-                <button id="supportSkipBtn" class="support-popup-skip" disabled>
-                    No thanks, just download (<span class="support-popup-timer" id="supportTimer">3</span>)
-                </button>
-            </div>
         </div>
-    </div>
-
-    <script src="/scripts/package.js" defer></script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8PDJ15D1TM"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-    
-      gtag('config', 'G-8PDJ15D1TM');
-    </script>
-</body>
+        <script src="/scripts/package.js" defer></script>
+    </body>
 </html>

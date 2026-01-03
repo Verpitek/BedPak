@@ -11,6 +11,9 @@
         <link rel="stylesheet" type="text/css" href="/styles/packages.css" />
         <link rel="stylesheet" type="text/css" href="/styles/styles.css" />
 
+
+
+        <!-- SEO Meta Tags -->
         <meta
             name="description"
             content="BedPak is a free repository for Minecraft Bedrock Edition content. Download, share, and discover content for MCPE, Windows, Xbox, and all Bedrock platforms."
@@ -24,6 +27,7 @@
         <meta name="theme-color" content="#C4A574" />
         <link rel="canonical" href="https://bedpak.com/" />
 
+        <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://bedpak.com/" />
         <meta
@@ -41,6 +45,7 @@
         <meta property="og:site_name" content="BedPak" />
         <meta property="og:locale" content="en_US" />
 
+        <!-- Twitter Card -->
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://bedpak.com/" />
         <meta
@@ -56,10 +61,12 @@
             content="https://bedpak.com/logos/bedpak_mascot.webp"
         />
 
+        <!-- Additional SEO -->
         <meta name="application-name" content="BedPak" />
         <meta name="apple-mobile-web-app-title" content="BedPak" />
         <meta name="format-detection" content="telephone=no" />
 
+        <!-- Structured Data - WebSite -->
         <script type="application/ld+json">
             {
                 "@context": "https://schema.org",
@@ -75,6 +82,7 @@
             }
         </script>
 
+        <!-- Structured Data - Organization -->
         <script type="application/ld+json">
             {
                 "@context": "https://schema.org",
@@ -87,6 +95,7 @@
             }
         </script>
 
+        <!-- Structured Data - SoftwareApplication -->
         <script type="application/ld+json">
             {
                 "@context": "https://schema.org",
@@ -110,7 +119,7 @@
                     <div class="header-logo">
                         <img
                             src="/logos/bedpak_mascot.webp"
-                            alt="BedPak Logo"
+                            alt="BedPak - Minecraft Bedrock Addons Repository Logo"
                             width="100"
                             height="100"
                             loading="lazy"
@@ -133,99 +142,84 @@
             </header>
 
             <main role="main" aria-label="Package browser">
+                <!-- Add-ons Content -->
                 <div id="addons-tab" class="package-tab-content active">
                     <section
                         class="controls"
                         aria-label="Search and filter controls"
                     >
-                        <div class="control-group">
-                            <label for="search">Search Packages</label>
-                            <input
-                                type="search"
-                                id="search"
-                                placeholder="Search by name or description..."
-                                aria-label="Search addons"
-                            />
-                        </div>
-                        <div class="control-group">
-                            <label for="author">Filter by Author</label>
-                            <input
-                                type="text"
-                                id="author"
-                                placeholder="Search author..."
-                                aria-label="Filter by author"
-                            />
-                        </div>
-                        <div class="control-group">
-                            <label for="categoryFilter"
-                                >Filter by Category</label
-                            >
-                            <select
-                                id="categoryFilter"
-                                aria-label="Filter by category"
-                            >
-                                <option value="">All Categories</option>
-                                <optgroup label="Gameplay">
-                                    <option value="adventure">Adventure</option>
-                                    <option value="decoration">
-                                        Decoration
-                                    </option>
-                                    <option value="economy">Economy</option>
-                                    <option value="equipment">Equipment</option>
-                                    <option value="food">Food</option>
-                                    <option value="game-mechanics">
-                                        Game Mechanics
-                                    </option>
-                                    <option value="magic">Magic</option>
-                                    <option value="management">
-                                        Management
-                                    </option>
-                                    <option value="minigame">Minigame</option>
-                                    <option value="mobs">Mobs</option>
-                                    <option value="optimisation">
-                                        Optimisation
-                                    </option>
-                                    <option value="social">Social</option>
-                                    <option value="storage">Storage</option>
-                                    <option value="technology">
-                                        Technology
-                                    </option>
-                                    <option value="transportation">
-                                        Transportation
-                                    </option>
-                                    <option value="utility">Utility</option>
-                                    <option value="world-generation">
-                                        World Generation
-                                    </option>
-                                </optgroup>
-                                <optgroup label="Server">
-                                    <option value="administration">
-                                        Administration
-                                    </option>
-                                    <option value="anti-cheat">
-                                        Anti-Cheat
-                                    </option>
-                                    <option value="chat">Chat</option>
-                                    <option value="moderation">
-                                        Moderation
-                                    </option>
-                                    <option value="permissions">
-                                        Permissions
-                                    </option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div class="control-group">
-                            <label for="sortBy">Sort By</label>
-                            <select id="sortBy" aria-label="Sort packages">
-                                <option value="newest">Newest</option>
-                                <option value="oldest">Oldest</option>
-                                <option value="downloads">
-                                    Most Downloaded
+                    <div class="control-group">
+                        <label for="search">Search Packages</label>
+                        <input
+                            type="search"
+                            id="search"
+                            placeholder="Search by name or description..."
+                            aria-label="Search addons by name or description"
+                        />
+                    </div>
+                    <div class="control-group">
+                        <label for="author">Filter by Author</label>
+                        <input
+                            type="text"
+                            id="author"
+                            placeholder="Search author..."
+                            aria-label="Filter addons by author name"
+                        />
+                    </div>
+                    <div class="control-group">
+                        <label for="categoryFilter">Filter by Category</label>
+                        <select
+                            id="categoryFilter"
+                            aria-label="Filter addons by category"
+                        >
+                            <option value="">All Categories</option>
+                            <optgroup label="Gameplay">
+                                <option value="adventure">Adventure</option>
+                                <option value="decoration">Decoration</option>
+                                <option value="economy">Economy</option>
+                                <option value="equipment">Equipment</option>
+                                <option value="food">Food</option>
+                                <option value="game-mechanics">
+                                    Game Mechanics
                                 </option>
-                                <option value="name">Name (A-Z)</option>
-                            </select>
-                        </div>
+                                <option value="magic">Magic</option>
+                                <option value="management">Management</option>
+                                <option value="minigame">Minigame</option>
+                                <option value="mobs">Mobs</option>
+                                <option value="optimisation">
+                                    Optimisation
+                                </option>
+                                <option value="social">Social</option>
+                                <option value="storage">Storage</option>
+                                <option value="technology">Technology</option>
+                                <option value="transportation">
+                                    Transportation
+                                </option>
+                                <option value="utility">Utility</option>
+                                <option value="world-generation">
+                                    World Generation
+                                </option>
+                            </optgroup>
+                            <optgroup label="Server">
+                                <option value="administration">
+                                    Administration
+                                </option>
+                                <option value="anti-cheat">Anti-Cheat</option>
+                                <option value="chat">Chat</option>
+                                <option value="moderation">Moderation</option>
+                                <option value="permissions">Permissions</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="sortBy">Sort By</label>
+                        <select id="sortBy" aria-label="Sort packages">
+                            <option value="newest">Newest</option>
+                            <option value="oldest">Oldest</option>
+                            <option value="downloads">Most Downloaded</option>
+                            <option value="name">Name (A-Z)</option>
+                        </select>
+                    </div>
                     </section>
 
                     <div
@@ -251,6 +245,7 @@
                                 class="sort-btn"
                                 data-pagesize="12"
                                 onclick="changePageSize(12)"
+                                aria-label="Show 12 packages per page"
                             >
                                 12 Per Page
                             </button>
@@ -259,6 +254,7 @@
                                 data-pagesize="20"
                                 onclick="changePageSize(20)"
                                 aria-pressed="true"
+                                aria-label="Show 20 packages per page"
                             >
                                 20 Per Page
                             </button>
@@ -266,6 +262,7 @@
                                 class="sort-btn"
                                 data-pagesize="50"
                                 onclick="changePageSize(50)"
+                                aria-label="Show 50 packages per page"
                             >
                                 50 Per Page
                             </button>
@@ -285,6 +282,7 @@
                             ></div>
                         </div>
                     </section>
+                </div>
 
                     <nav
                         class="pagination"
@@ -319,6 +317,7 @@
             </footer>
         </div>
 
+        <!-- Upload Modal -->
         <div id="uploadModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -327,8 +326,10 @@
                         &times;
                     </button>
                 </div>
+
                 <div class="form-error" id="uploadError"></div>
                 <div class="form-success" id="uploadSuccess"></div>
+
                 <form
                     id="uploadForm"
                     onsubmit="
@@ -354,11 +355,14 @@
                         <label for="uploadDescription">Short Description</label>
                         <textarea
                             id="uploadDescription"
-                            placeholder="Brief description..."
+                            placeholder="Brief description for the package listing..."
                             rows="2"
                             class="form-textarea"
                             maxlength="500"
                         ></textarea>
+                        <div class="password-help">
+                            Shown in package cards. Max 500 characters.
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="uploadLongDescription"
@@ -366,10 +370,14 @@
                         >
                         <textarea
                             id="uploadLongDescription"
-                            placeholder="Detailed description..."
+                            placeholder="# My Addon&#10;&#10;Detailed description with **markdown** support...&#10;&#10;## Features&#10;- Feature 1&#10;- Feature 2&#10;&#10;## Installation&#10;```&#10;Instructions here&#10;```"
                             rows="8"
                             class="form-textarea"
                         ></textarea>
+                        <div class="password-help">
+                            Supports Markdown formatting: headers, bold, lists,
+                            code blocks, links, etc.
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="uploadVersion">Version</label>
@@ -379,14 +387,17 @@
                             placeholder="1.0.0"
                             pattern="^\d+\.\d+\.\d+$"
                         />
+                        <div class="password-help">
+                            Format: X.Y.Z (e.g., 1.0.0)
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Icon Image</label>
+                        <label for="uploadIcon">Icon Image</label>
                         <div class="file-input-wrapper">
                             <input
                                 type="file"
                                 id="uploadIcon"
-                                accept="image/*"
+                                accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg"
                                 style="display: none"
                             />
                             <button
@@ -406,6 +417,22 @@
                                 >No icon selected</span
                             >
                         </div>
+                        <div class="password-help">
+                            Optional. PNG, JPG, WebP, GIF, or SVG. Max 2MB.
+                        </div>
+                        <div
+                            id="iconPreviewContainer"
+                            style="display: none; margin-top: 10px"
+                        >
+                            <img
+                                id="iconPreview"
+                                style="
+                                    max-width: 100px;
+                                    max-height: 100px;
+                                    border: 1px solid #333;
+                                "
+                            />
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="uploadCategory">Category</label>
@@ -414,8 +441,90 @@
                             <optgroup label="Gameplay">
                                 <option value="adventure">Adventure</option>
                                 <option value="decoration">Decoration</option>
+                                <option value="economy">Economy</option>
+                                <option value="equipment">Equipment</option>
+                                <option value="food">Food</option>
+                                <option value="game-mechanics">
+                                    Game Mechanics
+                                </option>
+                                <option value="magic">Magic</option>
+                                <option value="management">Management</option>
+                                <option value="minigame">Minigame</option>
+                                <option value="mobs">Mobs</option>
+                                <option value="optimisation">
+                                    Optimisation
+                                </option>
+                                <option value="social">Social</option>
+                                <option value="storage">Storage</option>
+                                <option value="technology">Technology</option>
+                                <option value="transportation">
+                                    Transportation
+                                </option>
+                                <option value="utility">Utility</option>
+                                <option value="world-generation">
+                                    World Generation
+                                </option>
+                            </optgroup>
+                            <optgroup label="Server">
+                                <option value="administration">
+                                    Administration
+                                </option>
+                                <option value="anti-cheat">Anti-Cheat</option>
+                                <option value="chat">Chat</option>
+                                <option value="moderation">Moderation</option>
+                                <option value="permissions">Permissions</option>
                             </optgroup>
                         </select>
+                        <div class="password-help">
+                            Choose a single category that best describes your
+                            addon
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="uploadYoutube"
+                            >YouTube Video URL (optional)</label
+                        >
+                        <input
+                            type="url"
+                            id="uploadYoutube"
+                            placeholder="https://youtube.com/watch?v=..."
+                        />
+                        <div class="password-help">
+                            Showcase video for your addon
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="uploadDiscord"
+                            >Discord Invite URL (optional)</label
+                        >
+                        <input
+                            type="url"
+                            id="uploadDiscord"
+                            placeholder="https://discord.gg/..."
+                        />
+                        <div class="password-help">
+                            Link to your Discord server for support
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="uploadKofiCheckbox" />
+                            <label for="uploadKofiCheckbox"
+                                >Add Ko-fi Support Link</label
+                            >
+                        </div>
+                        <div id="uploadKofiGroup" style="display: none">
+                            <label for="uploadKofiUrl">Ko-fi URL</label>
+                            <input
+                                type="url"
+                                id="uploadKofiUrl"
+                                placeholder="https://ko-fi.com/yourusername"
+                            />
+                            <div class="password-help">
+                                Optional. Allow users to support you via Ko-fi.
+                                Format: https://ko-fi.com/username
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="uploadFile">Addon File *</label>
@@ -444,6 +553,9 @@
                                 >No file selected</span
                             >
                         </div>
+                        <div class="password-help">
+                                Maximum file size: 200MB. Only .mcaddon files are accepted.
+                        </div>
                     </div>
                     <div
                         id="uploadProgress"
@@ -462,6 +574,7 @@
             </div>
         </div>
 
+        <!-- Profile Modal -->
         <div id="profileModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -470,146 +583,29 @@
                         &times;
                     </button>
                 </div>
+
+                <!-- Login/Register Tabs -->
                 <div id="authContainer">
-                    <!-- Login/Register Tabs -->
-
-                    <div id="authContainer">
-                        <div class="tab-buttons">
-                            <button
-                                class="tab-btn active"
-                                data-tab="login"
-                                onclick="switchTab('login')"
-                            >
-                                Login
-                            </button>
-
-                            <button
-                                class="tab-btn"
-                                data-tab="register"
-                                onclick="switchTab('register')"
-                            >
-                                Register
-                            </button>
-                        </div>
-
-                        <!-- Login Tab -->
-
-                        <div id="login" class="tab-content active">
-                            <div class="form-error" id="loginError"></div>
-
-                            <form
-                                onsubmit="
-                                    handleLogin(event);
-
-                                    return false;
-                                "
-                            >
-                                <div class="form-group">
-                                    <label for="loginUsername">Username</label>
-
-                                    <input
-                                        type="text"
-                                        id="loginUsername"
-                                        placeholder="Enter your username"
-                                        required
-                                    />
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="loginPassword">Password</label>
-
-                                    <input
-                                        type="password"
-                                        id="loginPassword"
-                                        placeholder="Enter your password"
-                                        required
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    class="form-btn"
-                                    id="loginBtn"
-                                >
-                                    Login
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Register Tab -->
-
-                        <div id="register" class="tab-content">
-                            <div class="form-error" id="registerError"></div>
-
-                            <div
-                                class="form-success"
-                                id="registerSuccess"
-                            ></div>
-
-                            <form
-                                onsubmit="
-                                    handleRegister(event);
-
-                                    return false;
-                                "
-                            >
-                                <div class="form-group">
-                                    <label for="registerUsername"
-                                        >Username</label
-                                    >
-
-                                    <input
-                                        type="text"
-                                        id="registerUsername"
-                                        placeholder="Choose a username"
-                                        required
-                                    />
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="registerEmail">Email</label>
-
-                                    <input
-                                        type="email"
-                                        id="registerEmail"
-                                        placeholder="Enter your email"
-                                        required
-                                    />
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="registerPassword"
-                                        >Password</label
-                                    >
-
-                                    <input
-                                        type="password"
-                                        id="registerPassword"
-                                        placeholder="Enter your password"
-                                        required
-                                    />
-
-                                    <div class="password-help">
-                                        • At least 8 characters<br />
-
-                                        • At least 1 number<br />
-
-                                        • At least 1 special character (!@#$%^&*
-                                        etc.)
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    class="form-btn"
-                                    id="registerBtn"
-                                >
-                                    Register
-                                </button>
-                            </form>
-                        </div>
+                    <div class="tab-buttons">
+                        <button
+                            class="tab-btn active"
+                            data-tab="login"
+                            onclick="switchTab('login')"
+                        >
+                            Login
+                        </button>
+                        <button
+                            class="tab-btn"
+                            data-tab="register"
+                            onclick="switchTab('register')"
+                        >
+                            Register
+                        </button>
                     </div>
+
+                    <!-- Login Tab -->
                     <div id="login" class="tab-content active">
+                        <div class="form-error" id="loginError"></div>
                         <form
                             onsubmit="
                                 handleLogin(event);
@@ -621,6 +617,7 @@
                                 <input
                                     type="text"
                                     id="loginUsername"
+                                    placeholder="Enter your username"
                                     required
                                 />
                             </div>
@@ -629,34 +626,105 @@
                                 <input
                                     type="password"
                                     id="loginPassword"
+                                    placeholder="Enter your password"
                                     required
                                 />
                             </div>
-                            <button type="submit" class="form-btn">
+
+                            <button
+                                type="submit"
+                                class="form-btn"
+                                id="loginBtn"
+                            >
                                 Login
                             </button>
                         </form>
                     </div>
+
+                    <!-- Register Tab -->
+                    <div id="register" class="tab-content">
+                        <div class="form-error" id="registerError"></div>
+                        <div class="form-success" id="registerSuccess"></div>
+                        <form
+                            onsubmit="
+                                handleRegister(event);
+                                return false;
+                            "
+                        >
+                            <div class="form-group">
+                                <label for="registerUsername">Username</label>
+                                <input
+                                    type="text"
+                                    id="registerUsername"
+                                    placeholder="Choose a username"
+                                    required
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="registerEmail">Email</label>
+                                <input
+                                    type="email"
+                                    id="registerEmail"
+                                    placeholder="Enter your email"
+                                    required
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="registerPassword">Password</label>
+                                <input
+                                    type="password"
+                                    id="registerPassword"
+                                    placeholder="Enter your password"
+                                    required
+                                />
+                                <div class="password-help">
+                                    • At least 8 characters<br />
+                                    • At least 1 number<br />
+                                    • At least 1 special character (!@#$%^&*
+                                    etc.)
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="form-btn"
+                                id="registerBtn"
+                            >
+                                Register
+                            </button>
+                        </form>
+                    </div>
                 </div>
+
+                <!-- Profile Display (shown after login) -->
                 <div id="profileContainer" style="display: none">
-                    <p>Logged in as: <span id="loggedUsername"></span></p>
                     <div
-                        id="twoFactorSection"
+                        class="profile-user-info"
                         style="
-                            margin-top: 20px;
-                            padding: 15px;
-                            background: #2a2a2a;
-                            border: 1px solid #333;
+                            justify-content: space-between;
+                            margin-bottom: 20px;
                         "
                     >
-                        <p>
-                            Two-Factor Authentication:
-                            <span id="twoFactorStatus"></span>
-                        </p>
+                        <div>
+                            <p style="margin-bottom: 8px">Logged in as:</p>
+                            <p
+                                style="color: #4a6fa5; font-weight: 600"
+                                id="loggedUsername"
+                            ></p>
+                        </div>
+                    </div>
+
+                    <!-- 2FA Settings Section -->
+                    <div id="twoFactorSection" style="margin-bottom: 20px; padding: 15px; background: #2a2a2a; border: 1px solid #333;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px">
+                            <p style="margin: 0; font-weight: 600; color: #d0d0d0">Two-Factor Authentication</p>
+                            <span id="twoFactorStatus" style="font-size: 12px; color: #888">Loading...</span>
+                        </div>
                         <button
                             id="enable2faBtn"
                             class="form-btn"
                             onclick="startTwoFactorSetup()"
+                            style="width: 100%; margin-bottom: 10px; display: none"
                         >
                             Enable 2FA
                         </button>
@@ -664,19 +732,16 @@
                             id="disable2faBtn"
                             class="form-btn"
                             onclick="startTwoFactorDisable()"
-                            style="display: none"
+                            style="width: 100%; margin-bottom: 10px; display: none"
                         >
                             Disable 2FA
                         </button>
                     </div>
+
                     <button
                         class="form-btn logout-btn"
                         onclick="handleLogout()"
-                        style="
-                            width: 100%;
-                            background: #5a3a3a;
-                            margin-top: 10px;
-                        "
+                        style="width: 100%; background: #5a3a3a"
                     >
                         Logout
                     </button>
@@ -684,6 +749,196 @@
             </div>
         </div>
 
+        <!-- Support Popup Modal -->
+        <div id="supportPopup" class="support-popup">
+            <div class="support-popup-content">
+                <div class="support-popup-header">
+                    <h3>Support the Creator?</h3>
+                    <p>
+                        <span
+                            class="support-popup-author"
+                            id="supportAuthorName"
+                        ></span>
+                        made this addon. Consider supporting them if you enjoy
+                        their work!
+                    </p>
+                </div>
+                <div class="support-popup-buttons">
+                    <a
+                        id="supportKofiBtn"
+                        href="#"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="support-popup-kofi"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311z"
+                            />
+                        </svg>
+                        Support on Ko-fi
+                    </a>
+                    <button
+                        id="supportSkipBtn"
+                        class="support-popup-skip"
+                        disabled
+                    >
+                        No thanks, just download (<span
+                            class="support-popup-timer"
+                            id="supportTimer"
+                            >3</span
+                        >)
+                    </button>
+                </div>
+            </div>
+         </div>
+
+         <!-- 2FA Login Modal -->
+         <div id="twoFactorLoginModal" class="modal">
+             <div class="modal-content">
+                 <div class="modal-header">
+                     <h2>Two-Factor Authentication</h2>
+                     <button class="close-btn" onclick="closeLoginTwoFactorModal()">
+                         &times;
+                     </button>
+                 </div>
+
+                 <div id="loginTwoFactorError" class="error"></div>
+
+                 <p style="color: #d0d0d0; margin-bottom: 15px">Enter the 6-digit code from your authenticator app:</p>
+                 <input
+                     type="text"
+                     id="loginTwoFactorCode"
+                     placeholder="000000"
+                     maxlength="6"
+                     pattern="[0-9]{6}"
+                     style="width: 100%; padding: 12px; border: 1px solid #333; margin-bottom: 15px; font-size: 20px; text-align: center; background: #1a1a1a; color: #d0d0d0; letter-spacing: 5px"
+                 />
+                 <button
+                     type="button"
+                     onclick="verifyLoginTwoFactor()"
+                     class="form-btn"
+                     id="verifyLoginTwoFactorBtn"
+                     style="width: 100%"
+                 >
+                     Verify
+                 </button>
+             </div>
+         </div>
+
+         <!-- 2FA Setup Modal -->
+         <div id="twoFactorSetupModal" class="modal">
+             <div class="modal-content">
+                 <div class="modal-header">
+                     <h2>Enable Two-Factor Authentication</h2>
+                     <button class="close-btn" onclick="closeTwoFactorSetupModal()">
+                         &times;
+                     </button>
+                 </div>
+
+                 <div id="twoFactorError" class="error"></div>
+
+                 <!-- Step 1: QR Code -->
+                 <div id="twoFactorStep1" style="display: block">
+                     <p style="margin-top: 0; color: #d0d0d0">Scan this QR code with your authenticator app (Google Authenticator, Authy, Microsoft Authenticator, etc.):</p>
+                     <div style="text-align: center; margin: 20px 0; padding: 20px; background: #222; border: 1px solid #333;">
+                         <img id="twoFactorQRCode" src="" alt="QR Code" style="width: 250px; height: 250px; image-rendering: pixelated;">
+                     </div>
+                     <p style="font-size: 12px; color: #888; margin: 15px 0 10px 0">Can't scan? Enter this code manually:</p>
+                     <code id="twoFactorSecret" style="display: block; padding: 12px; background: #1a1a1a; border: 1px solid #333; word-break: break-all; margin-bottom: 15px; color: #c4a574; font-size: 12px; line-height: 1.6"></code>
+                     <button
+                         type="button"
+                         onclick="nextTwoFactorStep()"
+                         class="form-btn"
+                         style="width: 100%"
+                     >
+                         Next: Verify Code
+                     </button>
+                 </div>
+
+                 <!-- Step 2: Verify Code -->
+                 <div id="twoFactorStep2" style="display: none">
+                     <p style="color: #d0d0d0">Enter the 6-digit code from your authenticator app:</p>
+                     <input
+                         type="text"
+                         id="twoFactorVerifyCode"
+                         placeholder="000000"
+                         maxlength="6"
+                         pattern="[0-9]{6}"
+                         style="width: 100%; padding: 12px; border: 1px solid #333; margin-bottom: 15px; font-size: 20px; text-align: center; background: #1a1a1a; color: #d0d0d0; letter-spacing: 5px"
+                     />
+                     <p style="color: #d0d0d0; margin-bottom: 10px">Save these backup codes in a safe place. You can use them to access your account if you lose access to your authenticator:</p>
+                     <div id="backupCodesList" style="background: #1a1a1a; padding: 15px; border: 1px solid #333; margin-bottom: 15px; font-family: monospace; font-size: 12px; max-height: 150px; overflow-y: auto; color: #88ff88"></div>
+                     <button
+                         type="button"
+                         onclick="confirmTwoFactorSetup()"
+                         class="form-btn"
+                         style="width: 100%; margin-bottom: 10px"
+                     >
+                         Enable 2FA
+                     </button>
+                     <button
+                         type="button"
+                         onclick="backTwoFactorStep()"
+                         class="form-btn"
+                         style="width: 100%; background: #555"
+                     >
+                         Back
+                     </button>
+                 </div>
+             </div>
+         </div>
+
+         <!-- 2FA Disable Modal -->
+         <div id="twoFactorDisableModal" class="modal">
+             <div class="modal-content">
+                 <div class="modal-header">
+                     <h2>Disable Two-Factor Authentication</h2>
+                     <button class="close-btn" onclick="closeTwoFactorDisableModal()">
+                         &times;
+                     </button>
+                 </div>
+
+                 <div id="twoFactorDisableError" class="error"></div>
+
+                 <p style="color: #d0d0d0; margin-bottom: 15px">To disable 2FA, enter your password and the 6-digit code from your authenticator:</p>
+                 <input
+                     type="password"
+                     id="disableTwoFactorPassword"
+                     placeholder="Password"
+                     style="width: 100%; padding: 12px; border: 1px solid #333; margin-bottom: 15px; background: #1a1a1a; color: #d0d0d0"
+                 />
+                 <input
+                     type="text"
+                     id="disableTwoFactorCode"
+                     placeholder="000000"
+                     maxlength="6"
+                     pattern="[0-9]{6}"
+                     style="width: 100%; padding: 12px; border: 1px solid #333; margin-bottom: 15px; font-size: 20px; text-align: center; background: #1a1a1a; color: #d0d0d0; letter-spacing: 5px"
+                 />
+                 <button
+                     type="button"
+                     onclick="confirmTwoFactorDisable()"
+                     class="form-btn"
+                     style="width: 100%; margin-bottom: 10px; background: #8b5555"
+                 >
+                     Disable 2FA
+                 </button>
+                 <button
+                     type="button"
+                     onclick="closeTwoFactorDisableModal()"
+                     class="form-btn"
+                     style="width: 100%; background: #555"
+                 >
+                     Cancel
+                 </button>
+             </div>
+         </div>
+
+         <!-- Edit Package Modal -->
         <div id="editModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -692,6 +947,10 @@
                         &times;
                     </button>
                 </div>
+
+                <div class="form-error" id="editError"></div>
+                <div class="form-success" id="editSuccess"></div>
+
                 <form
                     id="editForm"
                     onsubmit="
@@ -700,37 +959,288 @@
                     "
                 >
                     <input type="hidden" id="editPackageId" />
+                    <input type="hidden" id="editPackageOriginalName" />
+
                     <div class="form-group">
                         <label for="editName">Package Name *</label>
                         <input
                             type="text"
                             id="editName"
+                            placeholder="MyAwesomeAddon"
                             required
                             pattern="^[a-zA-Z0-9_-]{1,64}$"
                         />
+                        <div class="password-help">
+                            Only letters, numbers, underscores, and hyphens
+                            (1-64 chars)
+                        </div>
                     </div>
+                    <div class="form-group">
+                        <label for="editDescription">Short Description</label>
+                        <textarea
+                            id="editDescription"
+                            placeholder="Brief description for the package listing..."
+                            rows="2"
+                            class="form-textarea"
+                            maxlength="500"
+                        ></textarea>
+                        <div class="password-help">
+                            Shown in package cards. Max 500 characters.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLongDescription"
+                            >Full Description (Markdown)</label
+                        >
+                        <textarea
+                            id="editLongDescription"
+                            placeholder="# My Addon&#10;&#10;Detailed description with **markdown** support..."
+                            rows="8"
+                            class="form-textarea"
+                        ></textarea>
+                        <div class="password-help">
+                            Supports Markdown formatting: headers, bold, lists,
+                            code blocks, links, etc.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editVersion">Version</label>
+                        <input
+                            type="text"
+                            id="editVersion"
+                            placeholder="1.0.0"
+                            pattern="^\d+\.\d+\.\d+$"
+                        />
+                        <div class="password-help">
+                            Format: X.Y.Z (e.g., 1.0.0)
+                        </div>
+                    </div>
+
+                    <!-- Current Icon Preview -->
+                    <div
+                        id="currentIconContainer"
+                        class="current-icon-preview"
+                        style="display: none"
+                    >
+                        <p>Current Icon:</p>
+                        <img id="currentIconPreview" alt="Current icon" />
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="updateIconCheckbox" />
+                            <label for="updateIconCheckbox">Update Icon</label>
+                        </div>
+                        <div id="editIconGroup" style="display: none">
+                            <label for="editIcon">New Icon Image</label>
+                            <div class="file-input-wrapper">
+                                <input
+                                    type="file"
+                                    id="editIcon"
+                                    accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg"
+                                    style="display: none"
+                                />
+                                <button
+                                    type="button"
+                                    class="file-select-btn"
+                                    onclick="
+                                        document
+                                            .getElementById('editIcon')
+                                            .click()
+                                    "
+                                >
+                                    Choose Icon
+                                </button>
+                                <span
+                                    id="editSelectedIconName"
+                                    class="selected-file-name"
+                                    >No icon selected</span
+                                >
+                            </div>
+                            <div class="password-help">
+                                PNG, JPG, WebP, GIF, or SVG. Max 2MB.
+                            </div>
+                            <div
+                                id="editIconPreviewContainer"
+                                style="display: none; margin-top: 10px"
+                            >
+                                <img
+                                    id="editIconPreview"
+                                    style="
+                                        max-width: 100px;
+                                        max-height: 100px;
+                                        border: 1px solid #333;
+                                    "
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="updateFileCheckbox" />
+                            <label for="updateFileCheckbox"
+                                >Update Addon File</label
+                            >
+                        </div>
+                        <div id="editFileGroup" style="display: none">
+                            <label for="editFile"
+                                >New Addon File</label
+                            >
+                            <div class="file-input-wrapper">
+                                <input
+                                    type="file"
+                                    id="editFile"
+                                    accept=".mcaddon"
+                                    style="display: none"
+                                />
+                                <button
+                                    type="button"
+                                    class="file-select-btn"
+                                    onclick="
+                                        document
+                                            .getElementById('editFile')
+                                            .click()
+                                    "
+                                >
+                                    Choose File
+                                </button>
+                                <span
+                                    id="editSelectedFileName"
+                                    class="selected-file-name"
+                                    >No file selected</span
+                                >
+                            </div>
+                            <div class="password-help">
+                            Maximum file size: 200MB. Only .mcaddon files are accepted.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editCategory">Category</label>
+                        <select id="editCategory" class="form-group input">
+                            <option value="">Select a category...</option>
+                            <optgroup label="Gameplay">
+                                <option value="adventure">Adventure</option>
+                                <option value="decoration">Decoration</option>
+                                <option value="economy">Economy</option>
+                                <option value="equipment">Equipment</option>
+                                <option value="food">Food</option>
+                                <option value="game-mechanics">
+                                    Game Mechanics
+                                </option>
+                                <option value="magic">Magic</option>
+                                <option value="management">Management</option>
+                                <option value="minigame">Minigame</option>
+                                <option value="mobs">Mobs</option>
+                                <option value="optimisation">
+                                    Optimisation
+                                </option>
+                                <option value="social">Social</option>
+                                <option value="storage">Storage</option>
+                                <option value="technology">Technology</option>
+                                <option value="transportation">
+                                    Transportation
+                                </option>
+                                <option value="utility">Utility</option>
+                                <option value="world-generation">
+                                    World Generation
+                                </option>
+                            </optgroup>
+                            <optgroup label="Server">
+                                <option value="administration">
+                                    Administration
+                                </option>
+                                <option value="anti-cheat">Anti-Cheat</option>
+                                <option value="chat">Chat</option>
+                                <option value="moderation">Moderation</option>
+                                <option value="permissions">Permissions</option>
+                            </optgroup>
+                        </select>
+                        <div class="password-help">
+                            Choose a single category that best describes your
+                            addon
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editYoutube"
+                            >YouTube Video URL (optional)</label
+                        >
+                        <input
+                            type="url"
+                            id="editYoutube"
+                            placeholder="https://youtube.com/watch?v=..."
+                        />
+                        <div class="password-help">
+                            Showcase video for your addon
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDiscord"
+                            >Discord Invite URL (optional)</label
+                        >
+                        <input
+                            type="url"
+                            id="editDiscord"
+                            placeholder="https://discord.gg/..."
+                        />
+                        <div class="password-help">
+                            Link to your Discord server for support
+                        </div>
+                    </div>
+
+                    <!-- Ko-fi Support Link Section -->
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="editKofiCheckbox" />
+                            <label for="editKofiCheckbox"
+                                >Enable Ko-fi Support Link</label
+                            >
+                        </div>
+                        <div id="editKofiGroup" style="display: none">
+                            <label for="editKofiUrl">Ko-fi URL</label>
+                            <input
+                                type="url"
+                                id="editKofiUrl"
+                                placeholder="https://ko-fi.com/yourusername"
+                            />
+                            <div class="password-help">
+                                Allow users to support you via Ko-fi. Format:
+                                https://ko-fi.com/username
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        id="editProgress"
+                        class="upload-progress"
+                        style="display: none"
+                    >
+                        <div class="progress-bar">
+                            <div
+                                class="progress-fill"
+                                id="editProgressFill"
+                            ></div>
+                        </div>
+                        <span id="editProgressText">Updating...</span>
+                    </div>
+
                     <button type="submit" class="form-btn" id="editBtn">
                         Save Changes
                     </button>
-                    <div
-                        class="danger-zone"
-                        style="
-                            margin-top: 20px;
-                            border-top: 1px solid #444;
-                            padding-top: 10px;
-                        "
-                    >
+
+                    <!-- Danger Zone -->
+                    <div class="danger-zone">
                         <h4>Danger Zone</h4>
+                        <p>
+                            Deleting a package is permanent and cannot be
+                            undone.
+                        </p>
                         <button
                             type="button"
                             class="delete-btn"
-                            style="
-                                width: 100%;
-                                background: #8b0000;
-                                color: white;
-                                border: none;
-                                padding: 10px;
-                            "
+                            style="width: 100%"
                             onclick="handleDeletePackage()"
                         >
                             Delete Package
@@ -741,15 +1251,5 @@
         </div>
 
         <script src="/scripts/packages.js" defer></script>
-        
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-8PDJ15D1TM"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-        
-          gtag('config', 'G-8PDJ15D1TM');
-        </script>
     </body>
 </html>
